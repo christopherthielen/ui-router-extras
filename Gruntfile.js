@@ -34,7 +34,7 @@ module.exports = function (grunt) {
       concat: {
         options: {},
         dist: {
-          src: ['src/**/*.js'],
+          src: ['src/stickyState.js', 'src/stickyStateProvider.js' ],
           dest: 'build/ct-ui-router-extras.js'
         }
       },
