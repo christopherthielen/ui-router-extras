@@ -1,4 +1,4 @@
-angular.module("ui.stickystate").provider("StickyState", $StickyStateProvider);
+angular.module("ct.ui.router.extras").provider("StickyState", $StickyStateProvider);
 
 
 $StickyStateProvider.$inject = [ ];

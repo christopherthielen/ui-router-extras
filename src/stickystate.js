@@ -1,4 +1,4 @@
-angular.module("ui.stickystate", [ 'ui.router' ]);
+angular.module("ct.ui.router.extras", [ 'ui.router' ]);
 
 var _StickyState; // internal reference to $stickyStateProvider
 var internalStates = {}; // Map { statename -> InternalStateObj } holds internal representation of all states
@@ -20,11 +20,11 @@ function SurrogateState(type) {
 var inactivePseudoState = new SurrogateState("__inactives");
 inactivePseudoState.self.name = '__inactives';
 
-angular.module("ui.stickystate").run(["$stickyState", function ($stickyState) {
+angular.module("ct.ui.router.extras").run(["$stickyState", function ($stickyState) {
   _StickyState = $stickyState;
 }]);
 
-angular.module("ui.stickystate").config(
+angular.module("ct.ui.router.extras").config(
     [ "$provide", "$stateProvider", '$stickyStateProvider',
       function ($provide, $stateProvider, $stickyStateProvider) {
 
