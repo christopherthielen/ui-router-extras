@@ -109,7 +109,7 @@ module.exports = function (grunt) {
           singleRun: false,
           background: false,
           browsers: [ grunt.option('browser') || 'Chrome' ]
-        },
+        }
       }
     });
 

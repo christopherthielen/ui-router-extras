@@ -3,28 +3,22 @@
 // Generated on 2014-06-15 using
 // generator-karma 0.8.1
 
-var files = require('../files.js');
+var files = require('../files.js').files;
 
 module.exports = function(config) {
   config.set({
     // enable / disable watching file and executing tests whenever any file changes
     autoWatch: true,
-
     // base path, that will be used to resolve files and exclude
     basePath: '',
-
     // testing framework to use (jasmine/mocha/qunit/...)
     frameworks: ['jasmine'],
-
     // list of files / patterns to load in the browser
-    files: [].concat(files.angular, files.ui_router, files.src, files.testUtil, files.test),
-
+    files: [].concat(files.angular, files.angular_mocks, files.ui_router, files.src, files.testUtil, files.test).map(function(file) { return "../" + file; }),
     // list of files / patterns to exclude
     exclude: [],
-
     // web server port
     port: 8080,
-
     // Start these browsers, currently available:
     // - Chrome
     // - ChromeCanary
@@ -50,7 +44,7 @@ module.exports = function(config) {
 
     // level of logging
     // possible values: LOG_DISABLE || LOG_ERROR || LOG_WARN || LOG_INFO || LOG_DEBUG
-    logLevel: config.LOG_INFO
+    logLevel: config.LOG_DEBUG
 
     // Uncomment the following lines if you are using grunt's server to run the tests
     // proxies: {
@@ -59,4 +53,5 @@ module.exports = function(config) {
     // URL root prevent conflicts with the site root
     // urlRoot: '_karma_'
   });
+  console.log("Files: ", config.files);
 };
