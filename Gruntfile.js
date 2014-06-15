@@ -19,6 +19,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-karma');
 
   /**
    Function that wraps everything to allow dynamically setting/changing grunt options and config later by grunt task. This init function is called once immediately (for using the default grunt options, config, and setup) and then may be called again AFTER updating grunt (command line) options.
@@ -85,14 +86,31 @@ module.exports = function (grunt) {
           src: 'build/ct-ui-router-extras.js',
           dest: 'build/ct-ui-router-extras.min.js'
         }
-      }/*,
-       karma: {
-       unit: {
-       configFile: publicPathRelativeRoot+'config/karma.conf.js',
-       singleRun: true,
-       browsers: ['PhantomJS']
-       }
-       }*/
+      },
+      karma: {
+        options: {
+          configFile: 'test/karma.conf.js',
+          singleRun: true,
+          exclude: [],
+          frameworks: ['jasmine'],
+          reporters: 'dots', // 'dots' || 'progress'
+          port: 8080,
+          colors: true,
+          autoWatch: false,
+          autoWatchInterval: 0,
+          browsers: [ grunt.option('browser') || 'PhantomJS' ]
+        },
+        unit: {
+          configFile: 'test/karma.conf.js',
+          singleRun: true,
+          browsers: ['PhantomJS']
+        },
+        debug: {
+          singleRun: false,
+          background: false,
+          browsers: [ grunt.option('browser') || 'Chrome' ]
+        },
+      }
     });
 
 
@@ -101,7 +119,8 @@ module.exports = function (grunt) {
      @toc 6.
      */
       // Default task(s).
-    grunt.registerTask('default', ['jshint:beforeconcatQ', 'uglify:build']);
+    grunt.registerTask('default', ['jshint:beforeconcatQ', 'concat', 'uglify:build']);
+    grunt.registerTask('test', ['jshint:beforeconcatQ', 'karma:unit']);
 
   }
 
