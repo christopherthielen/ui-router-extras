@@ -7,16 +7,18 @@
 *.pid
 *.gz
 .idea/*
-.iml
-.ipr
-.iws
+*.iml
+*.ipr
+*.iws
 *.DS_Store
 lib-cov
 pids
 logs
 results
+build
 
 node_modules
+bower_components
 
 #Actually, need to track these for site to run on Github Pages..
 #bower_components
