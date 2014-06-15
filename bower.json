@@ -1,26 +1,31 @@
 {
-	"name": "ui-router-extras-demo",
-	"version": "0.0.0",
-	"authors": [
-		"Chris Thielen <ui-router-extras@sandgnat.com>"
-	],
-	"description": "Demo",
-	"keywords": [
-	],
-	"license": "MIT",
-	"ignore": [
-		"**/.*",
-		"node_modules",
-		"bower_components",
-		"test",
-		"tests"
-	],
-	"dependencies": {
-		"angular":"~1.2.0",
-		"angular-sanitize":"~1.2.0",
-		"angular-route":"~1.2.0",
-		"angular-touch":"~1.2.0"
-	},
-	"devDependencies": {
-	}
+  "name": "ui-router-extras",
+  "version": "0.0.1",
+  "authors": [
+    "Chris Thielen <ui-router-extras@sandgnat.com>"
+  ],
+  "description": "Extras for UI-Router, the defacto router for AngularJS. Extras included: Sticky States (a.k.a. parallel states), Deep State Redirect (for tab-like navigation), Future States (async state definition) ",
+  "keywords": [
+    "angular", "angularjs", "ui-router", "ui-router-extras", "tab", "tabs", "state", "states", "parallel", "sticky"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "*.iml",
+    "*.ipr",
+    "*.iws"
+  ],
+  "dependencies": {
+    "angular": "~1.2.0",
+    "angular-sanitize": "~1.2.0",
+    "angular-route": "~1.2.0",
+    "angular-touch": "~1.2.0",
+    "angular-ui-router": "~0.2.10"
+  },
+  "devDependencies": {
+  }
 }

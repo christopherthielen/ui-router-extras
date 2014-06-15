@@ -1,23 +1,23 @@
 {
-	"author": "",
-	"name": "ui-router-extras-demo",
-	"version": "0.0.0",
-	"description": "",
-	"homepage": "",
-	"dependencies": {
-	},
-	"devDependencies": {
-		"express":"~3.4.4",
-		"grunt": "~0.4.1",
-		"grunt-contrib-concat": "~0.3.0",
-		"grunt-contrib-uglify": "~0.2.5",
-		"grunt-contrib-jshint": "~0.7.0"
-	},
-	"scripts": {
-		"test": "echo \"Error: no test specified\" && exit 1"
-	},
-	"repository": "",
-	"engines":{
-		"node":"0.10.10"
-	}
+  "author": "",
+  "name": "ui-router-extras",
+  "version": "0.0.1",
+  "description": "",
+  "homepage": "",
+  "dependencies": {
+  },
+  "devDependencies": {
+    "express": "~3.4.4",
+    "grunt": "~0.4.1",
+    "grunt-contrib-concat": "~0.3.0",
+    "grunt-contrib-uglify": "~0.2.5",
+    "grunt-contrib-jshint": "~0.7.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": "",
+  "engines": {
+    "node": "0.10.10"
+  }
 }
