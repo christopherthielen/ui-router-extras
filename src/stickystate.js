@@ -2,8 +2,12 @@ angular.module("ct.ui.router.extras", [ 'ui.router' ]);
 
 var _StickyState; // internal reference to $stickyStateProvider
 var internalStates = {}; // Map { statename -> InternalStateObj } holds internal representation of all states
-var root, pendingTransitions = [], pendingRestore;
+var root, // Root state, internal representation
+    pendingTransitions = [], // One transition may supercede another.  This holds references to all pending transitions
+    pendingRestore, // The restore function from the superceded transition
+    inactivePseudoState; // This pseudo state holds all the inactive states' locals (resolved state data, such as views etc)
 
+// Creates a blank surrogate state
 function SurrogateState(type) {
   return {
     resolve: { },
@@ -17,24 +21,32 @@ function SurrogateState(type) {
   };
 }
 
-var inactivePseudoState = new SurrogateState("__inactives");
-inactivePseudoState.self.name = '__inactives';
 
-angular.module("ct.ui.router.extras").run(["$stickyState", function ($stickyState) {
-  _StickyState = $stickyState;
-}]);
+// Grab a copy of the $stickyState service for use by the transition management code
+angular.module("ct.ui.router.extras").run(["$stickyState", function ($stickyState) { _StickyState = $stickyState; }]);
 
 angular.module("ct.ui.router.extras").config(
     [ "$provide", "$stateProvider", '$stickyStateProvider',
       function ($provide, $stateProvider, $stickyStateProvider) {
-
-
+        // inactivePseudoState (__inactives) holds all the inactive locals (resolved states data: views, etc)
+        // 
+        // __inactives needs to reference root.locals.globals.  At this time, root.locals.globals isn't populated
+        // so copy a reference to root.locals onto __inactives.locals (then when ui-router populates root.locals.globals
+        // it also populates __inactives.locals.globals.  Likewise, this means inactive states are stored on the 
+        // root state's locals, hmmm that might not be great.
+        var pState = { 
+          self: {  name: '__inactives'  },
+          onEnter: function() { inactivePseudoState.locals.globals = root.locals.globals; }
+        };
+        inactivePseudoState = angular.extend(new SurrogateState("__inactives"), pState);
+        
+        // Need access to the internal 'root' state object.  Get it by decorating the StateBuilder parent function.  
         $stateProvider.decorator('parent', function (state, parentFn) {
           if (!root) {
-            root = parentFn({});
-            inactivePseudoState.parent = root;
-            inactivePseudoState.locals = root.locals;
-//                inactivePseudoState.locals.globals = root.locals.globals;
+            // This code gets run only once
+            root = parentFn({}); // StateBuilder.parent({}) returns the root internal state object
+            inactivePseudoState.parent = root; // Hook pseudoState.parent up to the root state
+            inactivePseudoState.locals = root.locals; 
           }
           return parentFn(state);
         });
