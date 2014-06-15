@@ -7,6 +7,9 @@
 *.pid
 *.gz
 .idea/*
+.iml
+.ipr
+.iws
 *.DS_Store
 lib-cov
 pids

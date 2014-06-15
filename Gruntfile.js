@@ -32,9 +32,10 @@ module.exports = function (grunt) {
      */
     grunt.initConfig({
       concat: {
-        devCss: {
-          src: [],
-          dest: []
+        options: {},
+        dist: {
+          src: ['src/**/*.js'],
+          dest: 'build/ct-ui-router-extras.js'
         }
       },
       jshint: {
@@ -81,8 +82,8 @@ module.exports = function (grunt) {
         },
         build: {
           files: {},
-          src: 'ct-ui-router-extras.js',
-          dest: 'er-extras.min.js'
+          src: 'build/ct-ui-router-extras.js',
+          dest: 'build/ct-ui-router-extras.min.js'
         }
       }/*,
        karma: {
