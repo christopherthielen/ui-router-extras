@@ -1,0 +1,19 @@
+# generic (system) files/extensions we don't want
+*.seed
+*.log
+*.csv
+*.dat
+*.out
+*.pid
+*.gz
+.idea/*
+*.DS_Store
+lib-cov
+pids
+logs
+results
+
+node_modules
+
+#Actually, need to track these for site to run on Github Pages..
+#bower_components
