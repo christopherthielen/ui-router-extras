@@ -43,3 +43,22 @@ angular.module('ngMock').config(function ($provide) {
     return $delegate;
   });
 });
+
+
+function testablePromise(promise) {
+  if (!promise || !promise.then) throw new Error('Expected a promise, but got ' + jasmine.pp(promise) + '.');
+  if (!angular.isDefined(promise.$$resolved)) throw new Error('Promise has not been augmented by ngMock');
+  return promise;
+}
+
+function resolvedPromise(promise) {
+  var result = testablePromise(promise).$$resolved;
+  if (!result) throw new Error('Promise is not resolved yet');
+  return result;
+}
+
+function resolvedValue(promise) {
+  var result = resolvedPromise(promise);
+  if (!result.success) throw result.error;
+  return result.value;
+}

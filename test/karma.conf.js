@@ -14,7 +14,13 @@ module.exports = function(config) {
     // testing framework to use (jasmine/mocha/qunit/...)
     frameworks: ['jasmine'],
     // list of files / patterns to load in the browser
-    files: [].concat(files.angular, files.angular_mocks, files.ui_router, files.src, files.testUtil, files.test).map(function(file) { return "../" + file; }),
+    files: [].concat(
+        files.angular,
+        files.angular_mocks,
+        files.ui_router,
+        files.src,
+        files.testUtil,
+        files.test) .map(function(file) { return "../" + file; }),
     // list of files / patterns to exclude
     exclude: [],
     // web server port

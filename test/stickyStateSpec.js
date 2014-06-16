@@ -1,20 +1,29 @@
-var $get;
+var $get, $state, $q;
+var _stickyStateProvider;
+var states = {};
 describe('stickyState', function () {
-  beforeEach(module('ct.ui.router.extras'));
-  beforeEach(module(function ($stickyStateProvider, $stateProvider) {
-    $stateProvider.state('main', {});
-    $stateProvider.state('tabs', {});
-    
-    $stateProvider.state('tabs._tab1', { sticky: true });
-    $stateProvider.state('tabs._tab2', { sticky: true });
-    $stateProvider.state('tabs._tab3', { sticky: true });
+  beforeEach(module('ct.ui.router.extras', function() {
+    states['main'] = {};
+    states['tabs'] = {};
+    states['tabs._tab1'] = {sticky: true};
+    states['tabs._tab2'] = {sticky: true};
+    states['tabs._tab3'] = {sticky: true};
   }));
+
+  beforeEach(module(function ($stickyStateProvider, $stateProvider) {
+    angular.forEach(states, function(value, key) {
+      $stateProvider.state(key, value);
+    });
+  }));
+
   beforeEach(inject(function($injector) {
     $get = $injector.get;
+    $state = $get('$state');
+    $q = $get('$q');
   }));
 
   function initStateTo(state, optionalParams) {
-    var $state = $get('$state'), $q = $get('$q');
+    $state = $get('$state'), $q = $get('$q');
     $state.transitionTo(state, optionalParams || {});
     $q.flush();
     expect($state.current.name).toBe(state);
@@ -22,13 +31,22 @@ describe('stickyState', function () {
   
   describe('.go()', function () {
     it ('should transition normally between non-sticky states', function () {
-      initStateTo('main');
-      var $state = $get('$state');
-      var promise;
-      expect(function() { promise = $state.go('main'); }).not.toThrow();
-      promise.then(function() {
-        expect($state.current.name).toBe('main');
-      });
+      $state.go('main');
+      $q.flush();
+      expect($state.current.name).toBe('main');
+      $state.go('tabs');
+      $q.flush();
+      expect($state.current.name).toBe('tabs');
+    });
+    
+    it ('should transition between non-sticky and sticky states', function () {
+      $state.go('tabs');
+      $q.flush();
+      expect($state.current.name).toBe('tabs');
+      
+      $state.go('tabs._tab1');
+      $q.flush();
+      expect($state.current.name).toBe('tabs._tab1');
     });
   });
 
