@@ -1,5 +1,3 @@
-angular.module("ct.ui.router.extras", [ 'ui.router' ]);
-
 var _StickyState; // internal reference to $stickyStateProvider
 var internalStates = {}; // Map { statename -> InternalStateObj } holds internal representation of all states
 var root, // Root state, internal representation

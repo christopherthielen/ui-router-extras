@@ -1,8 +1,8 @@
 UREFiles = {
   src: [
+    'src/stickyStateProvider.js',
     'src/stickyState.js',
-    'src/util.js',
-    'src/stickyStateProvider.js'
+    'src/util.js'
   ],
   test: [ 'test/*Spec.js' ],
   testUtil: [ 'test/testUtil.js'],
@@ -14,3 +14,4 @@ UREFiles = {
 if (exports) {
   exports.files = UREFiles;
 }
+

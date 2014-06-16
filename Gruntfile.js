@@ -103,11 +103,11 @@ module.exports = function (grunt) {
         unit: {
           configFile: 'test/karma.conf.js',
           singleRun: true,
-          browsers: ['PhantomJS']
+          browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
         watch: {
           configFile: 'test/karma.conf.js',
-          browsers: ['PhantomJS'],
+          browsers: [ grunt.option('browser') || 'PhantomJS' ],
           singleRun: false,
           autoWatch: true,
           autoWatchInterval: 1
