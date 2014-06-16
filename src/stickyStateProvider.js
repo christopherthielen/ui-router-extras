@@ -1,8 +1,7 @@
-angular.module("ct.ui.router.extras").provider("StickyState", $StickyStateProvider);
+angular.module("ct.ui.router.extras", [ 'ui.router' ]);
 
-
-$StickyStateProvider.$inject = [ ];
-function $StickyStateProvider() {
+$StickyStateProvider.$inject = [ '$stateProvider' ];
+function $StickyStateProvider($stateProvider) {
   // Holds all the states which are inactivated.  Inactivated states can be either sticky states, or descendants of sticky states.
   var inactiveStates = {}; // state.name -> (state)
   var stickyStates = {}; // state.name -> true
@@ -251,3 +250,5 @@ function $StickyStateProvider() {
     return stickySupport;
   }];
 }
+
+angular.module("ct.ui.router.extras").provider("$stickyState", $StickyStateProvider);

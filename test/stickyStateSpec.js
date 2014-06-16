@@ -1,6 +1,7 @@
+var $get;
 describe('stickyState', function () {
   beforeEach(module('ct.ui.router.extras'));
-  beforeEach(module(function ($stickyStateProvider, $stateProvider, $provide) {
+  beforeEach(module(function ($stickyStateProvider, $stateProvider) {
     $stateProvider.state('main', {});
     $stateProvider.state('tabs', {});
     
@@ -8,10 +9,9 @@ describe('stickyState', function () {
     $stateProvider.state('tabs._tab2', { sticky: true });
     $stateProvider.state('tabs._tab3', { sticky: true });
   }));
-
-  function $get(what) {
-    return jasmine.getEnv().currentSpec.$injector.get(what);
-  }
+  beforeEach(inject(function($injector) {
+    $get = $injector.get;
+  }));
 
   function initStateTo(state, optionalParams) {
     var $state = $get('$state'), $q = $get('$q');
@@ -19,11 +19,10 @@ describe('stickyState', function () {
     $q.flush();
     expect($state.current.name).toBe(state);
   }
-
-  initStateTo('main');
-
+  
   describe('.go()', function () {
     it ('should transition normally between non-sticky states', function () {
+      initStateTo('main');
       var $state = $get('$state');
       var promise;
       expect(function() { promise = $state.go('main'); }).not.toThrow();
