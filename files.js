@@ -2,6 +2,7 @@ UREFiles = {
   src: [
     'src/stickyStateProvider.js',
     'src/stickyState.js',
+    'src/futureState.js',
     'src/util.js'
   ],
   test: [ 'test/*Spec.js' ],
