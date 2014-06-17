@@ -3,6 +3,8 @@
     var stateFactory, futureStates, futureUrlFragments;
     var transitionPending = false, initPromises = [], initPromise;
 
+    // This function registers a promiseFn, to be resolved before the url/state matching code
+    // will reject a route.  The promiseFn is injected using the runtime $injector.
     this.futureStates = function (promiseFn) {
       initPromises.push(promiseFn);
     };
@@ -18,9 +20,10 @@
 
     this.otherwise = function ($injector, $location) {
       var resyncing = false;
+      var $log = $injector.get("$log");
 
       var otherwiseFunc = function ($state) {
-        console.log("Unable to map " + $location.path());
+        $log.debug("Unable to map " + $location.path());
         $location.url("/");
       };
 
@@ -70,7 +73,7 @@
       lazyLoadState: undefined
     };
 
-    this.$get = function ($injector, $state, $q, $rootScope, $urlRouter) {
+    this.$get = function ($injector, $state, $q, $rootScope, $urlRouter, $log) {
 
       /* options is an object with at least a name or url attribute */
       provider.findFutureState = function findFutureState(options) {
@@ -100,7 +103,7 @@
       provider.init = function init() {
         $rootScope.$on("$stateNotFound", function (event, unfoundState, fromState, fromParams) {
           if (transitionPending) return;
-          console.log("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
+          $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
 
           var futureState = provider.findFutureState({ name: unfoundState.to });
           if (futureState == null) return;
@@ -136,7 +139,7 @@
         }
 
         initPromise().then(function (array) {
-          console.log("Loaded initial future state configuration", array);
+          $log.debug("Loaded initial future state configuration", array);
 
           futureStates = {};
           futureUrlFragments = {};
@@ -148,29 +151,29 @@
       };
 
 
-      provider.lazyLoadState = function lazyLoadState(lazyState) {
+      provider.lazyLoadState = function lazyLoadState(futureState) {
         var deferred = $q.defer();
-        if (!lazyState) {
-          deferred.reject("No lazyState passed in " + lazyState);
+        if (!futureState) {
+          deferred.reject("No lazyState passed in " + futureState);
           return deferred.promise;
         }
 
         var state = {
-          name: lazyState.stateName,
+          name: futureState.stateName,
           template: undefined,
-          url: lazyState.pathFragment + "/",
+          url: futureState.pathFragment + "/",
           resolve: {},
           data: {}
         };
 
-        switch (lazyState.type) {
-          case "USER":
-            state.template = "<iframe width='100%' height='100%' src='" + lazyState.url + "'></iframe>";
+        switch (futureState.type) {
+          case "iframe":
+            state.template = "<iframe width='100%' height='100%' src='" + futureState.url + "'></iframe>";
             deferred.resolve(state);
             break;
-          case "JS":
+          case "backbone":
             var d = $q.defer();
-            require([lazyState.url + "?v=1"], function (runFunction) {
+            require([futureState.url + "?v=1"], function (runFunction) {
               var layout = runFunction(window.globalEvents, window.loggedInUserID, jQuery.Deferred());
               d.resolve(layout);
             });
@@ -180,11 +183,11 @@
             state.resolve.backboneView = function () {
               return d.promise
             };
-            state.template = "<div mediture-inbox backbone-view='backboneView'></div>";
+            state.template = "<div backbone-view='backboneView'></div>";
             deferred.resolve(state);
             break;
-          case "NGAPP":
-            var url = lazyState.url.replace(/\.js$/, "");
+          case "ngload":
+            var url = futureState.url.replace(/\.js$/, "");
             require([ "ngload!" + url , 'ngload', 'angularAMD'], function (module, ngload, angularAMD) {
               angularAMD.processQueue();
               deferred.resolve(module);
@@ -195,7 +198,7 @@
             state.template = "<div ui-view></div>";
             break;
           default:
-            throw Error("Unknown State Type: " + lazyState.type);
+            throw Error("Unknown State Type: " + futureState.type);
         }
 
         return deferred.promise;
