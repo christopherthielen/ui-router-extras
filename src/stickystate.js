@@ -52,7 +52,6 @@ angular.module("ct.ui.router.extras").config(
         $stateProvider.decorator('path', function (state, parentFn) {
           // Capture each internal state representations
           internalStates[state.self.name] = state;
-          console.log(state.self.name + ".ownParams: ", state.ownParams)
           // Register the ones marked as "sticky"
           if (state.self.sticky === true) {
             $stickyStateProvider.registerStickyState(state.self);
@@ -69,13 +68,13 @@ angular.module("ct.ui.router.extras").config(
           return [ inactivePseudoState ].concat(realPath);
         });
 
-        $provide.decorator("$state", ['$delegate', function ($state) {
+        $provide.decorator("$state", ['$delegate', '$log', function ($state, $log) {
           var realTransitionTo = $state.transitionTo;
           $state.transitionTo = function (to, toParams, options) {
             var idx = pendingTransitions.length;
             if (pendingRestore) {
               pendingRestore();
-              console.log("Restored paths from pending transition");
+              $log.debug("Restored paths from pending transition");
             }
 
             // Custom transitionTo logic here
@@ -99,9 +98,9 @@ angular.module("ct.ui.router.extras").config(
               var exitLogVar = map(fromState.path, function (state, index) {
                 return message(transition.exit, index, state);
               });
-              console.log("exit: ", exitLogVar);
-              console.log("enter: ", enterLogVar);
-              console.log("After transition, inactives: ", inactiveLogVar);
+              $log.debug("exit: ", exitLogVar);
+              $log.debug("enter: ", enterLogVar);
+              $log.debug("After transition, inactives: ", inactiveLogVar);
             }
 
             var noop = function () {
@@ -195,7 +194,7 @@ angular.module("ct.ui.router.extras").config(
                     " -> " +
                     currentTransition.toState.self.name + ": " +
                     angular.toJson(currentTransition.toParams);
-                console.log("Current transition: ", msg);
+                $log.debug("Current transition: ", msg);
 
                 pendingTransitions.push(currentTransition);
                 pendingRestore = restore;
@@ -262,7 +261,7 @@ angular.module("ct.ui.router.extras").config(
                   var inactiveOrphans = [];
                   inactiveStates.forEach(function (exiting) {
                     if (exiting.self.name.indexOf(prefix) === 0) {
-                      console.log("exitable: ", exiting.self.name);
+                      $log.debug("exitable: ", exiting.self.name);
                       inactiveOrphans.push(exiting);
                     }
                   });
@@ -280,20 +279,20 @@ angular.module("ct.ui.router.extras").config(
                 var pathMessage = function (state) {
                   return (state.surrogateType ? state.surrogateType + ":" : "") + state.self.name;
                 };
-                console.log("SurrogateFromPath: ", map(surrogateFromPath, pathMessage));
-                console.log("SurrogateToPath: ", map(surrogateToPath, pathMessage));
+                $log.debug("SurrogateFromPath: ", map(surrogateFromPath, pathMessage));
+                $log.debug("SurrogateToPath: ", map(surrogateToPath, pathMessage));
               }
             }
 
             var transitionPromise = realTransitionTo.apply($state, arguments);
             transitionPromise.then(function transitionSuccess(state) {
               restore();
-              console.log("Current state: " + state.name + ", inactives: ", map(_StickyState.getInactiveStates(), function (s) {
+              $log.debug("Current state: " + state.name + ", inactives: ", map(_StickyState.getInactiveStates(), function (s) {
                 return s.self.name
               }));
             }, function transitionFailed(err) {
               if (err.message !== "transition prevented") {
-                console.log("transition failed", err);
+                $log.debug("transition failed", err);
                 console.log(err.stack);
               }
               restore();

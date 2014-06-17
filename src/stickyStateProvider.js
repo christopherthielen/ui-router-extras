@@ -1,7 +1,7 @@
 angular.module("ct.ui.router.extras", [ 'ui.router' ]);
 
 $StickyStateProvider.$inject = [ '$stateProvider' ];
-function $StickyStateProvider($stateProvider) {
+function $StickyStateProvider($stateProvider, $logProvider) {
   // Holds all the states which are inactivated.  Inactivated states can be either sticky states, or descendants of sticky states.
   var inactiveStates = {}; // state.name -> (state)
   var stickyStates = {}; // state.name -> true
@@ -11,10 +11,10 @@ function $StickyStateProvider($stateProvider) {
   // registers a sticky state with $stickyStateProvider
   this.registerStickyState = function (state) {
     stickyStates[state.name] = state;
-    console.log("Registered sticky state: ", state);
+    // console.log("Registered sticky state: ", state);
   };
 
-  this.$get = [ '$rootScope', '$state', '$injector', function ($rootScope, $state, $injector) {
+  this.$get = [ '$rootScope', '$state', '$injector', '$log', function ($rootScope, $state, $injector, $log) {
     // Each inactive states is either a sticky state, or a child of a sticky state.
     // This function finds the closest ancestor sticky state, then find that state's parent.
     // Map all inactive states to their closest parent-to-sticky state.
@@ -68,7 +68,7 @@ function $StickyStateProvider($stateProvider) {
       if (!inactiveState) return "enter";
       if (inactiveState.locals == null || inactiveState.locals.globals == null) debugger;
       var paramsMatch = equalForKeys(stateParams, inactiveState.locals.globals.$stateParams, state.ownParams);
-      // console.log("getEnterTransition: " + state.name + (paramsMatch ? ": reactivate" : ": updateStateParams"));
+      // $log.debug("getEnterTransition: " + state.name + (paramsMatch ? ": reactivate" : ": updateStateParams"));
       return paramsMatch ? "reactivate" : "updateStateParams";
     }
 
@@ -182,7 +182,7 @@ function $StickyStateProvider($stateProvider) {
           result.exit[idx] = exitTrans;
         }
 
-//      console.log("processTransition: " , result);
+//      $log.debug("processTransition: " , result);
         return result;
       },
 
@@ -219,7 +219,7 @@ function $StickyStateProvider($stateProvider) {
         for (var name in inactiveStates) {
           // TODO: Might need to run the inactivations in the proper depth-first order?
           if (!exitingNames[name] && name.indexOf(substatePrefix) === 0) { // inactivated state's name starts with the prefix.
-            console.log("Exiting " + name + " because it's a substate of " + substatePrefix + " and wasn't found in ", exitingNames);
+            $log.debug("Exiting " + name + " because it's a substate of " + substatePrefix + " and wasn't found in ", exitingNames);
             var inactiveExiting = inactiveStates[name];
             if (inactiveExiting.self.onExit)
               $injector.invoke(inactiveExiting.self.onExit, inactiveExiting.self, inactiveExiting.locals.globals);

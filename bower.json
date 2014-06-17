@@ -25,5 +25,6 @@
     "angular-ui-router": "~0.2.10"
   },
   "devDependencies": {
+    "lodash": "latest"
   }
 }
