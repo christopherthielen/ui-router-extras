@@ -33,7 +33,11 @@ function testGo(state, tCurrent, tAdditional) {
       tCurrent[key] = tCurrent[key].concat(tAdditional[key]); 
     });
     
-    expect(tLog.toString()).toBe(tCurrent.toString());
+    angular.forEach(tLog, function(value, key) {
+      var left = key + ": " + angular.toJson(tLog[key]);
+      var right = key + ": " + angular.toJson(tCurrent[key]);
+      expect(left).toBe(right);
+    });
   }
 }
 
@@ -186,61 +190,23 @@ describe('stickyState', function () {
       reset(getNestedStickyStates());
     });
     
-    it ('should transition normally between non-sticky states', function () {
-      testGo('main');
-      testGo('tabsA');
-    });
-
-    it ('should transition normally between non-sticky and sticky states', function () {
-      var transitions = new TransitionAudit();
-      testGo('tabsA', transitions, { entered: ['tabsA'] });
-      testGo('tabsA._tab1', transitions, { entered: ['tabsA._tab1'] });
-    });
-
     it ('should inactivate sticky state tabs_tab1 when transitioning back to tabsA', function () {
       var transitions = new TransitionAudit();
-      testGo('tabsA', transitions, {entered: ['tabsA']});
-      testGo('tabsA._tab1', transitions, {entered: ['tabsA._tab1']});
-      testGo('tabsA', transitions, {inactivated: ['tabsA._tab1']});
+      testGo('main', transitions, { entered: ['main']});
+      testGo('tabsA._tab1.substate.tabsB.__tab1', transitions, {
+            exited: ['main'],
+            entered: [
+              'tabsA',
+              'tabsA._tab1',
+              'tabsA._tab1.substate',
+              'tabsA._tab1.substate.tabsB',
+              'tabsA._tab1.substate.tabsB.__tab1'
+            ]}
+      );
+      testGo('tabsA._tab1.substate.tabsB.__tab2', transitions, {
+        inactivated: ['tabsA._tab1.substate.tabsB.__tab1'],
+        entered: ['tabsA._tab1.substate.tabsB.__tab2']
+      });
     });
-
-    it ('should reactivate sticky state tabs_tab1 when transitioning back from tabsA', function () {
-      var transitions = new TransitionAudit();
-      testGo('tabsA', transitions, {entered: ['tabsA']});
-      testGo('tabsA._tab1', transitions, {entered: ['tabsA._tab1']});
-      testGo('tabsA', transitions, {inactivated: ['tabsA._tab1']});
-      testGo('tabsA._tab1', transitions, {reactivated: ['tabsA._tab1']});
-    });
-
-    it ('should inactivate and reactivate tabsA._tab1 and tabsA._tab2 when transitioning back and forth', function () {
-      var transitions = new TransitionAudit();
-      testGo('tabsA', transitions, {entered: ['tabsA']});
-      testGo('tabsA._tab1', transitions, {entered: ['tabsA._tab1']});
-      testGo('tabsA._tab2', transitions, {inactivated: ['tabsA._tab1'], entered: ['tabsA._tab2']});
-      testGo('tabsA._tab1', transitions, {inactivated: ['tabsA._tab2'], reactivated: ['tabsA._tab1']});
-      testGo('tabsA._tab2', transitions, {inactivated: ['tabsA._tab1'], reactivated: ['tabsA._tab2']});
-    });
-
-    it ('should inactivate and reactivate tabsA._tab1 and tabsA._tab2 and tabsA._tab3 when transitioning back and forth', function () {
-      var transitions = new TransitionAudit();
-      testGo('tabsA', transitions, {entered: ['tabsA']});
-      testGo('tabsA._tab1', transitions, {entered: ['tabsA._tab1']});
-      testGo('tabsA._tab2', transitions, {inactivated: ['tabsA._tab1'], entered: ['tabsA._tab2']});
-      testGo('tabsA._tab3', transitions, {inactivated: ['tabsA._tab2'], entered: ['tabsA._tab3']});
-      testGo('tabsA._tab1', transitions, {inactivated: ['tabsA._tab3'], reactivated: ['tabsA._tab1']});
-      testGo('tabsA._tab2', transitions, {inactivated: ['tabsA._tab1'], reactivated: ['tabsA._tab2']});
-      testGo('tabsA._tab3', transitions, {inactivated: ['tabsA._tab2'], reactivated: ['tabsA._tab3']});
-    });
-    
-    it ('should inactivate tabsA._tab1 and tabsA._tab2 and tabsA._tab3 when transitioning back to tabsA', function () {
-      var transitions = new TransitionAudit();
-      testGo('tabsA', transitions, {entered: ['tabsA']});
-      testGo('tabsA._tab1', transitions, {entered: ['tabsA._tab1']});
-      testGo('tabsA._tab2', transitions, {inactivated: ['tabsA._tab1'], entered: ['tabsA._tab2']});
-      testGo('tabsA._tab3', transitions, {inactivated: ['tabsA._tab2'], entered: ['tabsA._tab3']});
-      testGo('tabsA', transitions, {inactivated: ['tabsA._tab3']});
-    });
-    
   });
-
 });
