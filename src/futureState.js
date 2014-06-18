@@ -1,16 +1,40 @@
 //define(['angularAMD'], function (angularAMD) {
-  angular.module('ct.ui.router.extras').provider('$futureState', function ($stateProvider, $urlRouterProvider) {
-    var stateFactory, futureStates, futureUrlFragments;
-    var transitionPending = false, initPromises = [], initPromise;
+  angular.module('ct.ui.router.extras').provider('$futureState', function _futureStateProvider($stateProvider, $urlRouterProvider) {
+    var stateFactories = {}, futureStates = {}, futureUrlFragments = {};
+    var transitionPending = false, resolveFunctions = [], initPromise, initDone = false;
+    var provider = this;
 
     // This function registers a promiseFn, to be resolved before the url/state matching code
-    // will reject a route.  The promiseFn is injected using the runtime $injector.
-    this.futureStates = function (promiseFn) {
-      initPromises.push(promiseFn);
+    // will reject a route.  The promiseFn is injected/executed using the runtime $injector.
+    // The function should return a promise.  
+    // When all registered promises are resolved, then the route is re-sync'ed.
+    
+    // Example: function($http) {
+    //  return $http.get('//server.com/api/DynamicFutureStates').then(function(data) {
+    //    angular.forEach(data.futureStates, function(fstate) { $futureStateProvider.futureState(fstate); });
+    //  };
+    // }
+    this.addResolve = function (promiseFn) {
+      resolveFunctions.push(promiseFn);
     };
 
-    this.futureStateFactory = function (factory) {
-      stateFactory = factory;
+    // Register a state factory function for a particular future-state type.  This factory, given a future-state object,
+    // should create a ui-router state.
+    // The factory function is injected/executed using the runtime $injector.  The future-state is injected as 'futureState'.
+    
+    // Example: 
+    //    $futureStateProvider.stateFactory('test', function(futureState) {
+    //      return {
+    //        name: futureState.stateName,
+    //        url: futureState.pathFragment,
+    //        template: '<h3>Future State Template</h3>',
+    //        controller: function() {
+    //          console.log("Entered state " + futureState.stateName);
+    //        }
+    //      }
+    //    });
+    this.stateFactory = function (futureStateType, factory) {
+      stateFactories[futureStateType] = factory;
     };
 
     this.futureState = function (futureState) {
@@ -18,34 +42,35 @@
       futureUrlFragments[futureState.urlPrefix] = futureState;
     };
 
-    this.otherwise = function ($injector, $location) {
+    function futureState_otherwise($injector, $location) {
       var resyncing = false;
       var $log = $injector.get("$log");
 
-      var otherwiseFunc = function ($state) {
+      var otherwiseFunc = function otherwiseFunc($state) {
         $log.debug("Unable to map " + $location.path());
         $location.url("/");
       };
 
-      var lazyLoadMissingState = function ($rootScope, $urlRouter, $state) {
-        if (!futureUrlFragments) {
+      var lazyLoadMissingState = function lazyLoadMissingState($rootScope, $urlRouter, $state) {
+        if (!initDone) {
           // Asynchronously load state definitions, then resync URL
-          initPromise().then(function () {
+          initPromise().then(function initialResync() {
             resyncing = true;
             $urlRouter.sync();
             resyncing = false;
           });
+          initDone = true;
           return;
         }
 
-        var futureState = provider.findFutureState({ url: $location.path() });
+        var futureState = serviceObject.findFutureState({ url: $location.path() });
         if (!futureState) {
           return $injector.invoke(otherwiseFunc);
         }
 
         transitionPending = true;
         // Config loaded.  Asynchronously lazy-load state definition from URL fragment, if mapped.
-        provider.lazyLoadState(futureState).then(function (state) {
+        serviceObject.lazyLoadState(futureState).then(function lazyLoadedStateCallback(state) {
           // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
           if (state)
             $stateProvider.state(state);
@@ -53,7 +78,7 @@
           $urlRouter.sync();
           resyncing = false;
           transitionPending = false;
-        }, function () {
+        }, function lazyLoadStateAborted() {
           transitionPending = false;
           $state.go("top");
         });
@@ -62,10 +87,10 @@
 
       var nextFn = resyncing ? otherwiseFunc : lazyLoadMissingState;
       return $injector.invoke(nextFn);
-    };
-    $urlRouterProvider.otherwise(this.otherwise);
+    }
+    $urlRouterProvider.otherwise(futureState_otherwise);
 
-    var provider = {
+    var serviceObject = {
       config: function () {
         return initPromise();
       },
@@ -73,10 +98,10 @@
       lazyLoadState: undefined
     };
 
-    this.$get = function ($injector, $state, $q, $rootScope, $urlRouter, $log) {
+    this.$get = function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $log) {
 
       /* options is an object with at least a name or url attribute */
-      provider.findFutureState = function findFutureState(options) {
+      serviceObject.findFutureState = function findFutureState(options) {
         if (options.name) {
           var nameComponents = options.name.split(/\./);
           while (nameComponents.length) {
@@ -100,18 +125,18 @@
         }
       };
 
-      provider.init = function init() {
-        $rootScope.$on("$stateNotFound", function (event, unfoundState, fromState, fromParams) {
+      serviceObject.init = function init() {
+        $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
           if (transitionPending) return;
           $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
 
-          var futureState = provider.findFutureState({ name: unfoundState.to });
+          var futureState = serviceObject.findFutureState({ name: unfoundState.to });
           if (futureState == null) return;
 
           event.preventDefault();
           transitionPending = true;
 
-          var promise = provider.lazyLoadState(futureState);
+          var promise = serviceObject.lazyLoadState(futureState);
           promise.then(function (state) {
             // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
             if (state)
@@ -128,32 +153,32 @@
         // Do this better.  Want to load remote config once, before everything else
         if (!initPromise) {
           var promises = [];
-          _.each(initPromises, function(promiseFn) {
+          _.each(resolveFunctions, function(promiseFn) {
             promises.push($injector.invoke(promiseFn));
           });
-          initPromise = _.once(function() {
-            return $q.all(promises).then(function(data) {
-              return _.flatten(data);
+          initPromise = _.once(function flattenFutureStates() {
+            var allPromises = $q.all(promises);
+            return allPromises.then(function(data) { 
+              return _.flatten(data); 
             })
           });
         }
 
-        initPromise().then(function (array) {
-          $log.debug("Loaded initial future state configuration", array);
+        initPromise().then(function buildRealStates(futureStates) {
+          $log.debug("Loaded initial future state configuration", futureStates);
 
-          futureStates = {};
-          futureUrlFragments = {};
-          // Get array of future states from user code.
-          _.each(array, stateFactory);
-
+          // Get futureStates of future states from user code.
+          angular.forEach(futureStates, function(futureState) {
+            provider.futureState(futureState);
+          });
           $urlRouter.sync();
         });
       };
 
 
-      provider.lazyLoadState = function lazyLoadState(futureState) {
-        var deferred = $q.defer();
+      serviceObject.lazyLoadState = function lazyLoadState(futureState) {
         if (!futureState) {
+          var deferred = $q.defer();
           deferred.reject("No lazyState passed in " + futureState);
           return deferred.promise;
         }
@@ -166,49 +191,17 @@
           data: {}
         };
 
-        switch (futureState.type) {
-          case "iframe":
-            state.template = "<iframe width='100%' height='100%' src='" + futureState.url + "'></iframe>";
-            deferred.resolve(state);
-            break;
-          case "backbone":
-            var d = $q.defer();
-            require([futureState.url + "?v=1"], function (runFunction) {
-              var layout = runFunction(window.globalEvents, window.loggedInUserID, jQuery.Deferred());
-              d.resolve(layout);
-            });
-            state.controller = function ($scope, backboneView) {
-              $scope.backboneView = backboneView;
-            };
-            state.resolve.backboneView = function () {
-              return d.promise
-            };
-            state.template = "<div backbone-view='backboneView'></div>";
-            deferred.resolve(state);
-            break;
-          case "ngload":
-            var url = futureState.url.replace(/\.js$/, "");
-            require([ "ngload!" + url , 'ngload', 'angularAMD'], function (module, ngload, angularAMD) {
-              angularAMD.processQueue();
-              deferred.resolve(module);
-            });
-            state.resolve.ngapp = function () {
-              return deferred.promise;
-            };
-            state.template = "<div ui-view></div>";
-            break;
-          default:
-            throw Error("Unknown State Type: " + futureState.type);
-        }
-
-        return deferred.promise;
+        var type = futureState.type;
+        var factory = stateFactories[type];
+        if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
+        return $injector.invoke(factory, factory, { futureState: futureState });
       };
 
-      return provider;
+      return serviceObject;
     }
   });
 
-  angular.module('ct.ui.router.extras').run(function ($futureState) {
+  angular.module('ct.ui.router.extras').run(function test_futureStateServiceInit($futureState) {
     $futureState.init();
   });
 

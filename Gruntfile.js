@@ -128,6 +128,7 @@ module.exports = function (grunt) {
       // Default task(s).
     grunt.registerTask('default', ['jshint:beforeconcatQ', 'concat', 'uglify:build']);
     grunt.registerTask('test', ['jshint:beforeconcatQ', 'karma:unit']);
+    grunt.registerTask('test:watch', ['jshint:beforeconcatQ', 'karma:watch']);
 
   }
 

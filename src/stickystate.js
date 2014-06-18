@@ -156,7 +156,7 @@ angular.module("ct.ui.router.extras").config(
             }
 
             function stateEnteredSurrogate(state, toParams) {
-              var oldOnEnter = state.self.onEnter
+              var oldOnEnter = state.self.onEnter;
               state.self.onEnter = function () {
                 _StickyState.stateEntering(state, toParams, oldOnEnter);
               };
@@ -180,7 +180,7 @@ angular.module("ct.ui.router.extras").config(
               return state;
             }
 
-            if (!toStateSelf) debugger;
+            // if (!toStateSelf) defugger;
             if (toStateSelf) {
               var toState = internalStates[toStateSelf.name]; // have the state, now grab the internal state representation
               if (!toState) debugger;
@@ -291,7 +291,9 @@ angular.module("ct.ui.router.extras").config(
                 return s.self.name
               }));
             }, function transitionFailed(err) {
-              if (err.message !== "transition prevented") {
+              if (err.message !== "transition prevented" 
+                  && err.message !== "transition aborted"
+                  && err.message !== "transition superceded") {
                 $log.debug("transition failed", err);
                 console.log(err.stack);
               }

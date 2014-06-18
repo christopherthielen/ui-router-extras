@@ -3,9 +3,14 @@ UREFiles = {
     'src/stickyStateProvider.js',
     'src/stickyState.js',
     'src/futureState.js',
-    'src/util.js'
+    'src/util.js',
+    'src/factories/ngload.js',
+    'src/factories/iframe.js'
   ],
-  test: [ 'test/*Spec.js' ],
+  test: [ 
+    'test/futureStateSpec.js',
+    'test/stickyStateSpec.js'
+  ],
   testUtil: [ 'test/testUtil.js', 'bower_components/lodash/dist/lodash.js'],
   angular: [ 'bower_components/angular/angular.js' ],
   angular_mocks: [ 'bower_components/angular-mocks/angular-mocks.js' ],

@@ -43,7 +43,7 @@ function testGo(state, tCurrent, tAdditional) {
 
 // Add callbacks to each 
 function addCallbacks (basicStates) {
-  angular.forEach(basicStates, function (state, key) {
+  angular.forEach(basicStates, function (state) {
     state.onInactivate = function () { tLog.inactivated.push(state.name); };
     state.onReactivate = function () { tLog.reactivated.push(state.name); };
     state.onEnter =      function () { tLog.entered.push(state.name); };
