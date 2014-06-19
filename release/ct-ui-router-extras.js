@@ -1,5 +1,76 @@
 angular.module("ct.ui.router.extras", [ 'ui.router' ]);
 
+
+//define(['angularAMD'], function (angularAMD) {
+
+  var app = angular.module("ct.ui.router.extras");
+  app.service("$deepStateRedirect", function ($rootScope, $state) {
+    var lastSubstate = {};
+    var lastParams = {};
+    var deepStateRedirectsByName = {};
+
+    var REDIRECT = "Redirect", ANCESTOR_REDIRECT = "AncestorRedirect";
+
+    function computeDeepStateStatus(state) {
+      var name = state.name;
+      if (deepStateRedirectsByName.hasOwnProperty(name))
+        return deepStateRedirectsByName[name];
+      recordDeepStateRedirectStatus(name);
+    }
+
+    function recordDeepStateRedirectStatus(stateName) {
+      var state = $state.get(stateName);
+      if (state && state.deepStateRedirect === true) {
+        deepStateRedirectsByName[stateName] = REDIRECT;
+        if (lastSubstate[stateName] === undefined)
+          lastSubstate[stateName] = stateName;
+      }
+
+      var lastDot = stateName.lastIndexOf(".");
+      if (lastDot != -1) {
+        var parentStatus = recordDeepStateRedirectStatus(stateName.substr(0, lastDot));
+        if (parentStatus) {
+          deepStateRedirectsByName[stateName] = ANCESTOR_REDIRECT;
+        }
+      }
+      return deepStateRedirectsByName[stateName] || false;
+    }
+
+    $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
+      function shouldRedirect() {
+        var deepStateStatus = computeDeepStateStatus(toState);
+        var substate = lastSubstate[toState.name];
+        // We're changing directly to one of the redirect (tab) states and we have a last substate recorded 
+        return deepStateStatus === REDIRECT && substate && substate != toState.name ? true : false;
+      }
+
+      if (shouldRedirect()) { // send them to the last known state for that tab 
+        event.preventDefault();
+        $state.go(lastSubstate[toState.name], lastParams[toState.name]);
+      }
+
+    });
+
+    $rootScope.$on("$stateChangeSuccess", function (event, toState, toParams, fromState, fromParams) {
+      var deepStateStatus = computeDeepStateStatus(toState);
+      if (deepStateStatus) {
+        _.each(lastSubstate, function (deepState, redirectState) {
+          if (toState.name == deepState || toState.name.indexOf(redirectState + ".") != -1) {
+            lastSubstate[redirectState] = toState.name;
+            lastParams[redirectState] = angular.copy(toParams);
+          }
+        });
+      }
+    });
+  });
+
+  app.run(function ($deepStateRedirect) {
+    // Make sure $deepStateRedirect is instantiated
+  });
+
+//  return app;
+//});
+
 $StickyStateProvider.$inject = [ '$stateProvider' ];
 function $StickyStateProvider($stateProvider, $logProvider) {
   // Holds all the states which are inactivated.  Inactivated states can be either sticky states, or descendants of sticky states.
@@ -561,3 +632,253 @@ angular.module("ct.ui.router.extras").config(
 
 
 
+
+//define(['angularAMD'], function (angularAMD) {
+  angular.module('ct.ui.router.extras').provider('$futureState', function _futureStateProvider($stateProvider, $urlRouterProvider) {
+    var stateFactories = {}, futureStates = {}, futureUrlFragments = {};
+    var transitionPending = false, resolveFunctions = [], initPromise, initDone = false;
+    var provider = this;
+
+    // This function registers a promiseFn, to be resolved before the url/state matching code
+    // will reject a route.  The promiseFn is injected/executed using the runtime $injector.
+    // The function should return a promise.  
+    // When all registered promises are resolved, then the route is re-sync'ed.
+    
+    // Example: function($http) {
+    //  return $http.get('//server.com/api/DynamicFutureStates').then(function(data) {
+    //    angular.forEach(data.futureStates, function(fstate) { $futureStateProvider.futureState(fstate); });
+    //  };
+    // }
+    this.addResolve = function (promiseFn) {
+      resolveFunctions.push(promiseFn);
+    };
+
+    // Register a state factory function for a particular future-state type.  This factory, given a future-state object,
+    // should create a ui-router state.
+    // The factory function is injected/executed using the runtime $injector.  The future-state is injected as 'futureState'.
+    
+    // Example: 
+    //    $futureStateProvider.stateFactory('test', function(futureState) {
+    //      return {
+    //        name: futureState.stateName,
+    //        url: futureState.pathFragment,
+    //        template: '<h3>Future State Template</h3>',
+    //        controller: function() {
+    //          console.log("Entered state " + futureState.stateName);
+    //        }
+    //      }
+    //    });
+    this.stateFactory = function (futureStateType, factory) {
+      stateFactories[futureStateType] = factory;
+    };
+
+    this.futureState = function (futureState) {
+      futureStates[futureState.stateName] = futureState;
+      futureUrlFragments[futureState.urlPrefix] = futureState;
+    };
+
+    function futureState_otherwise($injector, $location) {
+      var resyncing = false;
+      var $log = $injector.get("$log");
+
+      var otherwiseFunc = function otherwiseFunc($state) {
+        $log.debug("Unable to map " + $location.path());
+        $location.url("/");
+      };
+
+      var lazyLoadMissingState = function lazyLoadMissingState($rootScope, $urlRouter, $state) {
+        if (!initDone) {
+          // Asynchronously load state definitions, then resync URL
+          initPromise().then(function initialResync() {
+            resyncing = true;
+            $urlRouter.sync();
+            resyncing = false;
+          });
+          initDone = true;
+          return;
+        }
+
+        var futureState = serviceObject.findFutureState({ url: $location.path() });
+        if (!futureState) {
+          return $injector.invoke(otherwiseFunc);
+        }
+
+        transitionPending = true;
+        // Config loaded.  Asynchronously lazy-load state definition from URL fragment, if mapped.
+        serviceObject.lazyLoadState(futureState).then(function lazyLoadedStateCallback(state) {
+          // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
+          if (state)
+            $stateProvider.state(state);
+          resyncing = true;
+          $urlRouter.sync();
+          resyncing = false;
+          transitionPending = false;
+        }, function lazyLoadStateAborted() {
+          transitionPending = false;
+          $state.go("top");
+        });
+      };
+      if (transitionPending) return;
+
+      var nextFn = resyncing ? otherwiseFunc : lazyLoadMissingState;
+      return $injector.invoke(nextFn);
+    }
+    $urlRouterProvider.otherwise(futureState_otherwise);
+
+    var serviceObject = {
+      config: function () {
+        return initPromise();
+      },
+      findFutureState: undefined,
+      lazyLoadState: undefined
+    };
+
+    this.$get = function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $log) {
+
+      /* options is an object with at least a name or url attribute */
+      serviceObject.findFutureState = function findFutureState(options) {
+        if (options.name) {
+          var nameComponents = options.name.split(/\./);
+          while (nameComponents.length) {
+            var stateName = nameComponents.join(".");
+            if ($state.get(stateName))
+              return null; // State is already defined; nothing to do
+            if (futureStates[stateName])
+              return futureStates[stateName];
+            nameComponents.pop();
+          }
+        }
+
+        if (options.url) {
+          var urlComponents = options.url.split(/\//);
+          while (urlComponents.length) {
+            var urlPrefix = urlComponents.join("/");
+            if (futureUrlFragments[urlPrefix])
+              return futureUrlFragments[urlPrefix];
+            urlComponents.pop();
+          }
+        }
+      };
+
+      serviceObject.init = function init() {
+        $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
+          if (transitionPending) return;
+          $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
+
+          var futureState = serviceObject.findFutureState({ name: unfoundState.to });
+          if (futureState == null) return;
+
+          event.preventDefault();
+          transitionPending = true;
+
+          var promise = serviceObject.lazyLoadState(futureState);
+          promise.then(function (state) {
+            // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
+            if (state)
+              $stateProvider.state(state);
+            $state.go(unfoundState.to, unfoundState.toParams);
+            transitionPending = false;
+          }, function (error) {
+            console.log("failed to lazy load state ", error);
+            $state.go(fromState, fromParams);
+            transitionPending = false;
+          });
+        });
+
+        // Do this better.  Want to load remote config once, before everything else
+        if (!initPromise) {
+          var promises = [];
+          _.each(resolveFunctions, function(promiseFn) {
+            promises.push($injector.invoke(promiseFn));
+          });
+          initPromise = _.once(function flattenFutureStates() {
+            var allPromises = $q.all(promises);
+            return allPromises.then(function(data) { 
+              return _.flatten(data); 
+            })
+          });
+        }
+
+        initPromise().then(function buildRealStates(futureStates) {
+          $log.debug("Loaded initial future state configuration", futureStates);
+
+          // Get futureStates of future states from user code.
+          angular.forEach(futureStates, function(futureState) {
+            provider.futureState(futureState);
+          });
+          $urlRouter.sync();
+        });
+      };
+
+
+      serviceObject.lazyLoadState = function lazyLoadState(futureState) {
+        if (!futureState) {
+          var deferred = $q.defer();
+          deferred.reject("No lazyState passed in " + futureState);
+          return deferred.promise;
+        }
+
+        var state = {
+          name: futureState.stateName,
+          template: undefined,
+          url: futureState.pathFragment + "/",
+          resolve: {},
+          data: {}
+        };
+
+        var type = futureState.type;
+        var factory = stateFactories[type];
+        if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
+        return $injector.invoke(factory, factory, { futureState: futureState });
+      };
+
+      return serviceObject;
+    }
+  });
+
+  angular.module('ct.ui.router.extras').run(function test_futureStateServiceInit($futureState) {
+    $futureState.init();
+  });
+
+//  return app;
+//});
+
+var forEach = angular.forEach;
+
+var map = function (collection, callback) {
+  var result = [];
+  angular.forEach(collection, function (item) {
+    result.push(callback(item));
+  });
+  return result;
+};
+
+"use strict";
+function ngloadStateFactory($q, futureState) {
+  var ngloadDeferred = $q.defer();
+  
+  require([ "ngload!" + futureState.url , 'ngload', 'angularAMD'],  function ngloadCallback(module, ngload, angularAMD) {
+    angularAMD.processQueue();
+    ngloadDeferred.resolve(module);
+  });
+  
+  var state = {
+    name: futureState.stateName,
+    template: "<div ui-view></div>",
+    url: futureState.pathFragment + "/",
+    resolve: { 
+      ngapp: function() { return ngloadDeferred.promise } 
+    }
+  };
+
+  return $q.when(state);
+}
+"use strict";
+var iframeStateFactory = function($q, futureState) {
+  var state = {
+    name: futureState.stateName,
+    template: "<iframe src='" + futureState.url + "'></iframe>",
+    url: futureState.pathFragment
+  };
+  return $q.when(state);
+};

@@ -27,6 +27,7 @@ module.exports = function (grunt) {
    @method init
    */
   function init(params) {
+    var files=require('./files').files;
     /**
      Project configuration.
      @toc 5.
@@ -35,7 +36,7 @@ module.exports = function (grunt) {
       concat: {
         options: {},
         dist: {
-          src: [ 'src/stickyStateProvider.js', 'src/stickyState.js' ],
+          src: files.src,
           dest: 'build/ct-ui-router-extras.js'
         }
       },
