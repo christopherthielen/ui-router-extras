@@ -16,10 +16,12 @@ module.exports = function (grunt) {
    Load grunt plugins
    @toc 2.
    */
+  grunt.loadNpmTasks('grunt-contrib-watch');
   grunt.loadNpmTasks('grunt-contrib-concat');
+  grunt.loadNpmTasks('grunt-contrib-connect');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
-  grunt.loadNpmTasks('grunt-karma');
+
 
   /**
    Function that wraps everything to allow dynamically setting/changing grunt options and config later by grunt task. This init function is called once immediately (for using the default grunt options, config, and setup) and then may be called again AFTER updating grunt (command line) options.
@@ -69,21 +71,46 @@ module.exports = function (grunt) {
             src: ['**.js']
           }
         }
-      }
+      },
+      connect: {
+        main: {
+          options: {
+            hostname: '*',
+            port: 9003,
+            base: [ "." ],
+            open: true,
+            livereload: true,
+          }
+        },
+        livereload: {
+          options: {
+            hostname: '*',
+            port: 9004,
+            base: [ "." ]
+          }
+        }
+      },
+      watch: {
+        main: {
+          options: {
+            livereload: true,
+            livereloadOnError: false,
+            spawn: false
+          },
+          files: [ './*.html', 'js/**/*.js' ],
+          tasks: [ ]
+        }
+      } 
     });
-
 
     /**
      register/define grunt tasks
      @toc 6.
      */
       // Default task(s).
-    grunt.registerTask('default', ['jshint:beforeconcatQ', 'concat', 'uglify:build']);
-    grunt.registerTask('test', ['jshint:beforeconcatQ', 'karma:unit']);
-    grunt.registerTask('test:watch', ['jshint:beforeconcatQ', 'karma:watch']);
-
+    grunt.registerTask('default', ['jshint','connect:main','watch:main']);
   }
 
-  init({});		//initialize here for defaults (init may be called again later within a task)
+  init({});
 
 };

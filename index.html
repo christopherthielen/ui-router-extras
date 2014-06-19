@@ -1,8 +1,25 @@
 <html>
 <head>
     <title>ui-router-extras demo</title>
+    <link href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/css/bootstrap.css" rel="stylesheet">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.0.0/angular-strap.js"></script>
+    <script type="text/javascript" src="bower_components/ui-router-extras/release/ct-ui-router-extras.js"></script>
+    <script type="text/javascript" src="js/app.js"></script>
 </head>
-<body ng-app>
+<body ng-app="futureStates">
+<div class="navbar navbar-default" role="navigation" bs-navbar>
+    <div class="navbar-header">
+        <a class="navbar-brand" ui-sref="home">UI-Router Extras</a>
+    </div>
+    <ul class="nav navbar-nav navbar-right">
+        <li ui-sref-active="active"><a ui-sref="sticky">Sticky States</a></li>
+        <li ui-sref-active="active"><a ui-sref="dsr">Deep State Redirect</a></li>
+        <li ui-sref-active="active"><a ui-sref="future">Future States</a></li>
+    </ul>
+</div>
     <div ui-view></div>
 </body>
 </html>
