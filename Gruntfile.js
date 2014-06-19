@@ -97,7 +97,7 @@ module.exports = function (grunt) {
             livereloadOnError: false,
             spawn: false
           },
-          files: [ './*.html', 'js/**/*.js' ],
+          files: [ './*.html', 'css/**/*.css', 'partials/**/*.html', 'js/**/*.js' ],
           tasks: [ ]
         }
       } 

@@ -15,17 +15,17 @@
     $sp.state("sticky", {
       url: '/sticky',
       controller: function() {},
-      template: '<h6>Sticky State</h6>'
+      templateUrl: 'partials/sticky.html'
     });
     $sp.state("dsr", {
       url: '/dsr',
       controller: function() {},
-      template: '<h6>deep state redirect</h6>'
+      templateUrl: 'partials/dsr.html'
     });
     $sp.state("future", {
       url: '/future',
       controller: function() {},
-      template: '<h6>future states</h6>'
+      templateUrl: 'partials/future.html'
     });
   }]);
   
