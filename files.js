@@ -1,13 +1,16 @@
 UREFiles = {
   src: [
+    'src/module.js',
+    'src/deepStateRedirect.js',
     'src/stickyStateProvider.js',
     'src/stickyState.js',
     'src/futureState.js',
     'src/util.js',
-    'src/factories/ngload.js',
-    'src/factories/iframe.js'
+    'src/fsfactories/ngload.js',
+    'src/fsfactories/iframe.js'
   ],
-  test: [ 
+  test: [
+    'test/deepStateRedirectSpec.js',
     'test/futureStateSpec.js',
     'test/stickyStateSpec.js'
   ],

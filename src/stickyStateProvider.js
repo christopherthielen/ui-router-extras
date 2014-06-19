@@ -1,5 +1,3 @@
-angular.module("ct.ui.router.extras", [ 'ui.router' ]);
-
 $StickyStateProvider.$inject = [ '$stateProvider' ];
 function $StickyStateProvider($stateProvider, $logProvider) {
   // Holds all the states which are inactivated.  Inactivated states can be either sticky states, or descendants of sticky states.

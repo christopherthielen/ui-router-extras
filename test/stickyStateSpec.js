@@ -1,74 +1,14 @@
 "use strict";
 var $get, $state, $q, _stickyStateProvider, _stateProvider;
-var suiteStates, tLog;
+var  tLog;
 
-var TransitionAudit = function () {
-  this.entered = [];
-  this.exited = [];
-  this.reactivated = [];
-  this.inactivated = [];
-  
-  this.toString = angular.bind(this,
-      function toString() {
-        var copy = {};
-        angular.forEach(this, function(value, key) {
-          if (key === 'inactivated' || key === 'reactivated' ||
-              key === 'entered' || key === 'exited') {
-            copy[key] = value;
-          }
-        });
-        return angular.toJson(copy);
-      }
-  );
-};
-
-function testGo(state, tCurrent, tAdditional) {
-  $state.go(state);
-  $q.flush();
-  expect($state.current.name).toBe(state);
-  
-  if (tCurrent !== undefined && tAdditional !== undefined) {
-    // append all arrays in tAdditional to arrays in tCurrent
-    angular.forEach(tAdditional, function (value, key) {
-      tCurrent[key] = tCurrent[key].concat(tAdditional[key]); 
-    });
-    
-    angular.forEach(tLog, function(value, key) {
-      var left = key + ": " + angular.toJson(tLog[key]);
-      var right = key + ": " + angular.toJson(tCurrent[key]);
-      expect(left).toBe(right);
-    });
-  }
-}
-
-// Add callbacks to each 
-function addCallbacks (basicStates) {
-  angular.forEach(basicStates, function (state) {
-    state.onInactivate = function () { tLog.inactivated.push(state.name); };
-    state.onReactivate = function () { tLog.reactivated.push(state.name); };
-    state.onEnter =      function () { tLog.entered.push(state.name); };
-    state.onExit =       function () { tLog.exited.push(state.name); };
-  });
-}
-
-function registerStates(states) {
-  "use strict";
-  angular.forEach(states, function(value, key) {
-    _stateProvider.state(key, value);
-  });
-}
-
-function resetLog() { tLog = new TransitionAudit(); }
-function reset(newStates) {
-  resetLog();
-  suiteStates = newStates;
-  addCallbacks(suiteStates);
-  registerStates(suiteStates);
+function ssReset(newStates, $stateProvider) {
+  tLog = new TransitionAudit();
+  addCallbacks(newStates);
+  angular.forEach(newStates, function(s, name) {$stateProvider.state(name, s)});
 }
 
 describe('stickyState', function () {
-  // Reset Transition Log 
-  
   beforeEach(module('ct.ui.router.extras', function($stickyStateProvider, $stateProvider) {
     "use strict";
     // Load and capture $stickyStateProvider and $stateProvider
@@ -97,7 +37,7 @@ describe('stickyState', function () {
     }
 
     beforeEach(function() {
-      reset(getSimpleStates());
+      ssReset(getSimpleStates(), _stateProvider);
     });
 
     it ('should transition normally between non-sticky states', function () {
@@ -187,7 +127,7 @@ describe('stickyState', function () {
       return newStates;
     }
     beforeEach(function() {
-      reset(getNestedStickyStates());
+      ssReset(getNestedStickyStates(), _stateProvider);
     });
     
     it ('should inactivate sticky state tabs_tab1 when transitioning back to tabsA', function () {
