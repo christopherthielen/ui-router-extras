@@ -15,9 +15,9 @@
         <a class="navbar-brand" ui-sref="home">UI-Router Extras</a>
     </div>
     <ul class="nav navbar-nav navbar-right">
-        <li ui-sref-active="active"><a ui-sref="sticky">Sticky States</a></li>
-        <li ui-sref-active="active"><a ui-sref="dsr">Deep State Redirect</a></li>
-        <li ui-sref-active="active"><a ui-sref="future">Future States</a></li>
+        <li ng-class="{active: $state.includes('sticky')}"><a ui-sref="sticky">Sticky States</a></li>
+        <li ng-class="{active: $state.includes('dsr')}"><a ui-sref="dsr">Deep State Redirect</a></li>
+        <li ng-class="{active: $state.includes('future')}"><a ui-sref="future">Future States</a></li>
     </ul>
 </div>
     <div ui-view></div>
