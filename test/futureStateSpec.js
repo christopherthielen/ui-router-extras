@@ -27,7 +27,7 @@ describe('futureState', function () {
       return $q.when(getSingleFuture());
     });
     
-    $futureStateProvider.stateFactory('iframe', iframeStateFactory);
+    $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
     $futureStateProvider.stateFactory('iframe', iframeStateFactory);
   }));
 
