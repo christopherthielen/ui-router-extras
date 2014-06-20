@@ -707,7 +707,7 @@ angular.module("ct.ui.router.extras").config(
         // Config loaded.  Asynchronously lazy-load state definition from URL fragment, if mapped.
         serviceObject.lazyLoadState(futureState).then(function lazyLoadedStateCallback(state) {
           // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
-          if (state)
+          if (state && !$state.get(state))
             $stateProvider.state(state);
           resyncing = true;
           $urlRouter.sync();
@@ -851,21 +851,23 @@ var map = function (collection, callback) {
 function ngloadStateFactory($q, futureState) {
   var ngloadDeferred = $q.defer();
   
-  require([ "ngload!" + futureState.url , 'ngload', 'angularAMD'],  function ngloadCallback(module, ngload, angularAMD) {
+  require([ "ngload!" + futureState.src , 'ngload', 'angularAMD'],  
+      function ngloadCallback(result, ngload, angularAMD) {
     angularAMD.processQueue();
-    ngloadDeferred.resolve(module);
+    ngloadDeferred.resolve(result.entryState);
   });
   
   var state = {
     name: futureState.stateName,
     template: "<div ui-view></div>",
-    url: futureState.pathFragment + "/",
+    url: futureState.urlPrefix,
     resolve: { 
       ngapp: function() { return ngloadDeferred.promise } 
     }
   };
 
-  return $q.when(state);
+  return ngloadDeferred.promise;
+//  return $q.when(state);
 }
 "use strict";
 var iframeStateFactory = function($q, futureState) {
