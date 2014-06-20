@@ -26,7 +26,7 @@
     //    $futureStateProvider.stateFactory('test', function(futureState) {
     //      return {
     //        name: futureState.stateName,
-    //        url: futureState.pathFragment,
+    //        url: futureState.urlFragment,
     //        template: '<h3>Future State Template</h3>',
     //        controller: function() {
     //          console.log("Entered state " + futureState.stateName);
@@ -188,7 +188,7 @@
         var state = {
           name: futureState.stateName,
           template: undefined,
-          url: futureState.pathFragment + "/",
+          url: futureState.urlFragment + "/",
           resolve: {},
           data: {}
         };
