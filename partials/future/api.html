@@ -1,0 +1,169 @@
+<div id="api" class="panel panel-primary">
+    <div class="panel-heading"><h2>API</h2></div>
+</div>
+
+<div class="container-fluid">
+
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong>Components</strong></div>
+        <div class="panel-body">
+            <div>ui-router-extras FutureState API has a provider, a service, and defines two object types:</div>
+            <dl class="dl-horizontal">
+                <dt><code>FutureState</code> objects:</dt>
+                <dd>
+                    A user-defined placeholder object which represents a Future UI-Router <code>state</code>
+                </dd>
+
+                <dt><code>StateFactory</code> objects:</dt>
+                <dd>
+                    A user-defined factory object which builds a full UI-Router <code>state</code>, given a placeholder 
+                    <code>FutureState</code> object.
+                </dd>
+
+                <dt><code>$futureStateProvider</code>:</dt>
+                <dd>
+                    The main configuration point. Inject this into a <code>config</code> or 
+                    <code>provider</code> block in your app.
+                </dd>
+
+                <dt><code>$futureState</code></dt>
+                <dd>
+                    The runtime portion of the service. It is less likely that you will need to use this.
+                </dd>
+            </dl>
+        </div>
+    </section>
+
+    <div class="panel panel-info">
+        <div class="panel-heading"><strong>A <code>FutureState</code> object is a placeholder for full a UI-Router <code>state</code></strong></div>
+        <div class="panel-body">
+            <p> Each <code>FutureState</code> object has the following required attributes:</p>
+            
+            <dl class="dl-horizontal">
+                <dt><code>stateName</code>:</dt>
+                <dd>
+                    The placeholder state name (fully qualified). Attempted transitions to this state (or
+                    any substates) will trigger a lazy load of the full UI-Router <code>state</code> represented by this FutureState.
+                </dd>
+
+                <dt><code>urlPrefix</code>:</dt>
+                <dd>
+                    The placeholder url path fragment <small>(the fragment is the URL prefix which the state will 
+                    be accessed on, not the URL of the state's source code</small>).  Attempted navigations to a 
+                    URL starting with this fragment will trigger a lazy load of the full UI-Router <code>state</code> 
+                    represented by this FutureState.
+                </dd>
+
+                <dt><code>type</code>:</dt>
+                <dd>
+                    The type of FutureState. This is a used to select a registered StateFactory which is then
+                    used to build the full UI-Router <code>state</code>
+                </dd>
+            </dl>
+            <p>
+                Add any custom attributes required by the <code>StateFactory</code> you have registered to <code>type</code>.
+            </p>
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    <label>Example</label>
+                </div>
+                <div class="panel-body">
+<pre>var adminModuleFutureState = {
+    stateName: 'app.admin',
+    urlPrefix: '/app/pages/admin',
+    type: 'ngload',
+    routeFragment: '/admin', // example custom attr
+    src: 'js/modules/admin.js' // example custom attr
+}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel panel-info">
+        <div class="panel-heading"><strong><code>StateFactory</code> factories convert a <code>FutureState</code> into a full UI-Router <code>state</code></strong></div>
+        <div class="panel-body">
+            <p>
+                A <code>StateFactory</code> is an injected factory function (<small>using the runtime $injector</small>). 
+                When invoked, the function is injected with a <code>FutureState</code> (using the camelCase name 
+                <code>futureState</code>) and should return a promise for a full UI-Router <code>state</code>
+            </p>
+            <div class="panel panel-primary">
+                <div class="panel-heading">Example</div>
+                <div class="panel-body">
+                    <p>
+                        This example shows asyc loading of a state's template
+                    </p>
+<pre>var templateLoadStateFactory = function($q, $timeout, futureState) {
+    var d = $q.defer();
+    $timeout(function() {
+      var fullUiRouterState = {
+        name: futureState.stateName,
+        url: futureState.urlPrefix,
+        template: '&lt;h1&gt;Template&lt;/h1&gt;'
+      }
+      d.resolve(fullUiRouterState); // Async resolve of ui-router state promise
+    }, 1000);
+    return d.promise; // ui-router state promise returned
+}
+    </pre>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <section class="panel panel-info">
+        <div class="panel-heading"><strong>$futureStateProvider</strong></div>
+        <div class="panel-body">
+            <div>
+                This is the main API entry point. Inject $futureStateProvider into your <code>config</code> or
+                <code>provider</code> code. <code>$futureStateProvider</code> has the following methods:
+            </div>
+            <br>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                <strong><code>$futureStateProvider.futureState</code></strong> (<code>futureStateDefinition</code>)
+                    </div>
+                <div class="panel-body">
+                    This method registers a <code>FutureState</code> object as a placeholder for a full UI-Router <code>state</code>.
+                </div>
+            </div>
+            <br>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><code>$futureStateProvider.stateFactory</code></strong> (<code>type</code>, <code>stateFactory</code>)
+                </div>
+                <div class="panel-body">
+                    This method registers a <code>StateFactory</code> function for <code>FutureState</code> of type <code>type</code>.
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><code>$futureStateProvider.addResolve</code></strong> (<code>resolveFunction</code>)
+                </div>
+                <div class="panel-body">
+                    This method adds a resolve function.  Resolve functions are injected functions that return a promise.
+                    <code>$futureStateProvider</code> won't reject any state transitions or routes until all resolveFunction
+                    promises have been resolved.
+                </div>
+            </div>
+            
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Example
+                </div>
+                <div class="panel-body">
+<pre>var myapp = angular.module('myapp', ['ct.ui.router.extras']);
+myapp.config($futureStateProvider) {
+    var futureState = { stateName: 'foo', urlPrefix: '/foo' };
+    $futureStateProvider.futureState(futureState);
+});
+</pre>                    
+                </div>
+            </div>
+        </div>
+    </section>
+</div>

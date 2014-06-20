@@ -23,13 +23,18 @@
       templateUrl: 'partials/dsr.html'
     });
     $sp.state("future", {
-      url: '/future',
-      controller: function() {},
-      templateUrl: 'partials/future.html'
+      url: '/future/:section',
+      templateUrl: 'partials/future/future.html',
+      controller: function($scope, $document) {
+        $scope.scrollTo = function(selector) {
+          var elm = $document.find(selector);
+          if (elm[0]) elm[0].scrollIntoView();
+        }
+      }
     });
   }]);
-  
-  app.run(function($rootScope, $state) {
+
+  app.run(function ($rootScope, $state) {
     $rootScope.$state = $state;
   });
 })();

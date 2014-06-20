@@ -1,0 +1,77 @@
+<div id="overview" class="panel panel-primary">
+    <div class="panel-heading"><h2>Overview</h2></div>
+</div>
+
+<div class="container-fluid">
+    <section class="panel panel-default">
+        <div class="panel-heading">
+            <div><strong>Delayed declaration of states</strong></div>
+        </div>
+
+        <div class="panel-body">
+            <p>
+                AngularJS has two phases for boostrapping and launching an application, the <code>config</code>
+                phase and the <code>runtime</code> phase.
+            </p>
+
+            <p>
+                UI-Router exposes a <code>$stateProvider</code> for declaring application states
+                during the <code>config</code> phase. Once the application enters the runtime phase,
+                <code>$stateProvider</code> is usually no longer available.
+            </p>
+
+            <p>
+                FutureStates are <em>placeholders</em> for states (or entire trees of states), whose full definition is
+                not yet known. Full UI-Router state definition (and registration with $stateProvider) is deferred until
+                runtime.
+            </p>
+        </div>
+    </section>
+
+    <section class="panel panel-default">
+        <div class="panel-heading">
+            <div><strong>Delayed loading of state code/templates</strong></div>
+        </div>
+
+        <div class="panel-body">
+            <p>
+                FutureStates is agnostic to how to load code on demand. It does not itself implement delayed
+                loading of state source code (controllers, views).
+            </p>
+
+            <p>
+                An example StateFactory called ngloadStateFactory is provided in ui-router-extras which uses
+                ngload from the <a href="http://marcoslin.github.io/angularAMD/#/home">AngularAMD</a> project to load a
+                module on demand. <a href="http://marcoslin.github.io/angularAMD/#/home">AngularAMD</a> uses RequireJS
+                to load and inject angular code into the DI system.
+            </p>
+        </div>
+    </section>
+
+    <p>
+        FutureStates are markers (placeholders) in the state hierarchy (or url hierarchy) which tells
+        $futureStateProvider
+        that some state (or state tree) needs to be loaded on demand when the user tried to activate the placeholder
+        state
+        (or some substate), or navigate to a URL which the placeholder URL includes.
+    </p>
+
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong>FutureState definition</strong></div>
+        <div class="panel-body">
+            <div>FutureStates have the following attributes:</div>
+            <dl class="dl-horizontal">
+                <dt>stateName</dt>
+                <dd>The placeholder state name (fully qualified)</dd>
+
+                <dt>pathFragment</dt>
+                <dd>The placeholder url path fragment</dd>
+
+                <dt>type</dt>
+                <dd>The type of FutureState. This is a used to select a registered StateFactory which is then used
+                    to build the full UI-Router state
+                </dd>
+            </dl>
+        </div>
+    </section>
+</div>
