@@ -22,8 +22,32 @@
 
             <p>
                 FutureStates are <em>placeholders</em> for states (or entire trees of states), whose full definition is
-                not yet known. Full UI-Router state definition (and registration with $stateProvider) is deferred until
-                runtime.
+                not yet known. FutureStates are declared at config time (or optionally at runtime), and replaced with
+                a full UI-Router state when navigated to.  The full UI-Router state is registered with $stateProvider.
+            </p>
+        </div>
+    </section>
+
+    <section class="panel panel-default">
+        <div class="panel-heading">
+            <div><strong>Late state binding process</strong></div>
+        </div>
+
+        <div class="panel-body">
+            <p>
+                <ul> 
+                    <li>
+                        When a transition is requested to a state that doesn't exists, $futureStatesProvider checks if the missing
+                        state maps to a FutureState, or any possible decendant of a FutureState.  
+                   </li>
+                    <li>
+                        When it finds a placeholder that may map to the missing state, it pretends that the transition
+                        occurred successfully (according to the URL).
+                        </li>
+            <li>It  then begins the lazy loading of the full UI-Router state definition.  </li>
+            <li>When that promise resolves, it re-attempts the transition.</li>
+            <li>If the re-attempt fails, a stateChangeError occurs <small>(TODO: should have a rule to transition back to the previous state)</small></li>
+                </ul>
             </p>
         </div>
     </section>
@@ -35,8 +59,17 @@
 
         <div class="panel-body">
             <p>
+                Late binding of states at runtime allows you to load states from a file, or from a serverside
+                API.  However, late binding alone does not solve the problem of delaying the loading of JS code and
+                templates until they are needed.  You must use another tool to dynamically load your states templates
+                and controllers, and add them to the angular environment.  
+            </p>
+            
+            <p>
                 FutureStates is agnostic to how to load code on demand. It does not itself implement delayed
-                loading of state source code (controllers, views).
+                loading of state source code (controllers, views).  However, an example is included for loading code
+                on demand, using <a href="http://requirejs.org/">RequireJS</a> and
+                <a href="http://marcoslin.github.io/angularAMD/#/home">AngularAMD</a>.
             </p>
 
             <p>
@@ -47,14 +80,6 @@
             </p>
         </div>
     </section>
-
-    <p>
-        FutureStates are markers (placeholders) in the state hierarchy (or url hierarchy) which tells
-        $futureStateProvider
-        that some state (or state tree) needs to be loaded on demand when the user tried to activate the placeholder
-        state
-        (or some substate), or navigate to a URL which the placeholder URL includes.
-    </p>
 
     <section class="panel panel-default">
         <div class="panel-heading"><strong>FutureState definition</strong></div>

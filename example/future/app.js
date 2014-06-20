@@ -13,7 +13,7 @@ function (angularAMD) { // Only need to inject angularAMD for app config
       return $http.get('futureStates.json').then(function (resp) {
         angular.forEach(resp.data, function (fstate) {
           // Register each state returned from $http.get() with $futureStateProvider
-          $fsp.futureState(fstate);
+          $futureStateProvider.futureState(fstate);
         });
       });
     };
