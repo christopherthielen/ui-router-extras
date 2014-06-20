@@ -1,8 +1,12 @@
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <title>ui-router-extras demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="css/bootstrap.css" rel="stylesheet">
     <link href="css/app.css" rel="stylesheet">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
@@ -11,16 +15,18 @@
     <script type="text/javascript" src="js/app.js"></script>
 </head>
 <body ng-app="futureStates">
-<div class="navbar navbar-default navbar-fixed-top" role="navigation" bs-navbar>
-    <div class="navbar-header">
-        <a class="navbar-brand" ui-sref="home">UI-Router Extras</a>
+<div class="container-fluid">
+    <div class="navbar navbar-default navbar-static-top" role="navigation">
+        <div class="navbar-header">
+            <a class="navbar-brand" ui-sref="home">UI-Router Extras</a>
+        </div>
+        <ul class="nav navbar-nav">
+            <li ng-class="{active: $state.includes('sticky')}"><a ui-sref="sticky">Sticky States</a></li>
+            <li ng-class="{active: $state.includes('dsr')}"><a ui-sref="dsr">Deep State Redirect</a></li>
+            <li ng-class="{active: $state.includes('future')}"><a ui-sref="future">Future States</a></li>
+        </ul>
     </div>
-    <ul class="nav navbar-nav navbar-right">
-        <li ng-class="{active: $state.includes('sticky')}"><a ui-sref="sticky">Sticky States</a></li>
-        <li ng-class="{active: $state.includes('dsr')}"><a ui-sref="dsr">Deep State Redirect</a></li>
-        <li ng-class="{active: $state.includes('future')}"><a ui-sref="future">Future States</a></li>
-    </ul>
 </div>
-    <div class="content" ui-view></div>
+<div class="content" ui-view></div>
 </body>
 </html>

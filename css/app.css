@@ -1,9 +1,4 @@
-body {
-    padding-top: 3em;
-}
 body div.content {
-    padding: 2em;
-}
-aside {    
- padding: 1em;   
+    padding-left: 2em;
+    padding-right: 2em;
 }
