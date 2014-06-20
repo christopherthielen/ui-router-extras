@@ -151,15 +151,25 @@
                 </div>
             </div>
             
-            <div class="panel panel-default">
+            <div class="panel panel-primary">
                 <div class="panel-heading">
                     Example
                 </div>
                 <div class="panel-body">
 <pre>var myapp = angular.module('myapp', ['ct.ui.router.extras']);
 myapp.config($futureStateProvider) {
-    var futureState = { stateName: 'foo', urlPrefix: '/foo' };
+    $futureStateProvider.addResolve(function($q, $timeout) {
+        var d = $q.defer();
+        $timeout(function() { 
+            d.resolve("When this resolves, future state provider will re-sync the state/url");
+        }, 1000);
+        return d.promise;
+    });
+    
+    var futureState = { type: 'ngload', stateName: 'foo', urlPrefix: '/foo', src: 'foo.js' };
     $futureStateProvider.futureState(futureState);
+    
+    $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
 });
 </pre>                    
                 </div>
