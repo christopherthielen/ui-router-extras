@@ -4,6 +4,8 @@
     "angular": "~1.2.0",
     "angular-ui-router": "~0.2.10",
     "lodash": "latest",
-    "ui-router-extras": "latest"
+    "ui-router-extras": "latest",
+    "requirejs": "latest",
+    "angularAMD": "latest"
   }
 }

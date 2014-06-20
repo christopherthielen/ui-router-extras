@@ -1,0 +1,27 @@
+[
+  {
+    "stateName": "iframe2",
+    "urlPrefix": "/iframe2",
+    "type": "iframe",
+    "src": "iframe2.html"
+  },
+  {
+    "stateName": "iframe1",
+    "urlPrefix": "/iframe1",
+    "type": "iframe",
+    "src": "iframe1.html"
+  },
+  {
+    "stateName": "module1",
+    "urlPrefix": "/module1",
+    "type": "ngload",
+    "src": "module1.js"
+  },
+
+  {
+    "stateName": "module2",
+    "urlPrefix": "/module2",
+    "type": "ngload",
+    "src": "module2.js"
+  }
+]

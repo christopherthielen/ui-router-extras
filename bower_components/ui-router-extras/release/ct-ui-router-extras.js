@@ -799,13 +799,7 @@ angular.module("ct.ui.router.extras").config(
           });
         }
 
-        initPromise().then(function buildRealStates(futureStates) {
-          $log.debug("Loaded initial future state configuration", futureStates);
-
-          // Get futureStates of future states from user code.
-          angular.forEach(futureStates, function(futureState) {
-            provider.futureState(futureState);
-          });
+        initPromise().then(function registerFutureStates() {
           $urlRouter.sync();
         });
       };
@@ -877,8 +871,8 @@ function ngloadStateFactory($q, futureState) {
 var iframeStateFactory = function($q, futureState) {
   var state = {
     name: futureState.stateName,
-    template: "<iframe src='" + futureState.url + "'></iframe>",
-    url: futureState.pathFragment
+    template: "<iframe src='" + futureState.src + "'></iframe>",
+    url: futureState.urlPrefix
   };
   return $q.when(state);
 };
