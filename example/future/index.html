@@ -5,21 +5,30 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="../../css/bootstrap.css" rel="stylesheet">
     <link href="../../css/app.css" rel="stylesheet">
-    <script type="text/javascript" src="../../bower_components/requirejs/require.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular.js"></script>
-    <script type="text/javascript" src="../../bower_components/angularAMD/angularAMD.js"></script>
-    <script type="text/javascript" src="../../bower_components/angularAMD/ngload.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-strap/2.0.0/angular-strap.js"></script>
-    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.1.1/js/bootstrap.min.js"></script>
-    <script type="text/javascript" src="../../bower_components/ui-router-extras/release/ct-ui-router-extras.js"></script>
-    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" data-main="main.js" src="../../bower_components/requirejs/require.js"></script>
 </head>
 
-<body ng-app="futureStates">
-<div class="container-fluid">
+<body>
+<script>
+    require(['app']);
+</script>
+
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+    <div class="navbar-header">
+    </div>
+    <ul class="nav navbar-nav">
+        <li><a href="#/iframe1">IFrame 1</a></li>
+        <li><a href="#/iframe2">IFrame 2</a></li>
+        <li><a href="#/module1">Module 1</a></li>
+        <li><a href="#/module2">Module 2</a></li>
+    </ul>
+</div>
+<div>The four links above go to future state mappings. The future state mappings were loaded after the 
+    app started, via $http service.  When navigating to a link, the StateFactory promises to make a full ui-router 
+    state.  When the state is fully resolved, the navigation is re-attempted.
+    
 </div>
 <div class="content" ui-view></div>
 </body>
