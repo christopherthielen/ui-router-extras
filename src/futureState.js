@@ -1,6 +1,6 @@
 //define(['angularAMD'], function (angularAMD) {
   angular.module('ct.ui.router.extras').provider('$futureState', function _futureStateProvider($stateProvider, $urlRouterProvider) {
-    var stateFactories = {}, futureStates = {}, futureUrlFragments = {};
+    var stateFactories = {}, futureStates = {}, futureUrlPrefixes = {};
     var transitionPending = false, resolveFunctions = [], initPromise, initDone = false;
     var provider = this;
 
@@ -39,7 +39,7 @@
 
     this.futureState = function (futureState) {
       futureStates[futureState.stateName] = futureState;
-      futureUrlFragments[futureState.urlPrefix] = futureState;
+      futureUrlPrefixes[futureState.urlPrefix] = futureState;
     };
     
     /* options is an object with at least a name or url attribute */
@@ -60,8 +60,8 @@
         var urlComponents = options.url.split(/\//);
         while (urlComponents.length) {
           var urlPrefix = urlComponents.join("/");
-          if (futureUrlFragments[urlPrefix])
-            return futureUrlFragments[urlPrefix];
+          if (futureUrlPrefixes[urlPrefix])
+            return futureUrlPrefixes[urlPrefix];
           urlComponents.pop();
         }
       }
