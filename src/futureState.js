@@ -41,6 +41,32 @@
       futureStates[futureState.stateName] = futureState;
       futureUrlFragments[futureState.urlPrefix] = futureState;
     };
+    
+    /* options is an object with at least a name or url attribute */
+    function findFutureState(options) {
+      if (options.name) {
+        var nameComponents = options.name.split(/\./);
+        while (nameComponents.length) {
+          var stateName = nameComponents.join(".");
+          if ($state.get(stateName))
+            return null; // State is already defined; nothing to do
+          if (futureStates[stateName])
+            return futureStates[stateName];
+          nameComponents.pop();
+        }
+      }
+
+      if (options.url) {
+        var urlComponents = options.url.split(/\//);
+        while (urlComponents.length) {
+          var urlPrefix = urlComponents.join("/");
+          if (futureUrlFragments[urlPrefix])
+            return futureUrlFragments[urlPrefix];
+          urlComponents.pop();
+        }
+      }
+    }
+
 
     function futureState_otherwise($injector, $location) {
       var resyncing = false;
@@ -63,14 +89,14 @@
           return;
         }
 
-        var futureState = serviceObject.findFutureState({ url: $location.path() });
+        var futureState = findFutureState({ url: $location.path() });
         if (!futureState) {
           return $injector.invoke(otherwiseFunc);
         }
 
         transitionPending = true;
         // Config loaded.  Asynchronously lazy-load state definition from URL fragment, if mapped.
-        serviceObject.lazyLoadState(futureState).then(function lazyLoadedStateCallback(state) {
+        lazyLoadState(futureState).then(function lazyLoadedStateCallback(state) {
           // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
           if (state)
             $stateProvider.state(state);
@@ -91,52 +117,25 @@
     $urlRouterProvider.otherwise(futureState_otherwise);
 
     var serviceObject = {
-      config: function () {
+      getResolvePromise: function () {
         return initPromise();
-      },
-      findFutureState: undefined,
-      lazyLoadState: undefined
+      }
     };
-
+    
+    // Used in .run() block to init
     this.$get = function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $log) {
-
-      /* options is an object with at least a name or url attribute */
-      serviceObject.findFutureState = function findFutureState(options) {
-        if (options.name) {
-          var nameComponents = options.name.split(/\./);
-          while (nameComponents.length) {
-            var stateName = nameComponents.join(".");
-            if ($state.get(stateName))
-              return null; // State is already defined; nothing to do
-            if (futureStates[stateName])
-              return futureStates[stateName];
-            nameComponents.pop();
-          }
-        }
-
-        if (options.url) {
-          var urlComponents = options.url.split(/\//);
-          while (urlComponents.length) {
-            var urlPrefix = urlComponents.join("/");
-            if (futureUrlFragments[urlPrefix])
-              return futureUrlFragments[urlPrefix];
-            urlComponents.pop();
-          }
-        }
-      };
-
-      serviceObject.init = function init() {
+      function init() {
         $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
           if (transitionPending) return;
           $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
 
-          var futureState = serviceObject.findFutureState({ name: unfoundState.to });
+          var futureState = findFutureState({ name: unfoundState.to });
           if (futureState == null) return;
 
           event.preventDefault();
           transitionPending = true;
 
-          var promise = serviceObject.lazyLoadState(futureState);
+          var promise = lazyLoadState(futureState);
           promise.then(function (state) {
             // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
             if (state)
@@ -173,10 +172,13 @@
           });
           $urlRouter.sync();
         });
-      };
-
-
-      serviceObject.lazyLoadState = function lazyLoadState(futureState) {
+      }
+      init();
+      
+      serviceObject.futureState = provider.futureState;
+      serviceObject.state = $stateProvider.state;
+      
+      function lazyLoadState(futureState) {
         if (!futureState) {
           var deferred = $q.defer();
           deferred.reject("No lazyState passed in " + futureState);
@@ -195,15 +197,16 @@
         var factory = stateFactories[type];
         if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
         return $injector.invoke(factory, factory, { futureState: futureState });
-      };
+      }
 
       return serviceObject;
     }
   });
 
-  angular.module('ct.ui.router.extras').run(function test_futureStateServiceInit($futureState) {
-    $futureState.init();
-  });
+  angular.module('ct.ui.router.extras').run(['$futureState', 
+      // Just inject $futureState so it gets initialized.
+    function ($futureState) { }
+  ]);
 
 //  return app;
 //});

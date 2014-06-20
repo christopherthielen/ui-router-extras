@@ -1,5 +1,5 @@
 "use strict";
-var $get, $state, $q, _futureStateProvider, _stateProvider;
+var $get, $state, $futureState, $q, _futureStateProvider, _stateProvider;
 
 function futureState(stateName, pathFragment, urlPrefix, url, type) {
   return {
@@ -35,6 +35,7 @@ describe('futureState', function () {
   beforeEach(inject(function($injector) {
     $get = $injector.get;
     $state = $get('$state');
+    $futureState = $get('$futureState');
     $q = $get('$q');
   }));
 
