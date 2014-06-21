@@ -35,19 +35,22 @@
 
         <div class="panel-body">
             <p>
-                <ul> 
-                    <li>
-                        When a transition is requested to a state that doesn't exists, $futureStatesProvider checks if the missing
-                        state maps to a FutureState, or any possible decendant of a FutureState.  
-                   </li>
-                    <li>
-                        When it finds a placeholder that may map to the missing state, it pretends that the transition
-                        occurred successfully (according to the URL).
-                        </li>
-            <li>It  then begins the lazy loading of the full UI-Router state definition.  </li>
-            <li>When that promise resolves, it re-attempts the transition.</li>
-            <li>If the re-attempt fails, a stateChangeError occurs <small>(TODO: should have a rule to transition back to the previous state)</small></li>
-                </ul>
+            <ul>
+                <li>
+                    When a transition is requested to a state that doesn't exists, $futureStatesProvider checks if the
+                    missing
+                    state maps to a FutureState, or any possible decendant of a FutureState.
+                </li>
+                <li>
+                    When it finds a placeholder that may map to the missing state, it pretends that the transition
+                    occurred successfully (according to the URL).
+                </li>
+                <li>It then begins the lazy loading of the full UI-Router state definition.</li>
+                <li>When that promise resolves, it re-attempts the transition.</li>
+                <li>If the re-attempt fails, a stateChangeError occurs
+                    <small>(TODO: should have a rule to transition back to the previous state)</small>
+                </li>
+            </ul>
             </p>
         </div>
     </section>
