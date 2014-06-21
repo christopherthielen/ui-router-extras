@@ -1,14 +1,12 @@
 # Addons for Angular UI-Router:
-- Sticky State 
-- Deep State Redirect 
-- Future State
+Full Website (description, API, demos): http://christopherthielen.github.io/ui-router-extras/
 
 UI-Router is the defacto router for AngularJS.
 
 UI-Router Extras adds 3 additional features to help you write large modular applications.
-
-Full Website (description, API, demos): http://christopherthielen.github.io/ui-router-extras/
-
+- Sticky State 
+- Deep State Redirect 
+- Future State
 
 ## Dependencies
 - required:
