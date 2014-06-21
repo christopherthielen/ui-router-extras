@@ -1,10 +1,48 @@
-<div class="">
+<div class="container">
     <h3>UI-Router Extras</h3>
-    <aside>
+    <aside class="well">
         <a href="http://angular-ui.github.io/ui-router/">UI-Router</a> is the defacto router for AngularJS.  
         The UI-Router-Extras project enhances UI-Router with three additional features.
     </aside>
-    <section>
-        
+    
+    <h4>Sticky States <small>(aka Parallel States)</small></h4>
+    <section class="well-sm">
+        <p>
+            Sticky States allows a tree of states to be long-lived, running concurrently alongside one or more other state
+            trees.  This is also sometimes referred to as Parallel States.
+            The basis for this functionality is to implement a "tabs" use case.  Using UI-Router Extras Sticky States,
+            a single page angular app can implement independent tab state trees, which operate in parallel to each other.
+        </p>
+    </section>
+
+    <h4>Deep State Redirect</h4>
+    <section class="well-sm">
+        <p> Deep State Redirect is a marker you can add to a state definition.</p>
+        <p> UI-Router Extras will keep track of
+            the last activated substate and parameters of your marked state.  A user may navigate anywhere else
+            in the state tree.  When the DSR marked state is navigated to directly, UI-Router Extras will redirect to
+            the previously activated state and parameters.
+        </p>
+        <p>
+            The basis for this use case for this feature is navigation based.  In the "tabs" use case, you could mark
+            the tab as <code>deepStateRedirect</code>.  When the user navigates into the tab, and drills down to a substate,
+            DSR will remember the substate.  The user can then navigate to other tabs (or somewhere else completely).  When
+            they click the original tab again, it will transition to the previous state and parameters of that tab, making it
+            appear that the tab was never destructed.
+        </p>
+        <p>
+            Deep State Redirect can be used with StickyStates, or on its own.  If used with a Sticky State, the states
+            will be reactivated, and the DOM will be unchanged (as opposed to the states being re-entered and controllers
+            re-initialized)
+        </p>
+    </section>
+
+    <h4>Future States</h4>
+    <section class="well-sm">
+        <p>
+            Future States allow the UI-Router state tree to be late-bound.  The application's state tree can be loaded 
+            at Runtime.  Also, states can be lazy loaded (late binding), waiting until there is a request to transition 
+            to the state.
+        </p>
     </section>
 </div>
