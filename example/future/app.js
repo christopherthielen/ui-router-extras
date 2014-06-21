@@ -4,9 +4,6 @@ function (angularAMD) { // Only need to inject angularAMD for app config
   var app = angular.module("futureStates", ['ct.ui.router.extras']);
 
   app.config(['$futureStateProvider', function($futureStateProvider) {
-    $futureStateProvider.stateFactory('ngload', ngloadStateFactory); // register AngularAMD ngload state factory
-    $futureStateProvider.stateFactory('iframe', iframeStateFactory); // register silly iframe state factory
-    
     // Loading states from .json file during runtime
     var loadAndRegisterFutureStates = function ($http) {
       // $http.get().then() returns a promise
@@ -17,6 +14,9 @@ function (angularAMD) { // Only need to inject angularAMD for app config
         });
       });
     };
+
+    $futureStateProvider.stateFactory('ngload', ngloadStateFactory); // register AngularAMD ngload state factory
+    $futureStateProvider.stateFactory('iframe', iframeStateFactory); // register silly iframe state factory
     $futureStateProvider.addResolve(loadAndRegisterFutureStates);
   }]);
   
