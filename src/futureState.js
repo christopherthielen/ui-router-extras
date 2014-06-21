@@ -89,6 +89,7 @@
           return;
         }
 
+        
         var futureState = findFutureState({ url: $location.path() });
         if (!futureState) {
           return $injector.invoke(otherwiseFunc);
@@ -98,7 +99,7 @@
         // Config loaded.  Asynchronously lazy-load state definition from URL fragment, if mapped.
         lazyLoadState(futureState).then(function lazyLoadedStateCallback(state) {
           // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
-          if (state)
+          if (state && !$state.get(state))
             $stateProvider.state(state);
           resyncing = true;
           $urlRouter.sync();
@@ -163,13 +164,9 @@
           });
         }
 
-        initPromise().then(function buildRealStates(futureStates) {
-          $log.debug("Loaded initial future state configuration", futureStates);
-
-          // Get futureStates of future states from user code.
-          angular.forEach(futureStates, function(futureState) {
-            provider.futureState(futureState);
-          });
+        // TODO: analyze this. I'm calling $urlRouter.sync() in two places for retry-initial-transition.
+        // TODO: I should only need to do this once.  Pick the better place and remove the extra resync.
+        initPromise().then(function retryInitialState() {
           $urlRouter.sync();
         });
       }
@@ -184,14 +181,6 @@
           deferred.reject("No lazyState passed in " + futureState);
           return deferred.promise;
         }
-
-        var state = {
-          name: futureState.stateName,
-          template: undefined,
-          url: futureState.urlFragment + "/",
-          resolve: {},
-          data: {}
-        };
 
         var type = futureState.type;
         var factory = stateFactories[type];

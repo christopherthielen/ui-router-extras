@@ -1,4 +1,7 @@
 UREFiles = {
+  dist: [
+      'release/ct-ui-router-extras.js'
+  ],
   src: [
     'src/module.js',
     'src/deepStateRedirect.js',
@@ -10,9 +13,9 @@ UREFiles = {
     'src/fsfactories/iframe.js'
   ],
   test: [
-    'test/deepStateRedirectSpec.js',
-    'test/futureStateSpec.js',
-    'test/stickyStateSpec.js'
+    'test/deepStateRedirectSpec.js'
+    ,'test/futureStateSpec.js'
+    ,'test/stickyStateSpec.js'
   ],
   testUtil: [ 'test/testUtil.js', 'bower_components/lodash/dist/lodash.js'],
   angular: [ 'bower_components/angular/angular.js' ],

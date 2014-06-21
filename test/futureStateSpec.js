@@ -12,7 +12,7 @@ function futureState(stateName, pathFragment, urlPrefix, url, type) {
 }
 
 function getSingleFuture () {
-  return [ futureState("top.foo", "foo/", "/foo/", "hmmm", "iframe") ];
+  return futureState("top.foo", "foo/", "/foo/", "hmmm", "iframe");
 }
 
 describe('futureState', function () {
@@ -21,12 +21,8 @@ describe('futureState', function () {
     _futureStateProvider = $futureStateProvider;
     _stateProvider = $stateProvider;
     _stateProvider.state("top", { url: '/' });
-    $urlRouterProvider.otherwise("/");
 
-    $futureStateProvider.addResolve(function ($q) {
-      return $q.when(getSingleFuture());
-    });
-    
+    $futureStateProvider.futureState(getSingleFuture());
     $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
     $futureStateProvider.stateFactory('iframe', iframeStateFactory);
   }));
