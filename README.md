@@ -1,5 +1,7 @@
 # Addons for Angular UI-Router:
-# Sticky State, Deep State Redirect, Future State
+- Sticky State 
+- Deep State Redirect 
+- Future State
 
 UI-Router is the defacto router for AngularJS.
 
