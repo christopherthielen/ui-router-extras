@@ -1,5 +1,5 @@
 "use strict";
-var $get, $state, $q, _futureStateProvider, _stateProvider;
+var $get, $state, $futureState, $q, _futureStateProvider, _stateProvider;
 
 function futureState(stateName, pathFragment, urlPrefix, url, type) {
   return {
@@ -12,7 +12,7 @@ function futureState(stateName, pathFragment, urlPrefix, url, type) {
 }
 
 function getSingleFuture () {
-  return [ futureState("top.foo", "foo/", "/foo/", "hmmm", "iframe") ];
+  return futureState("top.foo", "foo/", "/foo/", "hmmm", "iframe");
 }
 
 describe('futureState', function () {
@@ -21,13 +21,9 @@ describe('futureState', function () {
     _futureStateProvider = $futureStateProvider;
     _stateProvider = $stateProvider;
     _stateProvider.state("top", { url: '/' });
-    $urlRouterProvider.otherwise("/");
 
-    $futureStateProvider.addResolve(function ($q) {
-      return $q.when(getSingleFuture());
-    });
-    
-    $futureStateProvider.stateFactory('iframe', iframeStateFactory);
+    $futureStateProvider.futureState(getSingleFuture());
+    $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
     $futureStateProvider.stateFactory('iframe', iframeStateFactory);
   }));
 
@@ -35,6 +31,7 @@ describe('futureState', function () {
   beforeEach(inject(function($injector) {
     $get = $injector.get;
     $state = $get('$state');
+    $futureState = $get('$futureState');
     $q = $get('$q');
   }));
 

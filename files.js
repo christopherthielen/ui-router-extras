@@ -1,4 +1,10 @@
-UREFiles = {
+var files = {
+  dist: [
+    'release/ct-ui-router-extras.js'
+  ],
+  min: [
+      'release/ct-ui-router-extras.min.js'
+  ],
   src: [
     'src/module.js',
     'src/deepStateRedirect.js',
@@ -20,7 +26,37 @@ UREFiles = {
   ui_router: [ 'bower_components/angular-ui-router/release/angular-ui-router.js' ]
 };
 
+var devfiles = {
+  src: files.src,
+  test: files.test,
+  testUtil: files.testUtil,
+  angular: files.angular,
+  angular_mocks: files.angular_mocks,
+  ui_router: files.ui_router
+};
+
+var buildfiles = {
+  src: files.dist,
+  test: files.test,
+  testUtil: files.testUtil,
+  angular: files.angular,
+  angular_mocks: files.angular_mocks,
+  ui_router: files.ui_router
+};
+
+var minfiles = {
+  src: files.min,
+  test: files.test,
+  testUtil: files.testUtil,
+  angular: files.angular,
+  angular_mocks: files.angular_mocks,
+  ui_router: files.ui_router
+};
+
 if (exports) {
-  exports.files = UREFiles;
+  exports.files = files;
+  exports.devfiles = devfiles;
+  exports.buildfiles = buildfiles;
+  exports.minfiles = minfiles;
 }
 
