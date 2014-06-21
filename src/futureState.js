@@ -67,6 +67,18 @@
       }
     }
 
+    function lazyLoadState($injector, futureState) {
+      if (!futureState) {
+        var deferred = $q.defer();
+        deferred.reject("No lazyState passed in " + futureState);
+        return deferred.promise;
+      }
+
+      var type = futureState.type;
+      var factory = stateFactories[type];
+      if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
+      return $injector.invoke(factory, factory, { futureState: futureState });
+    }
 
     function futureState_otherwise($injector, $location) {
       var resyncing = false;
@@ -97,7 +109,7 @@
 
         transitionPending = true;
         // Config loaded.  Asynchronously lazy-load state definition from URL fragment, if mapped.
-        lazyLoadState(futureState).then(function lazyLoadedStateCallback(state) {
+        lazyLoadState($injector, futureState).then(function lazyLoadedStateCallback(state) {
           // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
           if (state && !$state.get(state))
             $stateProvider.state(state);
@@ -136,7 +148,7 @@
           event.preventDefault();
           transitionPending = true;
 
-          var promise = lazyLoadState(futureState);
+          var promise = lazyLoadState($injector, futureState);
           promise.then(function (state) {
             // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
             if (state)
@@ -175,19 +187,6 @@
       serviceObject.futureState = provider.futureState;
       serviceObject.state = $stateProvider.state;
       
-      function lazyLoadState(futureState) {
-        if (!futureState) {
-          var deferred = $q.defer();
-          deferred.reject("No lazyState passed in " + futureState);
-          return deferred.promise;
-        }
-
-        var type = futureState.type;
-        var factory = stateFactories[type];
-        if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
-        return $injector.invoke(factory, factory, { futureState: futureState });
-      }
-
       return serviceObject;
     }
   });
