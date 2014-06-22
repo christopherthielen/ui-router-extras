@@ -1,0 +1,5 @@
+<h5>Managers</h5>
+<div ng-repeat="manager in managers">
+    <a ui-sref="^.manager({mid: manager.id})">{{ manager.name }} - {{ manager.email }}</a>
+</div>        
+<div ui-view></div>        

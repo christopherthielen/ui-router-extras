@@ -1,6 +1,6 @@
 (function () {
   "use strict";
-  angular.module("ct.ui.router.examples").service("exampleData", function () {
+  angular.module("ct.ui.router.extras.examples").service("exampleData", function () {
     return {
       managers: [
         {
@@ -925,4 +925,4 @@
       ]
     }
   });
-});
+})();
