@@ -33,6 +33,71 @@
             </dl>
         </div>
     </section>
+    
+    <section class="panel panel-info">
+        <div class="panel-heading"><strong>$futureStateProvider</strong></div>
+        <div class="panel-body">
+            <div>
+                This is the main API entry point. Inject $futureStateProvider into your <code>config</code> or
+                <code>provider</code> code. <code>$futureStateProvider</code> has the following methods:
+            </div>
+            <br>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><code>$futureStateProvider.futureState</code></strong> (<code>futureStateDefinition</code>)
+                </div>
+                <div class="panel-body">
+                    This method registers a <code>FutureState</code> object as a placeholder for a full UI-Router <code>state</code>.
+                </div>
+            </div>
+            <br>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><code>$futureStateProvider.stateFactory</code></strong> (<code>type</code>, <code>stateFactory</code>)
+                </div>
+                <div class="panel-body">
+                    This method registers a <code>StateFactory</code> function for <code>FutureState</code> of type <code>type</code>.
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><code>$futureStateProvider.addResolve</code></strong> (<code>resolveFunction</code>)
+                </div>
+                <div class="panel-body">
+                    This method adds a resolve function.  Resolve functions are injected functions that return a promise.
+                    <code>$futureStateProvider</code> won't reject any state transitions or routes until all resolveFunction
+                    promises have been resolved.
+                </div>
+            </div>
+
+            <div class="panel panel-primary">
+                <div class="panel-heading">
+                    Example
+                </div>
+                <div class="panel-body">
+<pre>var myapp = angular.module('myapp', ['ct.ui.router.extras']);
+myapp.config($futureStateProvider) {
+    $futureStateProvider.addResolve(function($q, $timeout) {
+        var d = $q.defer();
+        $timeout(function() { 
+            d.resolve("When this resolves, future state provider will re-sync the state/url");
+        }, 1000);
+        return d.promise;
+    });
+    
+    var futureState = { type: 'ngload', stateName: 'foo', urlPrefix: '/foo', src: 'foo.js' };
+    $futureStateProvider.futureState(futureState);
+    
+    $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
+});
+</pre>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <div class="panel panel-info">
         <div class="panel-heading"><strong>A <code>FutureState</code> object is a placeholder for full a UI-Router <code>state</code></strong></div>
@@ -112,68 +177,4 @@
         </div>
     </div>
 
-    <section class="panel panel-info">
-        <div class="panel-heading"><strong>$futureStateProvider</strong></div>
-        <div class="panel-body">
-            <div>
-                This is the main API entry point. Inject $futureStateProvider into your <code>config</code> or
-                <code>provider</code> code. <code>$futureStateProvider</code> has the following methods:
-            </div>
-            <br>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                <strong><code>$futureStateProvider.futureState</code></strong> (<code>futureStateDefinition</code>)
-                    </div>
-                <div class="panel-body">
-                    This method registers a <code>FutureState</code> object as a placeholder for a full UI-Router <code>state</code>.
-                </div>
-            </div>
-            <br>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong><code>$futureStateProvider.stateFactory</code></strong> (<code>type</code>, <code>stateFactory</code>)
-                </div>
-                <div class="panel-body">
-                    This method registers a <code>StateFactory</code> function for <code>FutureState</code> of type <code>type</code>.
-                </div>
-            </div>
-
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <strong><code>$futureStateProvider.addResolve</code></strong> (<code>resolveFunction</code>)
-                </div>
-                <div class="panel-body">
-                    This method adds a resolve function.  Resolve functions are injected functions that return a promise.
-                    <code>$futureStateProvider</code> won't reject any state transitions or routes until all resolveFunction
-                    promises have been resolved.
-                </div>
-            </div>
-            
-            <div class="panel panel-primary">
-                <div class="panel-heading">
-                    Example
-                </div>
-                <div class="panel-body">
-<pre>var myapp = angular.module('myapp', ['ct.ui.router.extras']);
-myapp.config($futureStateProvider) {
-    $futureStateProvider.addResolve(function($q, $timeout) {
-        var d = $q.defer();
-        $timeout(function() { 
-            d.resolve("When this resolves, future state provider will re-sync the state/url");
-        }, 1000);
-        return d.promise;
-    });
-    
-    var futureState = { type: 'ngload', stateName: 'foo', urlPrefix: '/foo', src: 'foo.js' };
-    $futureStateProvider.futureState(futureState);
-    
-    $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
-});
-</pre>                    
-                </div>
-            </div>
-        </div>
-    </section>
 </div>
