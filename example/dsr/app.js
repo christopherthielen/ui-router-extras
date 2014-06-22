@@ -17,6 +17,7 @@
                   deepStateRedirect: true});
     states.push({ name: 'top.inv.storelist',          url: '/stores',       controller: 'storeCtrl',  templateUrl: 'partials/stores.html' });
     states.push({ name: 'top.inv.store',              url: '/store/:sid',   controller: 'storeCtrl',  templateUrl: 'partials/store.html' });
+    states.push({ name: 'top.inv.store.productlist',  url: '/products',     controller: 'productCtrl',templateUrl: 'partials/products.html' });
     states.push({ name: 'top.inv.store.product',      url: '/product/:pid', controller: 'productCtrl',templateUrl: 'partials/product.html' });
     
     angular.forEach(states, function(state) { $stateProvider.state(state); });

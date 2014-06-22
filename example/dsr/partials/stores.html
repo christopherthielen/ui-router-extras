@@ -1,1 +1,8 @@
 <h3>Stores</h3>
+<div ng-repeat="store in stores">
+    <a ui-sref="^.store({ sid: store.id })">{{store.name}}</a>
+    <div>
+        {{store.address}}
+    </div>
+</div>
+    

@@ -1,0 +1,13 @@
+<h3>Store</h3>
+<dl class="dl-horizontal">
+    <dt>Name:</dt>
+    <dd>{{store.name}}</dd>
+    <dt>Phone:</dt>
+    <dd>{{store.phone}}</dd>
+    <dt>Address:</dt>
+    <dd>{{store.address}}</dd>
+    <dt>Tags:</dt>
+    <dd><span ng-repeat="tag in store.tags">{{tag}} </span></dd>
+</dl>
+<a ui-sref=".productlist">{{store.name}} products</a>
+<div ui-view></div>
