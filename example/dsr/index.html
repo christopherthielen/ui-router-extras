@@ -4,12 +4,16 @@
     <title>ui-router-extras DeepStateRedirect demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="../../css/bootstrap.css" rel="stylesheet">
+    <link href="../../css/statevis.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <script type="text/javascript" src="../../bower_components/ui-router-extras/release/ct-ui-router-extras.js"></script>
+    
+    <script type="text/javascript" src="../../bower_components/d3/d3.js"></script>
+
     <script type="text/javascript" src="../timerService.js"></script>
     <script type="text/javascript" src="../dataService.js"></script>
     <script type="text/javascript" src="app.js"></script>
@@ -27,9 +31,12 @@
     <div ui-view class="col-sm-8"></div>
     <div class="col-sm-4">
         This app has a state tree that looks like this:
-        <h3>todo</h3>
+        <div id="statevis">
+            
+        </div>
     </div>
 </div>
 
 </body>
+<script type="text/javascript" src="../statevis.js"></script>
 </html>
