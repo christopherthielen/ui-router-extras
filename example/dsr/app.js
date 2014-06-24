@@ -23,5 +23,9 @@
     angular.forEach(states, function(state) { $stateProvider.state(state); });
     $urlRouterProvider.otherwise("/");
   });
+  
+  app.run(function($rootScope, $state) {
+    $rootScope.$state = $state;
+  })
 })();
   

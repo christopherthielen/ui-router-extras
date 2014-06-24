@@ -1,7 +1,15 @@
 (function () {
   "use strict";
   angular.module("ct.ui.router.extras.examples").service("exampleData", function () {
-    return {
+    function saveObject(collection, object) {
+      
+    }
+    
+    var service =  {
+      saveManager: function(Manager)  {  saveObject(service.managers, Manager); },
+      saveEmployee: function(Employee)  {  saveObject(service.employees, Employee); },
+      saveStore: function(Store)  {  saveObject(service.stores, Store); },
+      saveProduct: function(Product)  {  saveObject(service.products, Product); },
       managers: [
         {
           "id": 0,
@@ -923,6 +931,7 @@
           ]
         }
       ]
-    }
+    };
+    return service;
   });
 })();

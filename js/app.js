@@ -19,17 +19,22 @@
     });
     $sp.state("dsr", {
       url: '/dsr',
-      controller: function() {},
-      templateUrl: 'partials/dsr.html'
+      controller: function($scope, $document) {
+        $scope.scrollTo = function scrollTo(selector) {
+          var elm = $document.find(selector);
+          if (elm[0]) elm[0].scrollIntoView();
+        };
+      },
+      templateUrl: 'partials/dsr/dsr.html'
     });
     $sp.state("future", {
       url: '/future/:section',
       templateUrl: 'partials/future/future.html',
       controller: function($scope, $document) {
-        $scope.scrollTo = function(selector) {
+        $scope.scrollTo = function scrollTo(selector) {
           var elm = $document.find(selector);
           if (elm[0]) elm[0].scrollIntoView();
-        }
+        };
       }
     });
   }]);

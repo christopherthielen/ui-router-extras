@@ -26,7 +26,7 @@
     if ($stateParams.eid) {
       $scope.employee = angular.copy(_.find(exampleData.employees, function(emp) { return emp.id == $stateParams.eid; }));
     }
-    $scope.employees = angular.copy(exampleData.employees);
+    $scope.employees = angular.copy(_.filter(exampleData.employees, function(emp) { return emp.manager == $stateParams.mid }));
   });
     
   // Inventory stuff
@@ -50,7 +50,7 @@
     if ($stateParams.pid) {
       $scope.product = angular.copy(_.find(exampleData.products, function(prod) { return prod.id == $stateParams.pid; }));
     }
-    $scope.products = angular.copy(exampleData.products);
+    $scope.products = angular.copy(_.filter(exampleData.products, function(prod) { return prod.store == $stateParams.sid; }));
   });
 
 })();
