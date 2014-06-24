@@ -6,6 +6,7 @@
     "lodash": "latest",
     "ui-router-extras": "latest",
     "requirejs": "latest",
-    "angularAMD": "latest"
+    "angularAMD": "latest",
+    "d3": "latest"
   }
 }
