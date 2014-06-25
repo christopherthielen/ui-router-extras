@@ -11,20 +11,37 @@
       template: '<svg></svg>',
       link: function (_scope, _elem, _attrs) {
         var stateMap = {};
-        var stateTree = [];
-        
-        var tree = d3.layout.tree()
-            .size([height, width]);
-        
-        root = stateTree[0];
+        var width = _scope.width,
+            height = _scope.height;
 
-        // Compute the tree layout.
-        var nodes = tree.nodes(root).reverse(),
-            links = tree.links(nodes);
+        var tree = d3.layout.tree()
+            .size([width - 20, height - 20]);
+
+        var root = angular.copy($state.get("")),
+            nodes = tree(root);
+
+        root.parent = root;
+        root.px = root.x;
+        root.py = root.y;
+
+        var diagonal = d3.svg.diagonal();
+
+        var svg = d3.select(_elem.find("svg")[0])
+            .attr("width", _scope.width)
+            .attr("height", _scope.height)
+            .append("g")
+            .attr("transform", "translate(10, 10)");
+
+        var node = svg.selectAll(".node"),
+            link = svg.selectAll(".link")
+            ;
+
+        var duration = 300,
+            timer = setInterval(update, duration);
 
         function addStates(data) {
           // *********** Convert flat data into a nice tree ***************
-          data = data.map(function(node) { return angular.copy(node); });
+          data = data.map(function(node) { return node.name == "" ? root : angular.copy(node); });
           _.extend(stateMap, data.reduce(function (map, node) {
             map[node.name] = node;
             return map;
@@ -36,173 +53,73 @@
             var parent = node.name != parentName && stateMap[parentName];
             if (parent) {
               (parent.children || (parent.children = [])).push(node); // create child array if it doesn't exist
-            } else {
-              stateTree.push(node); // parent is null or missing
+              node.px = parent.px; node.py = parent.py;
+              nodes.push(node);
             }
           });
         }
-        
+
         addStates($state.get());
         
-        var margin = {top: 20, right: 20, bottom: 20, left: 20},
-            width = _scope.width - margin.right - margin.left,
-            height = _scope.height - margin.top - margin.bottom;
+        update(duration);
+        _scope.$on("$stateChangeSuccess", function(event, toState) {
+          _.each(nodes, function(n) { n.status = 'inactive'; });
+          stateMap[toState.name].status = 'active';
+        });
+        function update() {
+          if (nodes.length >= 50) return clearInterval(timer);
 
-        var i = 0;
-        var diagonal = d3.svg.diagonal()
-            .projection(function(d) { return [d.x, d.y]; });
-
-        var svg = d3.select(_elem.find("svg")[0])
-            .attr("width", _scope.width + margin.right + margin.left)
-            .attr("height", _scope.height + margin.top + margin.bottom)
-            .append("g")
-            .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
-        // Declare the nodes and map by node.name
-        var node = svg.selectAll("g.node");
-        node.data(nodes, function(d) { return d.name; });
-
-        // Declare the links…
-        var link = svg.selectAll("path.link");
-        node.data(links, function(d) { return d.target.name; });
-
-        update(root);
-        
-        function update(source) {
-          // Normalize for fixed-depth.
-          // Multiply the node's tree depth buy 60 to get the y position.
+          // Recompute the layout and data join.
           node = node.data(tree.nodes(root), function(d) { return d.name; });
           link = link.data(tree.links(nodes), function(d) { return d.target.name; });
 
-          nodes.forEach(function(d) { d.y = d.depth * 60; });
-
-          // Enter the nodes.
-          var nodeEnter = node.enter().append("g")
-              .attr("class", "node")
-              .attr("transform", function(d) {
-                return "translate(" + d.x + "," + d.y + ")"; });
-
-          var circleColors = { active: '#f00', entered: '#955', inactive: '#999', future: '#009' };
+          // Add entering nodes in the parent’s old position.
+          var nodeEnter = node.enter();
+          
           nodeEnter.append("circle")
-              .attr("r", 7)
-              .style("fill", function(d) { 
-                console.log("fill status " + d.status + "; d: ", d);
-                return circleColors[d.status] || "#FFF"
-              });
-
+              .attr("class", "node")
+              .attr("r", 9)
+              .attr("cx", function(d) { return d.parent.px; })
+              .attr("cy", function(d) { return d.parent.py; })
+          
           nodeEnter.append("text")
-              .attr("x", function(d) { return 0; })
-              .attr("y", function(d) { return 23; })
+              .attr("class", "label")
+              .attr("x", function(d) { return d.parent.px; })
+              .attr("y", function(d) { return d.parent.py; })
               .attr("text-anchor", function(d) { return "middle"; })
               .text(function(d) { return d.name.split(".").pop(); })
               .style("fill-opacity", 1);
-
-          // Enter the links.
-          link.enter().insert("path", "g")
+          
+          
+          // Add entering links in the parent’s old position.
+          link.enter().insert("path", ".node")
               .attr("class", "link")
-              .attr("d", diagonal);
-          
+              .attr("d", function(d) {
+                var o = {x: d.source.px, y: d.source.py};
+                return diagonal({source: o, target: o});
+              });
+
+          // Transition nodes and links to their new positions.
           var t = svg.transition()
-              .duration(100);
+              .duration(duration);
 
-//          var force = d3.layout.force()
-//              .nodes(nodes)
-//              .links(links)
-//              .on("tick", tick)
-//              .start();
-//
-//          function tick() {
-//            Update positions of circle elements.
-//            node.attr("cx", function(d) { return d.x; })
-//                .attr("cy", function(d) { return d.y; });
-//          }
+          t.selectAll(".link")
+              .attr("d", diagonal);
+
+          var circleColors = { active: '#f00', entered: '#955', inactive: '#999', future: '#009' };
+          t.selectAll(".node")
+              .attr("cx", function(d) { return d.px = d.x; })
+              .attr("cy", function(d) { return d.py = d.y; })
+              .style("fill", function(d) {
+                return circleColors[d.status] || "#FFF"
+              });
+          
+          t.selectAll(".label")
+              .attr("x", function(d) { return d.px = d.x; })
+              .attr("y", function(d) { return d.py = d.y - 15; });
         }
-        
-        window.setTimeout(function() {
-          addStates([{ name: 'top3' }]);
-          root.status = 'active';
-          update(root);
-          
-        }, 500);
-
-
-//        function update() {
-//          "use strict";
-//          var tree = d3.layout.tree();
-          
-//          var node = svg.selectAll("circle")
-//              .data(json.nodes, nodename);
-//          node.exit().remove();
-//          node.enter().append("svg:circle")
-//              .attr("r", r - .75)
-//              .style("fill", function (d) {
-//                return fill(d.group);
-//              })
-//              .style("stroke", function (d) {
-//                return d3.rgb(fill(d.group)).darker();
-//              })
-//              .call(force.drag);
-//
-//          var text = svg.selectAll("text")
-//              .data(json.nodes, nodename);
-//          text.exit().remove();
-//          text.enter().append("svg:text")
-//              .attr("x", function (d) {
-//                return d.cx;
-//              })
-//              .attr("y", function (d) {
-//                return d.cy;
-//              })
-//              .text(function (d) {
-//                return d.name;
-//              })
-//              .attr("font-family", "sans-serif")
-//              .attr("font-size", "10px");
-//
-//          var link = svg.selectAll("line")
-//              .data(json.links, nodename);
-//          link.exit().remove();
-//          link.enter().append("svg:line");
-
-
-//          force.nodes(json.nodes)
-//              .links(json.links)
-//              .on("tick", tick)
-//              .start();
-
-//          function tick(e) {
-//            Push sources up and targets down to form a weak tree.
-//            var k = 6 * e.alpha;
-//            json.links.forEach(function (d, i) {
-//              d.source.y -= k;
-//              d.target.y += k;
-//            });
-//
-//            node.attr("cx", function (d) { return d.x; })
-//                .attr("cy", function (d) { return d.y; });
-//
-//            text.attr("x", function (d) { return d.x + 10; })
-//                .attr("y", function (d) { return d.y - 10; });
-//
-//            link.attr("x1", function (d) { return d.source.x; })
-//                .attr("y1", function (d) { return d.source.y; })
-//                .attr("x2", function (d) { return d.target.x; })
-//                .attr("y2", function (d) { return d.target.y; });
-//          }
-//        }
-//
-//        update();
       }
     };
   }]);
-
 })();
-
-
-//
-//window.setTimeout(function() {
-//  json.nodes.pop();
-//  json.links.pop();
-//  update();
-//}, 4000);
 
