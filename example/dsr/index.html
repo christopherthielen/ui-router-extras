@@ -11,8 +11,8 @@
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>
     <script type="text/javascript" src="../../bower_components/ui-router-extras/release/ct-ui-router-extras.js"></script>
-    
     <script type="text/javascript" src="../../bower_components/d3/d3.js"></script>
+    <script type="text/javascript" src="../statevis.js"></script>
 
     <script type="text/javascript" src="../timerService.js"></script>
     <script type="text/javascript" src="../dataService.js"></script>
@@ -31,6 +31,8 @@
     <div ui-view class="col-sm-8"></div>
     <div class="col-sm-4">
         This app has a state tree that looks like this:
+        <div state-vis width="400" height="600">vis</div>
+      
         <div id="statevis">
             
         </div>
@@ -38,5 +40,4 @@
 </div>
 
 </body>
-<script type="text/javascript" src="../statevis.js"></script>
 </html>
