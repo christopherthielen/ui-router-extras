@@ -1,4 +1,5 @@
 <h5>Managers</h5>
+<div scope-age />
 <div ng-repeat="manager in managers">
     <a ui-sref="^.manager({mid: manager.id})">{{ manager.name }} - {{ manager.email }}</a>
 </div>        

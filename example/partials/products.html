@@ -1,4 +1,5 @@
 <h3>Products</h3>
+<div scope-age />
 <div ng-repeat="product in products track by product.id">
     <a ui-sref="^.product({ pid: product.id })">{{product.name}}</a>
 </div>

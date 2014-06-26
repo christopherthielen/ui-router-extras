@@ -1,5 +1,12 @@
 (function () {
   var app = angular.module("ct.ui.router.extras.examples", ['ct.ui.router.extras']);
+  
+  app.directive("scopeAge", function () {
+    return {
+      template: '<div>This scope is {{age || 0}} seconds old</div>'
+    }
+  });
+  
   app.service("timerService", function ($interval) {
     return {
       instrument: function instrument($scope) {
