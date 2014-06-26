@@ -29,7 +29,7 @@ angular.module("ct.ui.router.extras", [ 'ui.router' ]);
       var lastDot = stateName.lastIndexOf(".");
       if (lastDot != -1) {
         var parentStatus = recordDeepStateRedirectStatus(stateName.substr(0, lastDot));
-        if (parentStatus) {
+        if (parentStatus && deepStateRedirectsByName[stateName] === undefined) {
           deepStateRedirectsByName[stateName] = ANCESTOR_REDIRECT;
         }
       }
@@ -822,9 +822,9 @@ angular.module("ct.ui.router.extras").config(
         });
       }
       init();
-      
-      serviceObject.futureState = provider.futureState;
+
       serviceObject.state = $stateProvider.state;
+      serviceObject.futureState = provider.futureState;
       serviceObject.get = provider.get;
       
       return serviceObject;
