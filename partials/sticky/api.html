@@ -7,15 +7,27 @@
     <section class="panel panel-default">
         <div class="panel-heading"><strong><code>sticky</code></strong></div>
         <div class="panel-body">
-            <div>Mark a state with <code>sticky: true</code>.  Also mark as <code>deepStateRedirect: true</code>.</div>
+            <div>Mark a state with <code>sticky: true</code>. </div>
+            <div>Also mark as <code>deepStateRedirect: true</code> to get the tab to redirect.</div>
+            <div>Create a view targetting a named ui-view in the parent state</div>
 <pre>var myState = {
     name: 'foo.bar',
     url: '/bar',
-    template: '&lt;div&gt;{{templatestuff}}&lt;/div&gt;,
-    controller: 'barCtrl',
+    views: {
+        'bar@foo': {
+            template: '&lt;div&gt;{{templatestuff}}&lt;/div&gt;,
+            controller: 'barCtrl',
+        }
+    },
     deepStateRedirect: true,
     sticky: true
 }</pre>
+            
+            <div>in the template for the 'foo' state, create a ui-view named 'bar'</div>
+            
+<pre>
+&lt;div ui-view='bar' /&gt;    
+</pre>
         </div>
     </section>
 </div>
