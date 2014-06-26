@@ -8,14 +8,16 @@
     states.push({ name: 'aside2',                     url: '/aside2',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });
     states.push({ name: 'top',                        url: '/',             controller: 'timerCtrl',  templateUrl: 'top.html' ,
                   deepStateRedirect: true });
-    states.push({ name: 'top.people',                 url: 'people',        controller: 'peopleCtrl', templateUrl: '../partials/people.html',
-                  deepStateRedirect: true });
+    states.push({ name: 'top.people',                 url: 'people',        
+                  views: { 'peopletab@top': { controller: 'peopleCtrl', templateUrl: '../partials/people.html'} },
+                  deepStateRedirect: true, sticky: true });
     states.push({ name: 'top.people.managerlist',     url: '/managers',     controller: 'managerCtrl',templateUrl: '../partials/managers.html' });
     states.push({ name: 'top.people.manager',         url: '/manager/:mid', controller: 'managerCtrl',templateUrl: '../partials/manager.html' });
     states.push({ name: 'top.people.manager.emplist', url: '/emps',         controller: 'empCtrl',    templateUrl: '../partials/emps.html' });
     states.push({ name: 'top.people.manager.emp',     url: '/emp/:eid',     controller: 'empCtrl',    templateUrl: '../partials/emp.html' });
-    states.push({ name: 'top.inv',                    url: 'inv',           controller: 'invCtrl',    templateUrl: '../partials/inv.html',
-                  deepStateRedirect: true });
+    states.push({ name: 'top.inv',                    url: 'inv',           
+                  views: { 'invtab@top': { controller: 'invCtrl',    templateUrl: '../partials/inv.html' } },
+                  deepStateRedirect: true, sticky: true });
     states.push({ name: 'top.inv.storelist',          url: '/stores',       controller: 'storeCtrl',  templateUrl: '../partials/stores.html' });
     states.push({ name: 'top.inv.store',              url: '/store/:sid',   controller: 'storeCtrl',  templateUrl: '../partials/store.html' });
     states.push({ name: 'top.inv.store.productlist',  url: '/products',     controller: 'productCtrl',templateUrl: '../partials/products.html' });

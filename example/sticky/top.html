@@ -1,0 +1,16 @@
+<div class="lead">Click the &quot;Personnel Management&quot;tab.</div>
+<!--<ul>-->
+    <!--<li> Drill down through the Personnel states until you are editing an employee record. </li>-->
+    <!--<li> Click the &quot;Inventory Management&quot; tab and drill down the tab&apos;s states until you are viewing a Product. </li>-->
+    <!--<li> Click the &quot;Personnel Management tab&quot;. Deep State Redirect sends you back to the employee record state. </li>-->
+    <!--<li>Click &quot;Aside 1&quot;</li>-->
+    <!--<li>Click &quot;Top&quot;  Deep State Redirect sends you back to the employee record state. </li>-->
+<!--</ul>-->
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+    <ul class="nav navbar-nav">
+        <li ng-class="{active: $state.includes('top.people')}" ><a ui-sref="top.people">Personnel Management</a></li>
+        <li ng-class="{active: $state.includes('top.inv')}" ><a ui-sref="top.inv">Inventory Management</a></li>
+    </ul>
+</div>
+<div ui-view="peopletab" ng-show="$state.includes('top.people')" class="col-sm-8"></div>
+<div ui-view="invtab"    ng-show="$state.includes('top.inv')"    class="col-sm-8"></div>
