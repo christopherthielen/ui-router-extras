@@ -26,11 +26,13 @@
     $urlRouterProvider.otherwise("/");
   });
   
-  app.run(function($rootScope, $state, $window, $location) {
+  app.run(function ($rootScope, $state, $window, $timeout) {
     $rootScope.$state = $state;
     $rootScope.$on("$stateChangeSuccess", function() {
-      $window.ga('send', 'pageview', $window.location.pathname+$window.location.hash);
-    })
-  })
+      $timeout(function() {
+        $window.ga('send', 'pageview', $window.location.pathname+$window.location.hash);
+      } );
+    });
+  });
 })();
   
