@@ -64,6 +64,7 @@
 
         $interval(function () {
           _scope.states = $state.get();
+//          _scope.futureStates = $futureState.get();
         }, 50);
 
         var stateActive = function (event, toState) {
@@ -78,6 +79,15 @@
         };
         
         _scope.$on("$stateChangeSuccess", stateActive);
+
+//        _scope.$watchCollection("futureStates", function(newval, oldval) {
+//          var oldstates = _.map(oldval, function(s) { return s.name; });
+//          var x = (_.reject(newval, function(state) {
+//            return _.contains(oldstates, state.name);
+//          }));
+//          if (x.length)
+//            console.log("Future states: ", x);
+//        });
         
         _scope.$watchCollection("states", function(newval, oldval) {
           var oldstates = _.map(oldval, function(s) { return s.name; });
@@ -98,6 +108,12 @@
 
           // Add entering nodes in the parent’s old position.
           var nodeEnter = node.enter();
+          function stateName(node) {
+            var name = node.name.split(".").pop();
+            if (node.sticky) { name += " (STICKY)"; }
+            if (node.deepStateRedirect) { name += " (DSR)"; }
+            return name;
+          }
           
           nodeEnter.append("circle")
               .attr("class", "node")
@@ -110,7 +126,7 @@
               .attr("x", function(d) { return d.parent.px; })
               .attr("y", function(d) { return d.parent.py; })
               .attr("text-anchor", function(d) { return "middle"; })
-              .text(function(d) { return d.name.split(".").pop(); })
+              .text(stateName)
               .style("fill-opacity", 1);
           
           

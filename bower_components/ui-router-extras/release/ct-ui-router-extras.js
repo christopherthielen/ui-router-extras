@@ -677,6 +677,10 @@ angular.module("ct.ui.router.extras").config(
       futureUrlPrefixes[futureState.urlPrefix] = futureState;
     };
     
+    this.get = function() {
+      return angular.extend({}, futureStates);
+    };
+    
     /* options is an object with at least a name or url attribute */
     function findFutureState($state, options) {
       if (options.name) {
@@ -821,6 +825,7 @@ angular.module("ct.ui.router.extras").config(
       
       serviceObject.futureState = provider.futureState;
       serviceObject.state = $stateProvider.state;
+      serviceObject.get = provider.get;
       
       return serviceObject;
     }
