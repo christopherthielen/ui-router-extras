@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.examples.dsr", ['ct.ui.router.extras.examples']);
+  var app = angular.module("ct.ui.router.extras.examples.dsr", [ 'ct.ui.router.extras.examples', 'ct.ui.router.extras.examples.statevis' ]);
   
   app.config(function ($stateProvider, $urlRouterProvider) {
     var states = [];

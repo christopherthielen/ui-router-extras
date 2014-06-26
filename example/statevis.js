@@ -1,7 +1,7 @@
 (function () {
   "use strict";
-//  var app = angular.module("ct.ui.router.extras.statevis", []);
-  angular.module("ct.ui.router.extras").directive('stateVis', [ '$state', function ($state) {
+  var app = angular.module("ct.ui.router.extras.examples.statevis", ['ct.ui.router.extras']);
+  angular.module("ct.ui.router.extras.examples.statevis").directive('stateVis', [ '$state', function ($state) {
     return {
       scope: {
         width: '@',
@@ -62,10 +62,12 @@
         addStates($state.get());
         
         update(duration);
+        
         _scope.$on("$stateChangeSuccess", function(event, toState) {
           _.each(nodes, function(n) { n.status = 'inactive'; });
           stateMap[toState.name].status = 'active';
         });
+        
         function update() {
           if (nodes.length >= 50) return clearInterval(timer);
 

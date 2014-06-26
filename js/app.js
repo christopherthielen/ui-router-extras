@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  var app = angular.module("futureStates", ['ct.ui.router.extras', 'ct.ui.router.extras.statevis', 'mgcrea.ngStrap.navbar']);
+  var app = angular.module("futureStates", ['ct.ui.router.extras', 'mgcrea.ngStrap.navbar']);
   app.controller("home", function($scope) {
     
   });
