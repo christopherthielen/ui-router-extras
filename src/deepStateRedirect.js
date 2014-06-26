@@ -26,7 +26,7 @@
       var lastDot = stateName.lastIndexOf(".");
       if (lastDot != -1) {
         var parentStatus = recordDeepStateRedirectStatus(stateName.substr(0, lastDot));
-        if (parentStatus) {
+        if (parentStatus && deepStateRedirectsByName[stateName] === undefined) {
           deepStateRedirectsByName[stateName] = ANCESTOR_REDIRECT;
         }
       }
