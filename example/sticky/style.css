@@ -14,3 +14,9 @@ div.hovercode {
     top: 10px;
     left: 0;
 }
+
+div.tabcontent {
+    height: 400px;
+    overflow-y:  scroll;
+    border: 1px solid lightgrey;
+}

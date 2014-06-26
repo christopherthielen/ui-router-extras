@@ -23,5 +23,5 @@
         <li ng-class="{active: $state.includes('top.inv')}" ><a ui-sref="top.inv">Inventory Management</a></li>
     </ul>
 </div>
-<div ui-view="peopletab" ng-show="$state.includes('top.people')" class="col-sm-8"></div>
-<div ui-view="invtab"    ng-show="$state.includes('top.inv')"    class="col-sm-8"></div>
+<div class="tabcontent well-lg" ui-view="peopletab" ng-show="$state.includes('top.people')" class="col-sm-8"></div>
+<div class="tabcontent well-lg " ui-view="invtab"    ng-show="$state.includes('top.inv')"    class="col-sm-8"></div>
