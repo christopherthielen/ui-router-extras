@@ -42,8 +42,12 @@
       futureUrlPrefixes[futureState.urlPrefix] = futureState;
     };
     
+    this.get = function() {
+      return angular.extend({}, futureStates);
+    };
+    
     /* options is an object with at least a name or url attribute */
-    function findFutureState(options) {
+    function findFutureState($state, options) {
       if (options.name) {
         var nameComponents = options.name.split(/\./);
         while (nameComponents.length) {
@@ -102,7 +106,7 @@
         }
 
         
-        var futureState = findFutureState({ url: $location.path() });
+        var futureState = findFutureState($state, { url: $location.path() });
         if (!futureState) {
           return $injector.invoke(otherwiseFunc);
         }
@@ -142,7 +146,7 @@
           if (transitionPending) return;
           $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
 
-          var futureState = findFutureState({ name: unfoundState.to });
+          var futureState = findFutureState($state, { name: unfoundState.to });
           if (futureState == null) return;
 
           event.preventDefault();
@@ -183,9 +187,10 @@
         });
       }
       init();
-      
-      serviceObject.futureState = provider.futureState;
+
       serviceObject.state = $stateProvider.state;
+      serviceObject.futureState = provider.futureState;
+      serviceObject.get = provider.get;
       
       return serviceObject;
     }

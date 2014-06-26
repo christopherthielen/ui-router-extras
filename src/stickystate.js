@@ -1,8 +1,8 @@
 var _StickyState; // internal reference to $stickyStateProvider
 var internalStates = {}; // Map { statename -> InternalStateObj } holds internal representation of all states
 var root, // Root state, internal representation
-    pendingTransitions = [], // One transition may supercede another.  This holds references to all pending transitions
-    pendingRestore, // The restore function from the superceded transition
+    pendingTransitions = [], // One transition may supersede another.  This holds references to all pending transitions
+    pendingRestore, // The restore function from the superseded transition
     inactivePseudoState; // This pseudo state holds all the inactive states' locals (resolved state data, such as views etc)
 
 // Creates a blank surrogate state
@@ -293,7 +293,7 @@ angular.module("ct.ui.router.extras").config(
             }, function transitionFailed(err) {
               if (err.message !== "transition prevented" 
                   && err.message !== "transition aborted"
-                  && err.message !== "transition superceded") {
+                  && err.message !== "transition superseded") {
                 $log.debug("transition failed", err);
                 console.log(err.stack);
               }
