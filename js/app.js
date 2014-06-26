@@ -32,7 +32,10 @@
     });
   }]);
 
-  app.run(function ($rootScope, $state) {
+  app.run(function ($rootScope, $state, $window, $location) {
     $rootScope.$state = $state;
+    $rootScope.$on("$stateChangeSuccess", function() {
+      $window.ga('send', 'pageview', { page: $location.path() });
+    })
   });
 })();

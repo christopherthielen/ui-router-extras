@@ -20,9 +20,12 @@ function (angularAMD) { // Only need to inject angularAMD for app config
     $futureStateProvider.addResolve(loadAndRegisterFutureStates);
   }]);
   
-  app.run(function($rootScope, $state) {
+  app.run(function($rootScope, $state, $window, $location) {
     "use strict";
     $rootScope.$state = $state;
+    $rootScope.$on("$stateChangeSuccess", function() {
+      $window.ga('send', 'pageview', { page: $location.path() });
+    })
   });
   
   // Tell angularAMD to tell angular to bootstrap our app
