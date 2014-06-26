@@ -50,14 +50,6 @@
           "name": "Georgette Wolf",
           "gender": "female",
           "email": "georgettewolf@insurity.com"
-        },
-        {
-          "id": 5,
-          "age": 43,
-          "eyeColor": "brown",
-          "name": "Letha Swanson",
-          "gender": "female",
-          "email": "lethaswanson@insurity.com"
         }
       ],
       employees: [

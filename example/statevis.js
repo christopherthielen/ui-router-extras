@@ -2,8 +2,8 @@
   "use strict";
   var app = angular.module("ct.ui.router.extras.examples.statevis", ['ct.ui.router.extras']);
   angular.module("ct.ui.router.extras.examples.statevis").directive('stateVis', 
-      [ '$state', '$timeout', '$interval', 
-        function ($state, $timeout, $interval) {
+      [ '$state', '$timeout', '$interval', '$futureState',
+        function ($state, $timeout, $interval, $futureState) {
     return {
       scope: {
         width: '@',
