@@ -1,6 +1,6 @@
 {
   "name": "ui-router-extras",
-  "version": "0.0.2-preview",
+  "version": "0.0.4-preview",
   "authors": [
     "Chris Thielen <ui-router-extras@sandgnat.com>"
   ],
@@ -14,12 +14,15 @@
     "**/.*",
     "pages",
     "build",
-    "./*.js",
     "node_modules",
     "bower_components",
     "src",
     "test",
     "tests",
+    "Gruntfile.js",
+    "files.js",
+    "package.json",
+    ".bower.json",
     "*.iml",
     "*.ipr",
     "*.iws"
