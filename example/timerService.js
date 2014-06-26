@@ -16,6 +16,7 @@
           $scope.ageMs = delta;
           $scope.age = Math.floor(delta / 1000);
         };
+        computeAge();
         var intervalPromise = $interval(computeAge, 1000);
         $scope.$on("$destroy", function () {
           $interval.cancel(intervalPromise);

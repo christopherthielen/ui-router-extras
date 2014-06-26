@@ -1,41 +1,34 @@
 (function() {
   "use strict";
   var app = angular.module("futureStates", ['ct.ui.router.extras', 'mgcrea.ngStrap.navbar']);
-  app.controller("home", function($scope) {
-    
+  app.controller("tab", function($scope, $document) {
+    $scope.scrollTo = function scrollTo(selector) {
+      var elm = $document.find(selector);
+      if (elm[0]) elm[0].scrollIntoView();
+    };
   });
   
   app.config(['$stateProvider', '$urlRouterProvider', function($sp, $urp) {
     $urp.otherwise("/home");
     $sp.state("home", {
       url: '/home',
-      controller: function() {},
+      controller: 'tab',
       templateUrl: 'partials/home.html'
     });
     $sp.state("sticky", {
       url: '/sticky',
-      controller: function() {},
-      templateUrl: 'partials/sticky.html'
+      controller: 'tab',
+      templateUrl: 'partials/sticky/sticky.html'
     });
     $sp.state("dsr", {
       url: '/dsr',
-      controller: function($scope, $document) {
-        $scope.scrollTo = function scrollTo(selector) {
-          var elm = $document.find(selector);
-          if (elm[0]) elm[0].scrollIntoView();
-        };
-      },
+      controller: 'tab',
       templateUrl: 'partials/dsr/dsr.html'
     });
     $sp.state("future", {
       url: '/future/:section',
-      templateUrl: 'partials/future/future.html',
-      controller: function($scope, $document) {
-        $scope.scrollTo = function scrollTo(selector) {
-          var elm = $document.find(selector);
-          if (elm[0]) elm[0].scrollIntoView();
-        };
-      }
+      controller: 'tab',
+      templateUrl: 'partials/future/future.html'
     });
   }]);
 

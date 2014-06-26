@@ -1,0 +1,14 @@
+<div class="page-header">
+    <h1>Sticky States <small>i.e., Parallel States</small></h1>
+</div>
+
+<div class="btn-group btn-group-lg">
+    <button class="btn btn-primary" ng-click="scrollTo('#overview')"><span>Overview</span></button>
+    <button class="btn btn-primary" ng-click="scrollTo('#api')">API</button>
+    <a href="example/sticky/index.html" class="btn btn-primary">Go to Example</a>
+</div>
+<br><br>
+
+<div id="overview"  ng-include="'partials/sticky/overview.html'"></div>
+<div id="api"       ng-include="'partials/sticky/api.html'"></div>
+<!--<div id="example"   ng-include="'partials/future/example.html'"></div>     -->

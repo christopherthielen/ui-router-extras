@@ -1,0 +1,29 @@
+<div id="overview" class="panel panel-primary">
+    <div class="panel-heading"><h2>Overview</h2></div>
+</div>
+
+<div class="container-fluid">
+    <section class="panel panel-default">
+        <div class="panel-heading">
+            <div><strong>Sticky States</strong></div>
+        </div>
+        <div class="panel-body">
+            <p> 
+                A Sticky State is state with a special marker. The marked state is the root of a state tree which gets 
+                a different lifecycle  than normal states. The DOM and <code>$scope</code> of a Sticky State (and all 
+                activated substates) is retained until the <i>parent state of the sticky state</i> is exited.  The sticky
+                state tree will remain in an &quot;inactivated&quot; status when transitioning to a direct sibling state,
+                or to a child of a sibling state.
+            </p>
+            
+            <p>
+                This feature is based on a &quot;<strong>tabs</strong>&quot; use case.  The use case requires that 
+                a tab in the application does not get exited when switching to one of the other tabs.  The user should 
+                be able to switch back and forth between tabs without any interruption in their workflow.  The URL
+                should reflect only the state tree of the active tab.
+            </p>
+
+            <p> For the tabs use case, Sticky States work best when also marked as Deep State Redirect </p>
+        </div>
+    </section>
+</div>

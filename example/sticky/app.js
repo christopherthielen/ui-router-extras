@@ -6,8 +6,7 @@
     var states = [];
     states.push({ name: 'aside1',                     url: '/aside1',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });
     states.push({ name: 'aside2',                     url: '/aside2',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });
-    states.push({ name: 'top',                        url: '/',             controller: 'timerCtrl',  templateUrl: 'top.html' ,
-                  deepStateRedirect: true });
+    states.push({ name: 'top',                        url: '/',             controller: 'timerCtrl',  templateUrl: 'top.html' });
     states.push({ name: 'top.people',                 url: 'people',        
                   views: { 'peopletab@top': { controller: 'peopleCtrl', templateUrl: '../partials/people.html'} },
                   deepStateRedirect: true, sticky: true });
