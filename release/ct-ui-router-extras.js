@@ -29,7 +29,7 @@ angular.module("ct.ui.router.extras", [ 'ui.router' ]);
       var lastDot = stateName.lastIndexOf(".");
       if (lastDot != -1) {
         var parentStatus = recordDeepStateRedirectStatus(stateName.substr(0, lastDot));
-        if (parentStatus) {
+        if (parentStatus && deepStateRedirectsByName[stateName] === undefined) {
           deepStateRedirectsByName[stateName] = ANCESTOR_REDIRECT;
         }
       }
@@ -327,8 +327,8 @@ angular.module("ct.ui.router.extras").provider("$stickyState", $StickyStateProvi
 var _StickyState; // internal reference to $stickyStateProvider
 var internalStates = {}; // Map { statename -> InternalStateObj } holds internal representation of all states
 var root, // Root state, internal representation
-    pendingTransitions = [], // One transition may supercede another.  This holds references to all pending transitions
-    pendingRestore, // The restore function from the superceded transition
+    pendingTransitions = [], // One transition may supersede another.  This holds references to all pending transitions
+    pendingRestore, // The restore function from the superseded transition
     inactivePseudoState; // This pseudo state holds all the inactive states' locals (resolved state data, such as views etc)
 
 // Creates a blank surrogate state
@@ -619,7 +619,7 @@ angular.module("ct.ui.router.extras").config(
             }, function transitionFailed(err) {
               if (err.message !== "transition prevented" 
                   && err.message !== "transition aborted"
-                  && err.message !== "transition superceded") {
+                  && err.message !== "transition superseded") {
                 $log.debug("transition failed", err);
                 console.log(err.stack);
               }
@@ -677,8 +677,12 @@ angular.module("ct.ui.router.extras").config(
       futureUrlPrefixes[futureState.urlPrefix] = futureState;
     };
     
+    this.get = function() {
+      return angular.extend({}, futureStates);
+    };
+    
     /* options is an object with at least a name or url attribute */
-    function findFutureState(options) {
+    function findFutureState($state, options) {
       if (options.name) {
         var nameComponents = options.name.split(/\./);
         while (nameComponents.length) {
@@ -737,7 +741,7 @@ angular.module("ct.ui.router.extras").config(
         }
 
         
-        var futureState = findFutureState({ url: $location.path() });
+        var futureState = findFutureState($state, { url: $location.path() });
         if (!futureState) {
           return $injector.invoke(otherwiseFunc);
         }
@@ -777,7 +781,7 @@ angular.module("ct.ui.router.extras").config(
           if (transitionPending) return;
           $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
 
-          var futureState = findFutureState({ name: unfoundState.to });
+          var futureState = findFutureState($state, { name: unfoundState.to });
           if (futureState == null) return;
 
           event.preventDefault();
@@ -818,9 +822,10 @@ angular.module("ct.ui.router.extras").config(
         });
       }
       init();
-      
-      serviceObject.futureState = provider.futureState;
+
       serviceObject.state = $stateProvider.state;
+      serviceObject.futureState = provider.futureState;
+      serviceObject.get = provider.get;
       
       return serviceObject;
     }
