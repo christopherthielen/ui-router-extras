@@ -4,7 +4,9 @@
     <title>ui-router-extras FutureState demo</title>
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="../../css/bootstrap.css" rel="stylesheet">
+    <link href="../../css/statevis.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
+    <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>
     <script type="text/javascript" data-main="main.js" src="//cdnjs.cloudflare.com/ajax/libs/require.js/2.1.11/require.js"></script>
@@ -15,10 +17,10 @@
 <div class="navbar navbar-default navbar-static-top" role="navigation">
     <ul class="nav navbar-nav">
         <li><a href="../../#/future/">Back to UI-Router Extras</a></li>
-        <li><a href="#/iframe1">IFrame 1</a></li>
-        <li><a href="#/iframe2">IFrame 2</a></li>
-        <li><a href="#/module1">Module 1</a></li>
-        <li><a href="#/module2">Module 2</a></li>
+        <li ng-class="{active: $state.includes('iframe1')}"><a href="#/iframe1">IFrame 1</a></li>
+        <li ng-class="{active: $state.includes('iframe2')}"><a href="#/iframe2">IFrame 2</a></li>
+        <li ng-class="{active: $state.includes('module1')}"><a href="#/module1">Module 1</a></li>
+        <li ng-class="{active: $state.includes('module2')}"><a href="#/module2">Module 2</a></li>
         <li><a ui-sref="module2">Module 2 via ui-sref</a></li>
     </ul>
 </div>
@@ -27,10 +29,7 @@
     
 </div>
 <div  class="container">
-    <div class="col-sm-2">
-        {{foo}}    
-    </div>
-    <div class="col-sm-8">
+    <div class="col-sm-6">
         <p> When this page loads, it has no states registered with ui-router $stateProvider. </p>
         <p> FutureState objects are loaded from futureStates.json using $http service after the configuration phase. </p>
         <p> The four links above go to future state mappings.  When navigating to a link, the StateFactory promises
@@ -100,9 +99,14 @@
     </div>
     
     
-    <!-- State views load here -->
-    <div class="col-sm-2 content" ui-view>
+    
+    <div class="col-sm-6">
+        
+    <div width="200" height="200" state-vis></div>
+    <div class="content" ui-view>
+        <!-- State views load here -->
         <small>States' views will load here.</small>
+    </div>
     </div>
 </div>
 

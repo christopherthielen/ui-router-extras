@@ -1,7 +1,9 @@
 (function () {
   "use strict";
   var app = angular.module("ct.ui.router.extras.examples.statevis", ['ct.ui.router.extras']);
-  angular.module("ct.ui.router.extras.examples.statevis").directive('stateVis', [ '$state', function ($state) {
+  angular.module("ct.ui.router.extras.examples.statevis").directive('stateVis', 
+      [ '$state', '$timeout', '$interval', 
+        function ($state, $timeout, $interval) {
     return {
       scope: {
         width: '@',
@@ -11,8 +13,8 @@
       template: '<svg></svg>',
       link: function (_scope, _elem, _attrs) {
         var stateMap = {};
-        var width = _scope.width,
-            height = _scope.height;
+        var width = _scope.width || 400,
+            height = _scope.height || 400;
 
         var tree = d3.layout.tree()
             .size([width - 20, height - 20]);
@@ -21,14 +23,14 @@
             nodes = tree(root);
 
         root.parent = root;
-        root.px = root.x;
-        root.py = root.y;
+        root.px = root.x = width / 2;
+        root.py = root.y = height / 2;
 
         var diagonal = d3.svg.diagonal();
 
         var svg = d3.select(_elem.find("svg")[0])
-            .attr("width", _scope.width)
-            .attr("height", _scope.height)
+            .attr("width", width)
+            .attr("height", height)
             .append("g")
             .attr("transform", "translate(10, 10)");
 
@@ -59,20 +61,39 @@
           });
         }
 
-        addStates($state.get());
+
+        $interval(function () {
+          _scope.states = $state.get();
+        }, 50);
+
+        var stateActive = function (event, toState) {
+          inner();
+          function inner() {
+            _.each(nodes, function (n) { n.status = 'inactive'; });
+            if (stateMap[toState.name]) 
+              stateMap[toState.name].status = 'active';
+            else
+              $timeout(inner, 100);
+          }
+        };
         
-        update(duration);
+        _scope.$on("$stateChangeSuccess", stateActive);
         
-        _scope.$on("$stateChangeSuccess", function(event, toState) {
-          _.each(nodes, function(n) { n.status = 'inactive'; });
-          stateMap[toState.name].status = 'active';
+        _scope.$watchCollection("states", function(newval, oldval) {
+          var oldstates = _.map(oldval, function(s) { return s.name; });
+          addStates(_.reject(newval, function(state) { 
+            return _.contains(oldstates, state.name);
+          }));
         });
+
+//        addStates($state.get());
+        update(duration);
         
         function update() {
           if (nodes.length >= 50) return clearInterval(timer);
 
           // Recompute the layout and data join.
-          node = node.data(tree.nodes(root), function(d) { return d.name; });
+          node = node.data(tree.nodes(root), function(d) { return d.name;  });
           link = link.data(tree.links(nodes), function(d) { return d.target.name; });
 
           // Add entering nodes in the parent’s old position.

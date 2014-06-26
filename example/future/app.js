@@ -1,7 +1,7 @@
 // Require angularAMD, ui-router, and ui-router-extras
-define([ 'angularAMD',  'angular-ui-router',  'ui-router-extras' ],
+define([ 'angularAMD',  'angular-ui-router',  'ui-router-extras',  'ui-router-extras-statevis' ],
 function (angularAMD) { // Only need to inject angularAMD for app config
-  var app = angular.module("futureStates", ['ct.ui.router.extras']);
+  var app = angular.module("futureStates", ['ct.ui.router.extras', 'ct.ui.router.extras.examples.statevis']);
 
   app.config(['$futureStateProvider', function($futureStateProvider) {
     // Loading states from .json file during runtime
@@ -19,6 +19,11 @@ function (angularAMD) { // Only need to inject angularAMD for app config
     $futureStateProvider.stateFactory('iframe', iframeStateFactory); // register silly iframe state factory
     $futureStateProvider.addResolve(loadAndRegisterFutureStates);
   }]);
+  
+  app.run(function($rootScope, $state) {
+    "use strict";
+    $rootScope.$state = $state;
+  });
   
   // Tell angularAMD to tell angular to bootstrap our app
   angularAMD.bootstrap(app);
