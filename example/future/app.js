@@ -24,7 +24,7 @@ function (angularAMD) { // Only need to inject angularAMD for app config
     "use strict";
     $rootScope.$state = $state;
     $rootScope.$on("$stateChangeSuccess", function() {
-      $window.ga('send', 'pageview', { page: $location.path() });
+      $window.ga('send', 'pageview', $window.location.pathname+$window.location.hash);
     })
   });
   

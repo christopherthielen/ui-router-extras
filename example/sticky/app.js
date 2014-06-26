@@ -29,7 +29,7 @@
   app.run(function($rootScope, $state, $window, $location) {
     $rootScope.$state = $state;
     $rootScope.$on("$stateChangeSuccess", function() {
-      $window.ga('send', 'pageview', { page: $location.path() });
+      $window.ga('send', 'pageview', $window.location.pathname+$window.location.hash);
     })
   })
 })();
