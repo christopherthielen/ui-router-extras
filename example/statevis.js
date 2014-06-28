@@ -68,9 +68,13 @@
         }, 50);
 
         var stateActive = function (event, toState) {
+          _.each(nodes, function(n) {
+            var s = $state.get(n.name);
+            if (s) {n.status = s.status || 'exited'}
+          });
           inner();
           function inner() {
-            _.each(nodes, function (n) { n.status = 'inactive'; });
+//            _.each(nodes, function (n) { n.status = 'inactive'; });
             if (stateMap[toState.name]) 
               stateMap[toState.name].status = 'active';
             else
@@ -145,11 +149,12 @@
           t.selectAll(".link")
               .attr("d", diagonal);
 
-          var circleColors = { active: '#f00', entered: '#955', inactive: '#999', future: '#009' };
+          var circleColors = { entered: '#AF0', exited: '#777', active: '#0f0', inactive: '#55F', future: '#009' };
           t.selectAll(".node")
               .attr("cx", function(d) { return d.px = d.x; })
               .attr("cy", function(d) { return d.py = d.y; })
               .style("fill", function(d) {
+//                console.log(d.name + ": " + d.status + ": " + circleColors[d.status]);  
                 return circleColors[d.status] || "#FFF"
               });
           
