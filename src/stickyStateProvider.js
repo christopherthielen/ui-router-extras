@@ -190,6 +190,7 @@ function $StickyStateProvider($stateProvider, $logProvider) {
         inactiveStates[state.self.name] = state;
         // Notify states they are being Inactivated (i.e., a different
         // sticky state tree is now active).
+        state.self.status = 'inactive';
         if (state.self.onInactivate)
           $injector.invoke(state.self.onInactivate, state.self, state.locals.globals);
       },
@@ -199,7 +200,8 @@ function $StickyStateProvider($stateProvider, $logProvider) {
         if (inactiveStates[state.self.name]) {
           delete inactiveStates[state.self.name];
         }
-        if (state.locals == null || state.locals.globals == null) debugger;
+        state.self.status = 'entered';
+//        if (state.locals == null || state.locals.globals == null) debugger;
         if (state.self.onReactivate)
           $injector.invoke(state.self.onReactivate, state.self, state.locals.globals);
       },
@@ -217,17 +219,20 @@ function $StickyStateProvider($stateProvider, $logProvider) {
         for (var name in inactiveStates) {
           // TODO: Might need to run the inactivations in the proper depth-first order?
           if (!exitingNames[name] && name.indexOf(substatePrefix) === 0) { // inactivated state's name starts with the prefix.
-            $log.debug("Exiting " + name + " because it's a substate of " + substatePrefix + " and wasn't found in ", exitingNames);
+//            $log.debug("Exiting " + name + " because it's a substate of " + substatePrefix + " and wasn't found in ", exitingNames);
             var inactiveExiting = inactiveStates[name];
             if (inactiveExiting.self.onExit)
               $injector.invoke(inactiveExiting.self.onExit, inactiveExiting.self, inactiveExiting.locals.globals);
             inactiveExiting.locals = null;
+            inactiveExiting.self.status = 'exited';
+//        if (state.locals == null || state.locals.globals == null) debugger;
             delete inactiveStates[name];
           }
         }
         if (onExit)
           $injector.invoke(onExit, exiting.self, exiting.locals.globals);
         exiting.locals = null;
+        exiting.self.status = 'exited';
         delete inactiveStates[exiting.self.name];
       },
 
@@ -239,6 +244,7 @@ function $StickyStateProvider($stateProvider, $logProvider) {
           this.stateExiting(inactivatedState);
           entering.locals = savedLocals;
         }
+        entering.self.status = 'entered';
 
         if (onEnter)
           $injector.invoke(onEnter, entering.self, entering.locals.globals);

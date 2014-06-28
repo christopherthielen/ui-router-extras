@@ -287,6 +287,7 @@ angular.module("ct.ui.router.extras").config(
             var transitionPromise = realTransitionTo.apply($state, arguments);
             transitionPromise.then(function transitionSuccess(state) {
               restore();
+              state.status = 'active';
               $log.debug("Current state: " + state.name + ", inactives: ", map(_StickyState.getInactiveStates(), function (s) {
                 return s.self.name
               }));
