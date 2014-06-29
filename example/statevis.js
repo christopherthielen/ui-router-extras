@@ -144,14 +144,8 @@
           t.selectAll(".node")
               .attr("cx", function(d) { return d.px = d.x; })
               .attr("cy", function(d) { return d.py = d.y; })
-              .attr("r", function(d) {
-                console.log(d.name + ": " + d.status);
-                return d.status === 'active' ? 15 : 10; 
-              })
-              .style("fill", function(d) {
-//                console.log(d.name + ": " + d.status + ": " + circleColors[d.status]);  
-                return circleColors[d.status] || "#FFF"
-              });
+              .attr("r", function(d) { return d.status === 'active' ? 15 : 10;  })
+              .style("fill", function(d) { return circleColors[d.status] || "#FFF" });
 
           t.selectAll(".label")
               .attr("x", function(d) { return d.px = d.x; })

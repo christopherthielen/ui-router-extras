@@ -17,11 +17,17 @@
     "type": "ngload",
     "src": "module1.js"
   },
-
   {
     "stateName": "module2",
     "urlPrefix": "/module2",
     "type": "ngload",
     "src": "module2.js"
+  },
+  {
+    "stateName": "lazyCtrl",
+    "urlPrefix": "/lazyCtrl",
+    "templateUrl": "lazyCtrl.html",
+    "type": "requireCtrl",
+    "src": "lazyController.js"
   }
 ]

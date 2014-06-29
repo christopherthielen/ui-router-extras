@@ -3,7 +3,8 @@ define([ 'angularAMD',  'angular-ui-router',  'ui-router-extras',  'ui-router-ex
 function (angularAMD) { // Only need to inject angularAMD for app config
   var app = angular.module("futureStates", ['ct.ui.router.extras', 'ct.ui.router.extras.examples.statevis']);
 
-  app.config(['$futureStateProvider', function($futureStateProvider) {
+  app.config(['$futureStateProvider', '$controllerProvider', 
+    function($futureStateProvider, $controllerProvider) {
     // Loading states from .json file during runtime
     var loadAndRegisterFutureStates = function ($http) {
       // $http.get().then() returns a promise
@@ -17,6 +18,8 @@ function (angularAMD) { // Only need to inject angularAMD for app config
 
     $futureStateProvider.stateFactory('ngload', ngloadStateFactory); // register AngularAMD ngload state factory
     $futureStateProvider.stateFactory('iframe', iframeStateFactory); // register silly iframe state factory
+    $futureStateProvider.stateFactory('requireCtrl', requireCtrl); // Register state factory that registers controller via eval.
+      
     $futureStateProvider.addResolve(loadAndRegisterFutureStates);
   }]);
   
@@ -33,4 +36,18 @@ function (angularAMD) { // Only need to inject angularAMD for app config
   angularAMD.bootstrap(app);
   // return app for requireJS registration
   return app;
+  
+  function requireCtrl($q, futureState) {
+    "use strict";
+    var d = $q.defer();
+    require(['lazyController'], function (ctrl) {
+      d.resolve({
+        name: futureState.stateName,
+        url: futureState.urlPrefix,
+        templateUrl: futureState.templateUrl,
+        controller: ctrl
+      });
+    });
+    return d.promise;
+  }
 });

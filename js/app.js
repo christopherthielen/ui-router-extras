@@ -1,10 +1,10 @@
 (function() {
   "use strict";
-  var app = angular.module("futureStates", ['ct.ui.router.extras', 'mgcrea.ngStrap.navbar']);
-  app.controller("tab", function($scope, $document) {
-    $scope.scrollTo = function scrollTo(selector) {
-      var elm = $document.find(selector);
-      if (elm[0]) elm[0].scrollIntoView();
+  var app = angular.module("futureStates", ['ct.ui.router.extras']);
+  app.controller("tab", function($scope) {
+    $scope.scrollTo = function scrollTo(elemid) {
+      var elm = (document.getElementById(elemid));
+      if (elm) elm.scrollIntoView();
     };
   });
   
