@@ -620,6 +620,15 @@ angular.module("ct.ui.router.extras").config(
             transitionPromise.then(function transitionSuccess(state) {
               restore();
               state.status = 'active';
+              function markAncestorsEntered(s) {
+                var parent = $state.get(s.name.split(".").slice(0, -1).join("."));
+                if (parent) {
+                  parent.status = 'entered';
+                  if (parent !== root.self) markAncestorsEntered(parent);
+                }
+              }
+              markAncestorsEntered(state);
+              
               $log.debug("Current state: " + state.name + ", inactives: ", map(_StickyState.getInactiveStates(), function (s) {
                 return s.self.name
               }));

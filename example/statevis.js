@@ -25,6 +25,10 @@
         root.parent = root;
         root.px = root.x = width / 2;
         root.py = root.y = height / 2;
+        
+        var activeNode = { };
+        activeNode.px = activeNode.x = root.px;
+        activeNode.py = activeNode.y = root.py;
 
         var diagonal = d3.svg.diagonal();
 
@@ -35,11 +39,13 @@
             .attr("transform", "translate(10, 10)");
 
         var node = svg.selectAll(".node"),
-            link = svg.selectAll(".link")
+            link = svg.selectAll(".link"),
+            active = svg.selectAll(".active")
             ;
 
-        var duration = 300,
-            timer = setInterval(update, duration);
+        var updateInterval = 200,
+            transLength = 200,
+            timer = setInterval(update, updateInterval);
 
         function addStates(data) {
           // *********** Convert flat data into a nice tree ***************
@@ -61,38 +67,15 @@
           });
         }
 
-
         $interval(function () {
           _scope.states = $state.get();
-//          _scope.futureStates = $futureState.get();
-        }, 50);
-
-        var stateActive = function (event, toState) {
           _.each(nodes, function(n) {
             var s = $state.get(n.name);
             if (s) {n.status = s.status || 'exited'}
           });
-          inner();
-          function inner() {
-//            _.each(nodes, function (n) { n.status = 'inactive'; });
-            if (stateMap[toState.name]) 
-              stateMap[toState.name].status = 'active';
-            else
-              $timeout(inner, 100);
-          }
-        };
-        
-        _scope.$on("$stateChangeSuccess", stateActive);
+//          _scope.futureStates = $futureState.get();
+        }, 50);
 
-//        _scope.$watchCollection("futureStates", function(newval, oldval) {
-//          var oldstates = _.map(oldval, function(s) { return s.name; });
-//          var x = (_.reject(newval, function(state) {
-//            return _.contains(oldstates, state.name);
-//          }));
-//          if (x.length)
-//            console.log("Future states: ", x);
-//        });
-        
         _scope.$watchCollection("states", function(newval, oldval) {
           var oldstates = _.map(oldval, function(s) { return s.name; });
           addStates(_.reject(newval, function(state) { 
@@ -101,14 +84,13 @@
         });
 
 //        addStates($state.get());
-        update(duration);
+        update(updateInterval);
         
         function update() {
-          if (nodes.length >= 50) return clearInterval(timer);
-
           // Recompute the layout and data join.
           node = node.data(tree.nodes(root), function(d) { return d.name;  });
           link = link.data(tree.links(nodes), function(d) { return d.target.name; });
+          active = active.data(activeNode);
 
           // Add entering nodes in the parent’s old position.
           var nodeEnter = node.enter();
@@ -119,8 +101,17 @@
             return name;
           }
           
+          active.enter()
+              .append("circle")
+              .attr("class", "active")
+              .attr("r", 13)
+              .attr("cx", function(d) { return d.parent.px || 100; })
+              .attr("cy", function(d) { return d.parent.py || 100; })
+          ;
+          
           nodeEnter.append("circle")
               .attr("class", "node")
+//              .attr("r", function(d) { return d.status === 'active' ? 15 : 9 })
               .attr("r", 9)
               .attr("cx", function(d) { return d.parent.px; })
               .attr("cy", function(d) { return d.parent.py; })
@@ -144,7 +135,7 @@
 
           // Transition nodes and links to their new positions.
           var t = svg.transition()
-              .duration(duration);
+              .duration(transLength);
 
           t.selectAll(".link")
               .attr("d", diagonal);
@@ -153,12 +144,20 @@
           t.selectAll(".node")
               .attr("cx", function(d) { return d.px = d.x; })
               .attr("cy", function(d) { return d.py = d.y; })
+              .attr("r", function(d) {
+                console.log(d.name + ": " + d.status);
+                return d.status === 'active' ? 15 : 0; 
+              })
               .style("fill", function(d) {
 //                console.log(d.name + ": " + d.status + ": " + circleColors[d.status]);  
                 return circleColors[d.status] || "#FFF"
               });
-          
+
           t.selectAll(".label")
+              .attr("x", function(d) { return d.px = d.x; })
+              .attr("y", function(d) { return d.py = d.y - 15; });
+          
+          t.selectAll(".active")
               .attr("x", function(d) { return d.px = d.x; })
               .attr("y", function(d) { return d.py = d.y - 15; });
         }
