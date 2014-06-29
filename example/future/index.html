@@ -30,19 +30,21 @@
 </div>
 <div class="container">
     <div class="col-sm-6">
-        <p> When this page loads, it has no states registered with ui-router $stateProvider. </p>
+        <p> When this page loads, it has no states registered with ui-router $stateProvider. 
+            FutureState objects were loaded from futureStates.json using $http service after the 
+            configuration phase. </p>
 
-        <p> FutureState objects are loaded from futureStates.json using $http service after the configuration
-            phase. </p>
+        <p> The five links above go to future state mappings. When navigating to a link, the StateFactory 
+            promises to make a full ui-router state. When the state is fully resolved, the navigation 
+            is re-attempted.</p>
 
-        <p> The four links above go to future state mappings. When navigating to a link, the StateFactory promises
-            to make a full ui-router state. When the state is fully resolved, the navigation is re-attempted.</p>
-
-        <p> Two of the FutureStates are of type 'iframe', one is of type 'lazyCtrl', and two are 'ngload'.</p>
+        <p> Two of the FutureStates are of type 'iframe', one is of type 'lazyCtrl', and 
+            two are of type 'ngload'.</p>
 
         <div>
-            <p>The 'iframe' states are created from a StateFactory that simply sets the template to an iframe using the
-                FutureState's src attribute.</p>
+            <p>The 'iframe' states are the simplest form of deferred state definition.  They are created 
+                from a StateFactory that simply builds a UI-Router state and sets the template to an iframe 
+                (using the FutureState object's src attribute).</p>
             <button class='btn btn-info' ng-click="showhide.iframefactory = !showhide.iframefactory">Show/Hide
                 iframeStateFactory source
             </button>
@@ -72,7 +74,7 @@
         </div>
         <div>
             <p> The 'lazyCtrl' state are created from a StateFactory that uses RequireJS to dynamically
-                lazy load a controller function and assign it to the state being created. </p>
+                lazy load a controller function, and then assigns it to the state being created. </p>
             <button class='btn btn-info' ng-click="showhide.lazyctrlfactory = !showhide.lazyctrlfactory">Show/Hide
                 lazyCtrlStateFactory source
             </button>
