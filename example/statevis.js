@@ -146,7 +146,7 @@
               .attr("cy", function(d) { return d.py = d.y; })
               .attr("r", function(d) {
                 console.log(d.name + ": " + d.status);
-                return d.status === 'active' ? 15 : 0; 
+                return d.status === 'active' ? 15 : 10; 
               })
               .style("fill", function(d) {
 //                console.log(d.name + ": " + d.status + ": " + circleColors[d.status]);  
