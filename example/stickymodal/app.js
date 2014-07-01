@@ -1,15 +1,21 @@
 (function() {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.examples.dsr", [ 'ct.ui.router.extras.examples', 'ct.ui.router.extras.examples.statevis' ]);
+  var app = angular.module("ct.ui.router.extras.examples.dsr", [ 'ui.bootstrap.modal', 'ui.bootstrap.tpls', 'ct.ui.router.extras.examples', 'ct.ui.router.extras.examples.statevis' ]);
   
   app.config(function ($stateProvider, $urlRouterProvider) {
     var states = [];
-    states.push({ name: 'aside1',                     url: '/aside1',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });
-    states.push({ name: 'aside2',                     url: '/aside2',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });
+    // Modal states
+    states.push({ name: 'modal1',                     url: '/modal1',       controller: 'timerCtrl',  
+                  onEnter: showModal1, onExit: closeModal1 });
+    states.push({ name: 'modal2',                     url: '/modal2',       controller: 'timerCtrl', 
+                  onEnter: showModal1, onExit: closeModal1 });
+    
+    // Root of main app states
     states.push({ name: 'top',                        url: '/',             
+                  deepStateRedirect: true, sticky: true,
                   views: {
                     'instructions@': { controller: 'timerCtrl', templateUrl: 'instructions.html' },
-                    '@':             { controller: 'tabCtrl', templateUrl: 'top.html' }
+                    'top@':          { controller: 'tabCtrl',   templateUrl: 'top.html' }
                   }});
     
     // Personnel tab
@@ -42,6 +48,18 @@
     
     angular.forEach(states, function(state) { $stateProvider.state(state); });
     $urlRouterProvider.otherwise("/");
+
+    function showModal1($modal) {
+      $modal.open({
+        templateUrl: 'modal1.html'
+      })
+    }
+    
+    function closeModal1($modal) {
+//      $modal.open({
+//        templateUrl: 'modal1.html'
+//      })
+    }
   });
   
   app.run(function ($rootScope, $state, $window, $timeout) {

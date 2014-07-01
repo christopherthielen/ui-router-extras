@@ -11,6 +11,8 @@
     <script type="text/javascript" src="../../lib/d3.js"></script>
     <script type="text/javascript" src="../../lib/angular.js"></script>
     <script type="text/javascript" src="../../lib/angular-ui-router.js"></script>
+    <script type="text/javascript" src="../../lib/ui-bootstrap.js"></script>
+    <script type="text/javascript" src="../../lib/ui-bootstrap-tpls.js"></script>
     <script type="text/javascript" src="../../bower_components/ui-router-extras/release/ct-ui-router-extras.js"></script>
     
     <script type="text/javascript" src="../statevis.js"></script>
@@ -24,16 +26,16 @@
 <body ng-app="ct.ui.router.extras.examples.dsr">
 <div class="navbar navbar-default navbar-static-top" role="navigation">
     <ul class="nav navbar-nav">
-        <li><a href="../../#/dsr/">Back to UI-Router Extras</a></li>
+        <li><a href="../../#/sticky/">Back to UI-Router Extras</a></li>
         <li ng-class="{active: $state.includes('top')}"><a ui-sref=".top">Top</a></li>
-        <li ng-class="{active: $state.includes('aside1')}"><a ui-sref=".aside1">Aside 1</a></li>
-        <li ng-class="{active: $state.includes('aside2')}"><a ui-sref=".aside2">Aside 2</a></li>
+        <li ng-class="{active: $state.includes('modal1')}"><a ui-sref=".modal1">Modal 1</a></li>
+        <li ng-class="{active: $state.includes('modal2')}"><a ui-sref=".modal2">Modal 2</a></li>
     </ul>
 </div>
 <div ui-view="instructions"></div>
 <div class="container">
     <div class="row">
-        <div ui-view class="col-sm-6"></div>
+        <div ui-view="top" class="col-sm-6"></div>
         <div ng-include="'../partials/statevis.html'"></div>
     </div>
 </div>

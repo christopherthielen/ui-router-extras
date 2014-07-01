@@ -3,6 +3,8 @@
   "dependencies": {
     "angular": "~1.2.0",
     "angular-ui-router": "~0.2.10",
+    "angular-bootstrap": "latest",
+    "bootstrap": "latest",
     "lodash": "latest",
     "ui-router-extras": "latest",
     "requirejs": "latest",

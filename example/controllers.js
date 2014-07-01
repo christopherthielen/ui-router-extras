@@ -1,9 +1,19 @@
 (function() {
   "use strict";
   var app = angular.module("ct.ui.router.extras.examples.dsr");
-  
+
   app.controller("timerCtrl", function($scope, timerService) {
     timerService.instrument($scope);
+  });
+  
+  app.controller("tabCtrl", function($scope, $state, timerService) {
+    var ctrl = $scope.tabCtrl = this;
+    timerService.instrument($scope);
+    $scope.$on('$stateChangeSuccess', function(toState) {
+      if ($state.includes("top") && !$state.is("top")) {
+        ctrl.selected = $state.current.name.split(".").slice(1, 2).pop();
+      }
+    })
   });
 
   // Personnel stuff

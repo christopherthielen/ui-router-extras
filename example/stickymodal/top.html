@@ -1,0 +1,10 @@
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+    <ul class="nav navbar-nav">
+        <li ng-class="{active: $state.includes('top.people')}" ><a ui-sref="top.people">Personnel</a></li>
+        <li ng-class="{active: $state.includes('top.inv')}" ><a ui-sref="top.inv">Inventory</a></li>
+        <li ng-class="{active: $state.includes('top.cust')}" ><a ui-sref="top.cust">Customers</a></li>
+    </ul>
+</div>
+<div class="tabcontent well-lg" ui-view="peopletab" ng-show="tabCtrl.selected == 'people'" class="col-sm-6"></div>
+<div class="tabcontent well-lg" ui-view="invtab"    ng-show="tabCtrl.selected == 'inv'"    class="col-sm-6"></div>
+<div class="tabcontent well-lg" ui-view="custtab"   ng-show="tabCtrl.selected == 'cust'"   class="col-sm-6"></div>
