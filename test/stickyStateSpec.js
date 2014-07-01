@@ -114,10 +114,10 @@ describe('stickyState', function () {
     function getNestedStickyStates() {
       var newStates = {};
       newStates['main'] = {};
-      newStates['tabsA'] = {};
-      newStates['tabsA._tab1'] = {sticky: true};
-      newStates['tabsA._tab2'] = {sticky: true};
-      newStates['tabsA._tab3'] = {sticky: true};
+      newStates['tabsA'] = {sticky: true, deepStateRedirect: true};
+      newStates['tabsA._tab1'] = {sticky: true, deepStateRedirect: true};
+      newStates['tabsA._tab2'] = {sticky: true, deepStateRedirect: true};
+      newStates['tabsA._tab3'] = {sticky: true, deepStateRedirect: true};
       newStates['tabsA._tab1.substate'] = {};
       newStates['tabsA._tab1.substate.tabsB'] = {};
       newStates['tabsA._tab1.substate.tabsB.__tab1'] = {sticky: true};
@@ -146,6 +146,43 @@ describe('stickyState', function () {
       testGo('tabsA._tab1.substate.tabsB.__tab2', transitions, {
         inactivated: ['tabsA._tab1.substate.tabsB.__tab1'],
         entered: ['tabsA._tab1.substate.tabsB.__tab2']
+      });
+    });
+    
+    it ('should reactivate child-of-sticky state __tab1 when transitioning back to tabsA', function () {
+      var transitions = new TransitionAudit();
+      testGo('main', transitions, { entered: ['main']});
+      testGo('tabsA._tab1.substate.tabsB.__tab1', transitions, {
+        exited: ['main'],
+        entered: [ 'tabsA', 'tabsA._tab1', 'tabsA._tab1.substate', 'tabsA._tab1.substate.tabsB', 'tabsA._tab1.substate.tabsB.__tab1' ]}
+      );
+      testGo('tabsA._tab1.substate.tabsB.__tab2', transitions, {
+        inactivated: ['tabsA._tab1.substate.tabsB.__tab1'],
+        entered: ['tabsA._tab1.substate.tabsB.__tab2']
+      });
+      testGo('tabsA._tab1.substate.tabsB.__tab3', transitions, {
+        inactivated: ['tabsA._tab1.substate.tabsB.__tab2'],
+        entered: ['tabsA._tab1.substate.tabsB.__tab3']
+      });
+          
+      // reset transition log
+      tLog = new TransitionAudit();
+      transitions = new TransitionAudit();
+      
+      testGo('main', transitions, {
+        entered: ['main'],
+        inactivated: ['tabsA._tab1.substate.tabsB.__tab3','tabsA._tab1.substate.tabsB','tabsA._tab1.substate','tabsA._tab1','tabsA']
+      });
+
+      // Here.
+      testGo('tabsA', transitions, {
+        exited: ['main'],
+        reactivated: ['tabsA','tabsA._tab1','tabsA._tab1.substate','tabsA._tab1.substate.tabsB','tabsA._tab1.substate.tabsB.__tab3']
+      }, { redirect: true });
+
+      testGo('tabsA._tab1.substate.tabsB.__tab2', transitions, {
+        inactivated: ['tabsA._tab1.substate.tabsB.__tab3'],
+        reactivated: ['tabsA._tab1.substate.tabsB.__tab2']
       });
     });
   });
