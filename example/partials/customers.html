@@ -1,0 +1,25 @@
+<h3>Customers</h3>
+<div scope-age></div>
+<table>
+    <thead style="font-weight: bolder">
+        <td><a ng-click="order = 'name'">Name</a></td>
+        <td><a ng-click="order = 'address.city'">City</a></td>
+        <td><a ng-click="order = 'address.state'">State</a></td>
+        <td><a ng-click="order = orderByOrderCount">Orders</a></td>
+    </thead>
+    <tbody>
+    <tr ng-repeat="customer in customers | orderBy: order">
+        <td><a ui-sref="^.customer({cid: customer.id})">{{customer.name}}</a></td>
+        <td>{{customer.address.city}}</td>
+        <td>{{customer.address.state}}</td>
+        <td>{{orderCount(customer)}}</td>
+    </tr>
+    </tbody>
+</table>
+<!--<div ng-repeat="customer in customers">-->
+    <!--<a ui-sref="^.customer({ sid: customer.id })">{{customer.name}}</a>-->
+    <!--<div>-->
+        <!--{{customer.address}}-->
+    <!--</div>-->
+<!--</div>-->
+    

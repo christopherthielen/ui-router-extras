@@ -1,0 +1,6 @@
+<h3>Orders</h3>
+<div scope-age ></div>
+<div ng-repeat="order in orders track by order.id">
+    <a ui-sref="^.order({ oid: order.id })">Order #{{order.id}}</a>
+</div>
+    

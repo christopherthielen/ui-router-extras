@@ -28,7 +28,7 @@
     }
     $scope.employees = angular.copy(_.filter(exampleData.employees, function(emp) { return emp.manager == $stateParams.mid }));
   });
-    
+
   // Inventory stuff
 
   app.controller("invCtrl", function($state, $scope, timerService) {
@@ -51,6 +51,31 @@
       $scope.product = angular.copy(_.find(exampleData.products, function(prod) { return prod.id == $stateParams.pid; }));
     }
     $scope.products = angular.copy(_.filter(exampleData.products, function(prod) { return prod.store == $stateParams.sid; }));
+  });
+
+  // Customers stuff
+
+  app.controller("custCtrl", function($state, $scope, timerService) {
+    timerService.instrument($scope);
+    if ($state.current.name === 'top.cust') $state.go(".customerlist");
+  });
+
+  app.controller("customerCtrl", function($scope, $stateParams, timerService, exampleData) {
+    timerService.instrument($scope);
+    $scope.orderCount = function(customer) { return _.filter(exampleData.orders, function(order) { return order.customerId === customer.id}).length; };
+    if ($stateParams.cid) {
+      $scope.customer =   angular.copy(_.find(exampleData.customers, function(customer) { return customer.id == $stateParams.cid; }));
+    } else {
+      $scope.customers =  angular.copy(exampleData.customers);
+    }
+  });
+
+  app.controller("orderCtrl", function($scope, $stateParams, timerService, exampleData) {
+    timerService.instrument($scope);
+    if ($stateParams.oid) {
+      $scope.order = angular.copy(_.find(exampleData.orders, function(order) { return order.id == $stateParams.oid; }));
+    }
+    $scope.orders = angular.copy(_.filter(exampleData.orders, function(order) { return order.customerId == $stateParams.cid; }));
   });
 
 })();

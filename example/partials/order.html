@@ -1,0 +1,19 @@
+<h3>Order #{{order.id}}</h3>
+<div scope-age ></div>
+<dl class="dl-horizontal">
+    <dt>Order Balance:</dt>
+    <dd>{{order.balance}}</dd>
+</dl>
+        <h5>Items</h5>
+        <table>
+            <thead style="font-weight: bolder">
+            <td>Item Name</td>
+            <td>Quantity</td>
+            </thead>
+            <tbody>
+            <tr ng-repeat="item in order.items">
+                <td>{{item.name}}</td>
+                <td>{{item.quantity}}</td>
+            </tr>
+            </tbody>
+        </table>

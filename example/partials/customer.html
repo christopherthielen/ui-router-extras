@@ -1,0 +1,14 @@
+<a ui-sref="^.customerlist">Customers</a>
+<h3>Customer</h3>
+<div scope-age ></div>
+<dl class="dl-horizontal">
+    <dt>Name:</dt>
+    <dd>{{customer.name}}</dd>
+    <dt>Phone:</dt>
+    <dd>{{customer.phone}}</dd>
+    <dt>Address:</dt>
+    <dd>{{customer.address.address1}}<br>
+        {{customer.address.city}}, {{customer.address.state}} {{customer.address.zip}}</dd>
+</dl>
+<a ui-sref=".orderlist">{{customer.name}}'s orders</a>
+<div ui-view></div>
