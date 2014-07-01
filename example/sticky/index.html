@@ -7,17 +7,10 @@
     <link href="../../css/statevis.css" rel="stylesheet">
     <link href="style.css" rel="stylesheet">
     <script type="text/javascript" src="../../js/ga.js"></script>
-    <!--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>-->
-    <!--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.6.0/underscore-min.js"></script>-->
     <script type="text/javascript" src="../../lib/underscore.js"></script>
-    <!--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/d3/3.4.8/d3.js"></script>-->
     <script type="text/javascript" src="../../lib/d3.js"></script>
-
-    <!--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular.js/1.2.16/angular.js"></script>-->
-    <!--<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/angular-ui-router/0.2.10/angular-ui-router.js"></script>-->
     <script type="text/javascript" src="../../lib/angular.js"></script>
     <script type="text/javascript" src="../../lib/angular-ui-router.js"></script>
-    
     <script type="text/javascript" src="../../bower_components/ui-router-extras/release/ct-ui-router-extras.js"></script>
     
     <script type="text/javascript" src="../statevis.js"></script>
@@ -38,24 +31,6 @@
     </ul>
 </div>
 <div ui-view="instructions"></div>
-<div class="container">
-    <div class="row">
-        <div ui-view class="col-sm-6"></div>
-        <div class="col-sm-6">
-            This app has a state tree that looks like this:
-            <div state-vis width="400" height="400">vis</div>
-
-            <div style="border: 1px solid lightgray; padding: 1em; ">
-                <legend>legend</legend>
-                <b> <span style="padding: 0.25em; background-color: #AF0;">Entered</span>
-                    <span style="padding: 0.25em; background-color: #0F0;">Active</span>
-                    <span style="padding: 0.25em; background-color: #55F;">Inactive</span>
-                    <span style="padding: 0.25em; background-color: #777;">Exited</span>
-                </b>
-            </div>
-        </div>
-    </div>
-</div>
-
+<div ng-include="'../partials/statevis.html'"></div>
 </body>
 </html>

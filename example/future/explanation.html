@@ -1,0 +1,160 @@
+<div>
+    <p> When this page loads, it has no states registered with ui-router $stateProvider.
+        FutureState objects were loaded from futureStates.json using $http service after the
+        configuration phase and registered with <code>$futureStateProvider</code>. </p>
+
+    <p> The five links above go to future state mappings. When navigating to a link, the StateFactory
+        promises to make a full ui-router state. When the state is fully resolved, the navigation
+        is re-attempted.</p>
+
+    <p> Two of the FutureStates are of type 'iframe', one is of type 'lazyCtrl', and
+        two are of type 'ngload'.</p>
+
+    <div>
+        <p>The 'iframe' states are the simplest form of deferred state definition.  They are created
+            from a StateFactory that simply builds a UI-Router state and sets the template to an iframe
+            (using the FutureState object's src attribute).</p>
+        <button class='btn btn-info' ng-click="showhide.iframefactory = !showhide.iframefactory">Show/Hide
+            iframeStateFactory source
+        </button>
+        <br><br>
+
+        <div ng-cloak class="ng-cloak panel panel-info" ng-show="showhide.iframefactory">
+            <div class="panel-heading">
+                <code>iframeStateFactory</code> source code.
+            </div>
+            <div class="panel-body">
+<pre>var iframeStateFactory = function($q, futureState) {
+  var state = {
+    name: futureState.stateName,
+    template: "&lt;iframe src='" + futureState.src + "'&gt;&lt;/iframe&gt;",
+    url: futureState.urlPrefix
+  };
+  return $q.when(state);
+};</pre>
+                <p>
+                    This function takes a <code>FutureState</code> object and creates a state with an iframe
+                    template.
+                    This is simply showing how full UI-Router <code>state</code> objects are created from
+                    <code>FutureState</code> objects, and how you can add injectables.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div>
+        <p> The 'lazyCtrl' state are created from a StateFactory that uses RequireJS to dynamically
+            lazy load a controller function, and then assigns it to the state being created. </p>
+        <button class='btn btn-info' ng-click="showhide.lazyctrlfactory = !showhide.lazyctrlfactory">Show/Hide
+            lazyCtrlStateFactory source
+        </button>
+        <br><br>
+
+        <div ng-cloak class="ng-cloak panel panel-info" ng-show="showhide.lazyctrlfactory">
+            <div class="panel-heading">
+                <code>requireCtrlStateFactory</code> source code.
+            </div>
+            <div class="panel-body">
+<pre>  function requireCtrlStateFactory($q, futureState) {
+    var d = $q.defer(); // make a deferred
+
+    // Tell RequireJS to load lazyController 
+    // (leave off the .js)
+    require(['lazyController'], function (lazyController) {
+      // RequireJS asynchronousely gives us the result of 
+      // lazyController.js as the 'lazyController' parameter
+
+      // Define the full UI-Router state using the 
+      // lazyController and the injected futureState 
+      var fullstate = { controller: lazyController,
+        name: futureState.stateName,
+        url: futureState.urlPrefix,
+        templateUrl: futureState.templateUrl
+      };
+
+      // Resolve the promise with the full UI-Router state.
+      d.resolve(fullstate);
+    });
+    
+    // The state factory returns the promise
+    return d.promise;
+  }</pre>
+                <p>
+                    This state factory takes a 'lazyCtrl' <code>FutureState</code> definition, then calls
+                    RequireJS to dynamically lode the lazyController.js source code. RequireJS returns the
+                    controller definition to the state factory, which assigns it to the new UI-Router state, which
+                    is returned (via a promise resolve) to <code>$futureStateProvider</code>.
+                </p>
+
+                <p> Then, $futureStateProvider retries the transition. </p>
+            </div>
+        </div>
+        <div ng-cloak class="ng-cloak panel panel-info" ng-show="showhide.lazyctrlfactory">
+            <div class="panel-heading">
+                <code>lazyController.js</code> source code.
+            </div>
+            <div class="panel-body">
+<pre>define(['angular'], function(angular) {
+  "use strict";
+  return [ '$scope', '$state', function($scope, $state) {
+    $scope.somedata = ['foo', 'bar', 'baz' ];
+  }]
+});</pre>
+                <p>
+                    lazyController.js is wrapped in a RequireJS define.  It returns the
+                    controller function, in the form of a DI-annotated array.
+                </p>
+            </div>
+        </div>
+    </div>
+    <div>
+        <p> The 'ngload' states are created from a StateFactory that uses RequireJS and AngularAMD to dynamically
+            load a standalone module's JS source. </p>
+        <button class='btn btn-info' ng-click="showhide.ngloadfactory = !showhide.ngloadfactory">Show/Hide
+            ngloadStateFactory source
+        </button>
+        <br><br>
+
+        <div ng-cloak class="ng-cloak panel panel-info" ng-show="showhide.ngloadfactory">
+            <div class="panel-heading">
+                <code>ngloadStateFactory</code> source code.
+            </div>
+            <div class="panel-body">
+<pre>function ngloadStateFactory($q, futureState) {
+  var ngloadDeferred = $q.defer();
+  require([ "ngload!" + futureState.src , 'ngload', 'angularAMD'],  
+      function ngloadCallback(result, ngload, angularAMD) {
+    angularAMD.processQueue();
+    ngloadDeferred.resolve(result.entryState);
+  });
+  return ngloadDeferred.promise;
+}</pre>
+                <p>
+                    This state factory takes an 'ngload' <code>FutureState</code> definition, then calls RequireJS
+                    using
+                    the AngularAMD 'ngload' plugin for <code>futureState.src</code>. In this example, <code>futureState.src</code>
+                    will be set to module1.js or module2.js.
+                </p>
+
+                <p>
+                    RequireJS loads the module1.js source code. AngularAMD routes module1.js
+                    <code>angular.config</code>,
+                    <code>angular.controller</code>, etc function calls through its function proxy code to the
+                    angular
+                    config time registration methods.</p>
+
+                <p>
+                    Module1.js registers its states/controllers, then returns a reference to the module and the
+                    module's
+                    entry point state ('module1'). </p>
+
+                <p>
+                    The module and entry point state is returned to RequireJS, then the ngloadstateFactory callback
+                    is called
+                    and the promise is resolved with the entry point state..
+                </p>
+
+                <p> Then, $futureStateProvider retries the transition. </p>
+            </div>
+        </div>
+    </div>
+</div>
