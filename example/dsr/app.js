@@ -6,8 +6,12 @@
     var states = [];
     states.push({ name: 'aside1',                     url: '/aside1',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });
     states.push({ name: 'aside2',                     url: '/aside2',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });
-    states.push({ name: 'top',                        url: '/',             controller: 'timerCtrl',  templateUrl: 'top.html' ,
-                  deepStateRedirect: true });
+    states.push({ name: 'top',                        url: '/',
+                  deepStateRedirect: true,
+                  views: {
+                    'instructions@': { controller: 'timerCtrl', templateUrl: 'instructions.html' },
+                    '@':          { controller: 'timerCtrl', templateUrl: 'top.html' }
+                  }});
     states.push({ name: 'top.people',                 url: 'people',        controller: 'peopleCtrl', templateUrl: '../partials/people.html',
                   deepStateRedirect: true });
     states.push({ name: 'top.people.managerlist',     url: '/managers',     controller: 'managerCtrl',templateUrl: '../partials/managers.html' });

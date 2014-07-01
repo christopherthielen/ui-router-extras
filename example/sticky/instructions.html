@@ -1,0 +1,30 @@
+<div class="container">
+    <div class="col-sm-10">
+        <div class="lead">Click the &quot;Personnel&quot; tab.</div>
+        <ul>
+            <li> Drill down through the Personnel states until you are editing an employee record.</li>
+            <li> Modify some data on the employee record. There is intentionally no save button.</li>
+            <li> Click the &quot;Inventory&quot; tab and drill down the tab&apos;s states until you are
+                viewing a Product.
+            </li>
+            <li> Click the &quot;Personnel tab&quot;. Deep State Redirect sends you back to the employee
+                record
+                state, while Sticky State preserves the DOM and $scope exactly as you left it (including scroll
+                position, etc).
+            </li>
+            <li> Click the &quot;Inventory&quot; tab. Deep State Redirect sends you back to the product
+                record,
+                and Sticky State preserves the DOM and $scope.
+            </li>
+        </ul>
+        <p>
+            Each sticky state has its own named ui-view.
+            This demo hides the preserved DOM for inactivated states using the ng-show directive.
+            The DOM for inactivated states can be viewed using your browsers dev tools.
+        </p>
+<pre>
+&lt;div ui-view="peopletab" ng-show="$state.includes('top.people')" class="col-sm-8"&gt;&lt;/div&gt;
+&lt;div ui-view="invtab"    ng-show="$state.includes('top.inv')"    class="col-sm-8"&gt;&lt;/div&gt;
+</pre>
+    </div>
+</div>

@@ -17,8 +17,12 @@
             height = _scope.height || 400;
 
         var tree = d3.layout.tree()
-            .size([width - 20, height - 20]);
-
+            .size([width - 20, height - 20])
+            .separation(function (a, b) {
+              return a.parent == b.parent ? 10 : 25;
+            })
+        ;
+        
         var root = angular.copy($state.get("")),
             nodes = tree(root);
 
@@ -92,6 +96,10 @@
           link = link.data(tree.links(nodes), function(d) { return d.target.name; });
           active = active.data(activeNode);
 
+          nodes.forEach(function(d) { 
+            d.y = d.depth * 70;
+          }); 
+          
           // Add entering nodes in the parent’s old position.
           var nodeEnter = node.enter();
           function stateName(node) {
@@ -149,7 +157,11 @@
 
           t.selectAll(".label")
               .attr("x", function(d) { return d.px = d.x; })
-              .attr("y", function(d) { return d.py = d.y - 15; });
+              .attr("y", function(d) { return d.py = d.y - 15; })
+              .attr("transform", function(d) {
+                return "rotate(-25 "+ d.x +" " + d.y + ")"
+              })
+          ;
           
           t.selectAll(".active")
               .attr("x", function(d) { return d.px = d.x; })

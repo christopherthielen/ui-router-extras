@@ -33,11 +33,12 @@
         <li ng-class="{active: $state.includes('aside2')}"><a ui-sref=".aside2">Aside 2</a></li>
     </ul>
 </div>
+<div ui-view="instructions"></div>
 <div class="container">
-    <div ui-view class="col-sm-8"></div>
-    <div class="col-sm-4">
+    <div ui-view class="col-sm-6"></div>
+    <div class="col-sm-6">
         This app has a state tree that looks like this:
-        <div state-vis width="400" height="600">vis</div>
+        <div state-vis width="400" height="400">vis</div>
 
         <div style="border: 1px solid lightgray; padding: 1em; ">
             <legend>legend</legend>
