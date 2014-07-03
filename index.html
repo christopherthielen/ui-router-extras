@@ -16,11 +16,8 @@
 </head>
 <body ng-app="futureStates">
 <script>
-    if(self == top) {
-        document.documentElement.style.display = 'block';
-    } else {
-        top.location = self.location;
-    }
+    if(self == top) document.documentElement.style.display = 'block';
+    else top.location = self.location;
 </script>
 <div class="container-fluid">
     <div class="navbar navbar-default navbar-static-top" role="navigation">

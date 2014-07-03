@@ -2,10 +2,20 @@ body div.content {
     padding-left: 2em;
     padding-right: 2em;
 }
+
 .twat {
-    padding-left: 2em; 
     border-right: 1px solid lightgray;
 }
+.twat > a > img {
+    margin-right: 0.5em;
+    margin-left: 0.5em;
+}
+@media (min-width: 768px) {
+    .twat {
+        padding-left: 2em; 
+    }
+}
+
 .github {
     padding-right: 2em
 }
