@@ -1,12 +1,21 @@
 <div class="container">
     <div class="col-sm-10">
+        <p>This example demonstrates Sticky States (<code>$stickyState</code>)  and Previous State 
+            (<code>$previousState</code>) It intentionally does not enable sticky state 
+            on Personnel, Inventory, and Customer tabs</p>
+    </div>
+</div>
+
+<div class="container">
+    <div class="col-sm-10">
         <div class="lead">Click the &quot;Personnel&quot; tab.</div>
         <ul>
             <li> Drill down through the Personnel states until you are editing an employee record.</li>
-            <li> Start adding some notes to the notes field. </li>
-            <li> Click the &quot;Modal 1&quot; tab. The state transitions to the modal state. </li>
-            <li> Drill down inside the modals states, if desired. </li>
-            <li> Close the modal. You are redirected back to the previously inactivate state. </li>
+            <li> Start adding some notes to the notes field.</li>
+            <li> Click the &quot;Modal 1&quot; tab. The state transitions to the modal state.  The <i>from</i> 
+                states' views (DOM and scope) are retained.</li>
+            <li> Navigate to the modals substate, if desired.</li>
+            <li> Close the modal. You are redirected back to the previously inactivate state with the views retained.</li>
         </ul>
     </div>
 </div>

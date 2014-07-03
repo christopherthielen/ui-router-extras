@@ -2,3 +2,10 @@ body div.content {
     padding-left: 2em;
     padding-right: 2em;
 }
+.twat {
+    padding-left: 2em; 
+    border-right: 1px solid lightgray;
+}
+.github {
+    padding-right: 2em
+}

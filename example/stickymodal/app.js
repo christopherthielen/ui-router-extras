@@ -82,7 +82,7 @@
     var memos = {};
 
     $rootScope.$on("$stateChangeStart", function(evt, toState, toStateParams, fromState, fromStateParams) {
-      previous = { state: fromState, params: fromStateParams }
+      previous = { state: fromState, params: fromStateParams };
     });
 
     return {
