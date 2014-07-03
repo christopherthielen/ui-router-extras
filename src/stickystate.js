@@ -41,7 +41,7 @@ angular.module("ct.ui.router.extras").config(
         // Need access to the internal 'root' state object.  Get it by decorating the StateBuilder parent function.  
         $stateProvider.decorator('parent', function (state, parentFn) {
           if (!root) {
-            // This code gets run only once
+            // Note: this code gets run only on the first state
             root = parentFn({}); // StateBuilder.parent({}) returns the root internal state object
             inactivePseudoState.parent = root; // Hook pseudoState.parent up to the root state
             inactivePseudoState.locals = root.locals; 
@@ -49,14 +49,23 @@ angular.module("ct.ui.router.extras").config(
           return parentFn(state);
         });
 
+        // Sticky States retains views by holding onto the inactivated locals of states.  It stores 
+        // them in a pseudo state called __inactives which is inserted between root and each top level state.
         $stateProvider.decorator('path', function (state, parentFn) {
+          // Decorate the path of each state, adding the __inactives pseudostate to the beginning.
+          
+          // Note to self: I think this could be simplified by adding __inactives to the root state in the 'parent' 
+          // decorator.  Then, stock UI-Router code will build the substate path with __inactives as pre-root.
+          
           // Capture each internal state representations
           internalStates[state.self.name] = state;
+          state.self.$$state = function() { return internalStates[state.self.name]; };
+          
           // Register the ones marked as "sticky"
           if (state.self.sticky === true) {
             $stickyStateProvider.registerStickyState(state.self);
           }
-          // Add a fake root node to each state's path to hold the inactive states' locals
+          // Add a fake parent node to each state's path to hold all the inactive states' locals
           var realPath = [], temp = parentFn(state); // call parent path function, which returns an array of states
           angular.forEach(temp, function (pathElem) {
             // paths are constructed from the parent paths
@@ -74,7 +83,7 @@ angular.module("ct.ui.router.extras").config(
             var idx = pendingTransitions.length;
             if (pendingRestore) {
               pendingRestore();
-              $log.debug("Restored paths from pending transition");
+              if (DEBUG) { $log.debug("Restored paths from pending transition"); }
             }
 
             // Custom transitionTo logic here
@@ -84,27 +93,35 @@ angular.module("ct.ui.router.extras").config(
             var savedToStatePath, savedFromStatePath, stickyTransitions;
             var reactivated = [], exited = [], terminalReactivatedState;
 
-            function debugTransition(transition) {
+            function debugTransition(currentTransition, stickyTransition) {
               function message(path, index, state) {
                 return (path[index] ? path[index].toUpperCase() + ": " + state.self.name : "(" + state.self.name + ")");
               }
 
-              var inactiveLogVar = map(transition.inactives, function (state) {
-                return state.self.name
+              var inactiveLogVar = map(stickyTransition.inactives, function (state) {
+                return state.self.name;
               });
               var enterLogVar = map(toState.path, function (state, index) {
-                return message(transition.enter, index, state);
+                return message(stickyTransition.enter, index, state);
               });
               var exitLogVar = map(fromState.path, function (state, index) {
-                return message(transition.exit, index, state);
+                return message(stickyTransition.exit, index, state);
               });
-              $log.debug("exit: ", exitLogVar);
-              $log.debug("enter: ", enterLogVar);
-              $log.debug("After transition, inactives: ", inactiveLogVar);
+              
+              var transitionMessage = currentTransition.fromState.self.name + ": " +
+                  angular.toJson(currentTransition.fromParams) + ": " +
+                  " -> " +
+                  currentTransition.toState.self.name + ": " +
+                  angular.toJson(currentTransition.toParams);
+              
+              $log.debug("   Current transition: ", transitionMessage);
+              $log.debug("Before transition, inactives are:   : ", map(_StickyState.getInactiveStates(), function(s) { return s.self.name; } ));
+              $log.debug("After transition,  inactives will be: ", inactiveLogVar);
+              $log.debug("Transition will exit:  ", exitLogVar);
+              $log.debug("Transition will enter: ", enterLogVar);
             }
 
-            var noop = function () {
-            };
+            var noop = function () { };
             var restore = function () {
               if (savedToStatePath) {
                 toState.path = savedToStatePath;
@@ -183,38 +200,34 @@ angular.module("ct.ui.router.extras").config(
             // if (!toStateSelf) defugger;
             if (toStateSelf) {
               var toState = internalStates[toStateSelf.name]; // have the state, now grab the internal state representation
-              if (!toState) debugger;
+//              if (!toState) debugger;
               if (toState) {
                 savedToStatePath = toState.path;
                 savedFromStatePath = fromState.path;
 
                 var currentTransition = {toState: toState, toParams: toParams || {}, fromState: fromState, fromParams: fromParams || {}};
-                var msg = currentTransition.fromState.self.name + ": " +
-                    angular.toJson(currentTransition.fromParams) + ": " +
-                    " -> " +
-                    currentTransition.toState.self.name + ": " +
-                    angular.toJson(currentTransition.toParams);
-                $log.debug("Current transition: ", msg);
+//                console.log("Current transition: ", msg);
 
                 pendingTransitions.push(currentTransition);
                 pendingRestore = restore;
                 stickyTransitions = _StickyState.processTransition(currentTransition);
-                debugTransition(stickyTransitions);
+                if (DEBUG) debugTransition(currentTransition, stickyTransitions);
 
                 var surrogateToPath = toState.path.slice(0, stickyTransitions.keep);
                 var surrogateFromPath = fromState.path.slice(0, stickyTransitions.keep);
 
                 // Rebuild root.inactiveLocals each time...
-                for (var name in inactivePseudoState.locals) {
+                angular.forEach(inactivePseudoState.locals, function(local, name) {
                   delete inactivePseudoState.locals[name];
-                }
+                });
+                
                 for (var i = 0; i < stickyTransitions.inactives.length; i++) {
                   var iLocals = stickyTransitions.inactives[i].locals;
-                  for (name in iLocals) {
+                  angular.forEach(iLocals, function(view, name) {
                     if (iLocals.hasOwnProperty(name) && name.indexOf("@") != -1) {
-                      inactivePseudoState.locals[name] = iLocals[name]; // Add all inactive views not already included.
+                      inactivePseudoState.locals[name] = view; // Add all inactive views not already included.
                     }
-                  }
+                  });
                 }
 
                 angular.forEach(stickyTransitions.enter, function (value, idx) {
@@ -261,14 +274,14 @@ angular.module("ct.ui.router.extras").config(
                   var inactiveOrphans = [];
                   inactiveStates.forEach(function (exiting) {
                     if (exiting.self.name.indexOf(prefix) === 0) {
-                      $log.debug("exitable: ", exiting.self.name);
+//                      $log.debug("exitable: ", exiting.self.name);
                       inactiveOrphans.push(exiting);
                     }
                   });
                   inactiveOrphans.sort();
                   inactiveOrphans.reverse();
                   surrogateFromPath = surrogateFromPath.concat(map(inactiveOrphans, function (exiting) {
-                    return stateExitedSurrogate(exiting)
+                    return stateExitedSurrogate(exiting);
                   }));
                   exited = exited.concat(inactiveOrphans);
                 }
@@ -279,26 +292,28 @@ angular.module("ct.ui.router.extras").config(
                 var pathMessage = function (state) {
                   return (state.surrogateType ? state.surrogateType + ":" : "") + state.self.name;
                 };
-                $log.debug("SurrogateFromPath: ", map(surrogateFromPath, pathMessage));
-                $log.debug("SurrogateToPath: ", map(surrogateToPath, pathMessage));
+                
+                if (DEBUG) $log.debug("SurrogateFromPath: ", map(surrogateFromPath, pathMessage));
+                if (DEBUG) $log.debug("SurrogateToPath:   ", map(surrogateToPath, pathMessage));
               }
             }
 
             var transitionPromise = realTransitionTo.apply($state, arguments);
             transitionPromise.then(function transitionSuccess(state) {
               restore();
-              $log.debug("Current state: " + state.name + ", inactives: ", map(_StickyState.getInactiveStates(), function (s) {
-                return s.self.name
+              state.status = 'active';
+              if (DEBUG) $log.debug("Current state: " + state.name + ", inactives: ", map(_StickyState.getInactiveStates(), function (s) {
+                return s.self.name;
               }));
             }, function transitionFailed(err) {
-              if (err.message !== "transition prevented" 
-                  && err.message !== "transition aborted"
-                  && err.message !== "transition superseded") {
-                $log.debug("transition failed", err);
-                console.log(err.stack);
+              if (err.message !== "transition prevented" && 
+                  err.message !== "transition aborted" && 
+                  err.message !== "transition superseded") {
+                if (DEBUG) $log.debug("transition failed", err);
+                if (DEBUG) console.log(err.stack);
               }
               restore();
-            })
+            });
           };
           return $state;
         }]);
