@@ -12,8 +12,16 @@
     <script type="text/javascript" src="lib/angular-ui-router.js"></script>
     <script type="text/javascript" src="lib/ct-ui-router-extras.js"></script>
     <script type="text/javascript" src="js/app.js"></script>
+    <style> html{display:none;} </style>
 </head>
 <body ng-app="futureStates">
+<script>
+    if(self == top) {
+        document.documentElement.style.display = 'block';
+    } else {
+        top.location = self.location;
+    }
+</script>
 <div class="container-fluid">
     <div class="navbar navbar-default navbar-static-top" role="navigation">
         <div class="navbar-header">
@@ -24,9 +32,11 @@
             <li ng-class="{active: $state.includes('dsr')}"><a ui-sref="dsr">Deep State Redirect</a></li>
             <li ng-class="{active: $state.includes('future')}"><a ui-sref="future">Future States</a></li>
         </ul>
-        <div class="navbar-right">
-            <a class="navbar-brand" href="//github.com/christopherthielen/ui-router-extras">on GitHub</a>
-        </div>
+        <ul class="nav navbar-nav navbar-right">
+            <li class="twat"> 
+                <a href="https://twitter.com/ChrisThielen"><img src="assets/Twitter_logo_blue.png">@ChrisThielen</a> </li>
+            <li class="github"> <a href="//github.com/christopherthielen/ui-router-extras">on GitHub</a> </li>
+        </ul>
     </div>
 </div>
 <div class="content" ui-view></div>
