@@ -36,7 +36,7 @@ module.exports = function (grunt) {
       concat: {
         options: {},
         dist: {
-          src: files.src,
+          src: ['src/_intro.js.txt'].concat(files.src).concat(['src/_outtro.js.txt']),
           dest: 'build/ct-ui-router-extras.js'
         }
       },
@@ -61,7 +61,8 @@ module.exports = function (grunt) {
         beforeconcat: {
           options: {
             force: false,
-            ignores: ['**.min.js']
+            ignores: ['**.min.js'],
+            strict: false
           },
           files: {
             src: []
@@ -71,10 +72,11 @@ module.exports = function (grunt) {
         beforeconcatQ: {
           options: {
             force: true,
+            strict: false,
             ignores: ['**.min.js']
           },
           files: {
-            src: ['**.js']
+            src: ['src/**/*.js']
           }
         }
       },

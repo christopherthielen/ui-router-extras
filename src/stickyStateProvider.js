@@ -1,5 +1,5 @@
 $StickyStateProvider.$inject = [ '$stateProvider' ];
-function $StickyStateProvider($stateProvider, $logProvider) {
+function $StickyStateProvider($stateProvider) {
   // Holds all the states which are inactivated.  Inactivated states can be either sticky states, or descendants of sticky states.
   var inactiveStates = {}; // state.name -> (state)
   var stickyStates = {}; // state.name -> true
@@ -11,6 +11,10 @@ function $StickyStateProvider($stateProvider, $logProvider) {
     stickyStates[state.name] = state;
     // console.log("Registered sticky state: ", state);
   };
+  
+  this.enableDebug = function(enabled) {
+    DEBUG = enabled;
+  };
 
   this.$get = [ '$rootScope', '$state', '$injector', '$log', function ($rootScope, $state, $injector, $log) {
     // Each inactive states is either a sticky state, or a child of a sticky state.
@@ -18,15 +22,18 @@ function $StickyStateProvider($stateProvider, $logProvider) {
     // Map all inactive states to their closest parent-to-sticky state.
     function mapInactives() {
       var mappedStates = {};
-      for (var name in inactiveStates) {
-        var state = inactiveStates[name];
-        var parParents = getStickyStateStack(state);
-        for (var i = 0; i < parParents.length; i++) {
-          var parent = parParents[i].parent;
+      angular.forEach(inactiveStates, function(state, name) { 
+        var stickyAncestors = getStickyStateStack(state);
+        for (var i = 0; i < stickyAncestors.length; i++) {
+          var parent = stickyAncestors[i].parent;
           mappedStates[parent.name] = mappedStates[parent.name] || [];
           mappedStates[parent.name].push(state);
         }
-      }
+        if (mappedStates['']) {
+          // This is necessary to compute Transition.inactives when there are sticky states are children to root state.
+          mappedStates['__inactives'] = mappedStates[''];  // jshint ignore:line
+        }
+      });
       return mappedStates;
     }
 
@@ -64,9 +71,9 @@ function $StickyStateProvider($stateProvider, $logProvider) {
       if (ancestorParamsChanged) return "updateStateParams";
       var inactiveState = inactiveStates[state.self.name];
       if (!inactiveState) return "enter";
-      if (inactiveState.locals == null || inactiveState.locals.globals == null) debugger;
+//      if (inactiveState.locals == null || inactiveState.locals.globals == null) debugger;
       var paramsMatch = equalForKeys(stateParams, inactiveState.locals.globals.$stateParams, state.ownParams);
-      // $log.debug("getEnterTransition: " + state.name + (paramsMatch ? ": reactivate" : ": updateStateParams"));
+//      if (DEBUG) $log.debug("getEnterTransition: " + state.name + (paramsMatch ? ": reactivate" : ": updateStateParams"));
       return paramsMatch ? "reactivate" : "updateStateParams";
     }
 
@@ -122,11 +129,9 @@ function $StickyStateProvider($stateProvider, $logProvider) {
 
         while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
           state = toPath[++keep];
-          if (state != null && state.ownParams == null)
-            debugger;
+//          if (state != null && state.ownParams == null) debugger;
         }
 
-//                    if (keep <= 0) return result;
         result.keep = keep;
 
         var idx, deepestUpdatedParams, deepestReactivate, reactivatedStatesByName = {}, pType = getStickyTransitionType(fromPath, toPath, keep);
@@ -216,19 +221,19 @@ function $StickyStateProvider($stateProvider, $logProvider) {
         angular.forEach(exitQueue, function (state) {
           exitingNames[state.self.name] = true;
         });
-        for (var name in inactiveStates) {
+        
+        angular.forEach(inactiveStates, function(inactiveExiting, name) {
           // TODO: Might need to run the inactivations in the proper depth-first order?
           if (!exitingNames[name] && name.indexOf(substatePrefix) === 0) { // inactivated state's name starts with the prefix.
-//            $log.debug("Exiting " + name + " because it's a substate of " + substatePrefix + " and wasn't found in ", exitingNames);
-            var inactiveExiting = inactiveStates[name];
+            if (DEBUG) $log.debug("Exiting " + name + " because it's a substate of " + substatePrefix + " and wasn't found in ", exitingNames);
             if (inactiveExiting.self.onExit)
               $injector.invoke(inactiveExiting.self.onExit, inactiveExiting.self, inactiveExiting.locals.globals);
             inactiveExiting.locals = null;
             inactiveExiting.self.status = 'exited';
-//        if (state.locals == null || state.locals.globals == null) debugger;
             delete inactiveStates[name];
           }
-        }
+        });
+        
         if (onExit)
           $injector.invoke(onExit, exiting.self, exiting.locals.globals);
         exiting.locals = null;

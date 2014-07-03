@@ -44,7 +44,6 @@ angular.module('ngMock').config(function ($provide) {
   });
 });
 
-
 function testablePromise(promise) {
   if (!promise || !promise.then) throw new Error('Expected a promise, but got ' + jasmine.pp(promise) + '.');
   if (!angular.isDefined(promise.$$resolved)) throw new Error('Promise has not been augmented by ngMock');
@@ -63,21 +62,12 @@ function resolvedValue(promise) {
   return result.value;
 }
 
-// Add callbacks to each 
-function addCallbacks (basicStates) {
-  angular.forEach(basicStates, function (state) {
-    state.onInactivate = function () { tLog.inactivated.push(state.name); };
-    state.onReactivate = function () { tLog.reactivated.push(state.name); };
-    state.onEnter =      function () { tLog.entered.push(state.name); };
-    state.onExit =       function () { tLog.exited.push(state.name); };
-  });
-}
-
 var TransitionAudit = function () {
   this.entered = [];
   this.exited = [];
   this.reactivated = [];
   this.inactivated = [];
+  this.views = [];
 
   this.toString = angular.bind(this,
       function toString() {
@@ -93,22 +83,52 @@ var TransitionAudit = function () {
   );
 };
 
-function testGo(state, tCurrent, tAdditional, options) {
+// Add callbacks to each 
+function addCallbacks (basicStates) {
+  angular.forEach(basicStates, function (state) {
+    function deregisterView(state, cause) {
+      var views = _.keys(state.$$state().views);
+      tLog.views = _.difference(tLog.views, views);
+//      console.log(cause + ":Deregistered Inactive view " + views + " for state " + state.name + ": ", tLog.views);
+    }
+    function registerView(state, cause) {
+      var views = _.keys(state.$$state().views);
+      tLog.views = _.union(tLog.views, views);
+//      console.log(cause  + ":  Registered Inactive view " + views + " for state " + state.name + ": ", tLog.views);
+    }
+
+    state.onInactivate = function () { tLog.inactivated.push(state.name); registerView(state,  'Inactivate');};
+    state.onReactivate = function () { tLog.reactivated.push(state.name); deregisterView(state,'Reactivate');};
+    state.onEnter =      function () { tLog.entered.push(state.name);     deregisterView(state,'Enter     ');};
+    state.onExit =       function () { tLog.exited.push(state.name);      deregisterView(state,'Exit      ');};
+  });
+}
+
+function testGo(state, tAdditional, options) {
   $state.go(state);
   $q.flush();
   var expectRedirect = options && options.redirect;
   if (!expectRedirect)
     expect($state.current.name).toBe(state);
-
-  if (tCurrent !== undefined && tAdditional !== undefined) {
-    // append all arrays in tAdditional to arrays in tCurrent
+  else
+    expect($state.current.name).toBe(expectRedirect);
+  
+  var __inactiveViews = _.without(_.keys($state.$current.path[0].locals), "resolve", "globals");
+  var extra = _.difference(__inactiveViews, tLog.views);
+  var missing = _.difference(tLog.views, __inactiveViews);
+  
+  expect(extra).toEqual([]);
+  expect(missing).toEqual([]);
+  
+  if (tExpected !== undefined && tAdditional !== undefined) {
+    // append all arrays in tAdditional to arrays in tExpected
     angular.forEach(tAdditional, function (value, key) {
-      tCurrent[key] = tCurrent[key].concat(tAdditional[key]);
+      tExpected[key] = tExpected[key].concat(tAdditional[key]);
     });
 
-    angular.forEach(tCurrent, function(value, key) {
+    angular.forEach(_.without(_.keys(tLog), 'views'), function(key) {
       var left = key + ": " + angular.toJson(tLog[key]);
-      var right = key + ": " + angular.toJson(tCurrent[key]);
+      var right = key + ": " + angular.toJson(tExpected[key]);
       expect(left).toBe(right);
     });
   }

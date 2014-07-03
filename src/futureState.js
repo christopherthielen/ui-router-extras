@@ -147,7 +147,7 @@
           $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
 
           var futureState = findFutureState($state, { name: unfoundState.to });
-          if (futureState == null) return;
+          if (!futureState) return;
 
           event.preventDefault();
           transitionPending = true;
@@ -176,7 +176,7 @@
             var allPromises = $q.all(promises);
             return allPromises.then(function(data) { 
               return _.flatten(data); 
-            })
+            });
           });
         }
 
@@ -193,7 +193,7 @@
       serviceObject.get = provider.get;
       
       return serviceObject;
-    }
+    };
   });
 
   angular.module('ct.ui.router.extras').run(['$futureState', 

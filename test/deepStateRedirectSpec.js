@@ -40,20 +40,18 @@ describe('deepStateRedirect', function () {
 
   describe('deepStateRedirect', function () {
     it("should toggle between tab states", function() {
-      var log = new TransitionAudit();
-      testGo("tabs", log, {entered: 'tabs'});
-      testGo("tabs.tabs2", log, {entered: 'tabs.tabs2'});
-      testGo("tabs.tabs1", log, {entered: 'tabs.tabs1', exited: 'tabs.tabs2'});
+      testGo("tabs", {entered: 'tabs'});
+      testGo("tabs.tabs2", {entered: 'tabs.tabs2'});
+      testGo("tabs.tabs1", {entered: 'tabs.tabs1', exited: 'tabs.tabs2'});
     });
   });
   
   describe('deepStateRedirect', function () {
     it("should redirect to tabs.tabs1.deep.nest", function() {
-      var log = new TransitionAudit();
-      testGo("tabs", log, {entered: 'tabs'});
-      testGo("tabs.tabs2.deep.nest", log, {entered: ['tabs.tabs2', 'tabs.tabs2.deep', 'tabs.tabs2.deep.nest' ]});
-      testGo("tabs.tabs1", log, {entered: 'tabs.tabs1', exited: [ 'tabs.tabs2.deep.nest', 'tabs.tabs2.deep', 'tabs.tabs2' ]});
-      testGo("tabs.tabs2", log, {entered: ['tabs.tabs2', 'tabs.tabs2.deep', 'tabs.tabs2.deep.nest'], exited: 'tabs.tabs1'}, { redirect: true });
+      testGo("tabs", {entered: 'tabs'});
+      testGo("tabs.tabs2.deep.nest", {entered: ['tabs.tabs2', 'tabs.tabs2.deep', 'tabs.tabs2.deep.nest' ]});
+      testGo("tabs.tabs1", {entered: 'tabs.tabs1', exited: [ 'tabs.tabs2.deep.nest', 'tabs.tabs2.deep', 'tabs.tabs2' ]});
+      testGo("tabs.tabs2", {entered: ['tabs.tabs2', 'tabs.tabs2.deep', 'tabs.tabs2.deep.nest'], exited: 'tabs.tabs1'}, { redirect: 'tabs.tabs2.deep.nest' });
     });
   });
 });
