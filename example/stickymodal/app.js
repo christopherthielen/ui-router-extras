@@ -5,23 +5,21 @@
   app.config(function ($stateProvider, $urlRouterProvider) {
     var states = [];
     // Modal states
-    states.push({ name: 'modal1',                     url: '/modal1',       controller: 'timerCtrl',  
-                  onEnter: showModal1, onExit: closeModal1 });
-    states.push({ name: 'modal2',                     url: '/modal2',       controller: 'timerCtrl', 
-                  onEnter: showModal1, onExit: closeModal1 });
+    states.push({ name: 'modal1',                     url: '/modal1',       controller: 'timerCtrl',  template: '<div ui-view></div>', // Not sure why this template works with $modal.open
+                  onEnter: showModal });
+    states.push({ name: 'modal1.foo',                 url: '/foo',          controller: 'timerCtrl',  templateUrl: '../partials/foo.html'  });
     
     // Root of main app states
     states.push({ name: 'top',                        url: '/',             
-                  deepStateRedirect: true, sticky: true,
                   views: {
                     'instructions@': { controller: 'timerCtrl', templateUrl: 'instructions.html' },
                     'top@':          { controller: 'tabCtrl',   templateUrl: 'top.html' }
-                  }});
+                  }, sticky: true});
     
     // Personnel tab
     states.push({ name: 'top.people',                 url: 'people',        
-                  views: { 'peopletab@top': { controller: 'peopleCtrl', templateUrl: '../partials/people.html'} },
-                  deepStateRedirect: true, sticky: true });
+                  views: { 'peopletab@top': { controller: 'peopleCtrl', templateUrl: '../partials/people.html'} } 
+                });
     states.push({ name: 'top.people.managerlist',     url: '/managers',     controller: 'managerCtrl',templateUrl: '../partials/managers.html' });
     states.push({ name: 'top.people.manager',         url: '/manager/:mid', controller: 'managerCtrl',templateUrl: '../partials/manager.html' });
     states.push({ name: 'top.people.manager.emplist', url: '/emps',         controller: 'empCtrl',    templateUrl: '../partials/emps.html' });
@@ -29,8 +27,8 @@
 
     // Inventory tab
     states.push({ name: 'top.inv',                    url: 'inv',           
-                  views: { 'invtab@top': { controller: 'invCtrl',    templateUrl: '../partials/inv.html' } },
-                  deepStateRedirect: true, sticky: true });
+                  views: { 'invtab@top': { controller: 'invCtrl',    templateUrl: '../partials/inv.html' } }
+                });
     states.push({ name: 'top.inv.storelist',          url: '/stores',       controller: 'storeCtrl',  templateUrl: '../partials/stores.html' });
     states.push({ name: 'top.inv.store',              url: '/store/:sid',   controller: 'storeCtrl',  templateUrl: '../partials/store.html' });
     states.push({ name: 'top.inv.store.productlist',  url: '/products',     controller: 'productCtrl',templateUrl: '../partials/products.html' });
@@ -39,7 +37,7 @@
     // Customer tab
     states.push({ name: 'top.cust',                   url: 'cust',
                   views: { 'custtab@top': { controller: 'custCtrl',    templateUrl: '../partials/cust.html' } },
-                  deepStateRedirect: true, sticky: true });
+                });
     states.push({ name: 'top.cust.customerlist',      url: '/customers',    controller: 'customerCtrl', templateUrl: '../partials/customers.html' });
     states.push({ name: 'top.cust.customer',          url: '/customer/:cid',controller: 'customerCtrl', templateUrl: '../partials/customer.html' });
     states.push({ name: 'top.cust.customer.orderlist',url: '/orders',       controller: 'orderCtrl',    templateUrl: '../partials/orders.html' });
@@ -49,20 +47,28 @@
     angular.forEach(states, function(state) { $stateProvider.state(state); });
     $urlRouterProvider.otherwise("/");
 
-    function showModal1($modal) {
+    function showModal($modal, $state, $previousState) {
+      $previousState.remember("modalInvoker");
+      
       $modal.open({
-        templateUrl: 'modal1.html'
+        templateUrl: 'modal1.html',
+        backdrop: 'static',
+        controller: function($modalInstance, $scope) {
+          var isopen = true;
+          $modalInstance.result.finally(function() {
+            isopen = false;
+          });
+          $scope.close = function () {
+            $modalInstance.dismiss('close');
+            var prev = $previousState.get("modalInvoker");
+            $state.go(prev.state, prev.params);
+          };
+        }
       })
-    }
-    
-    function closeModal1($modal) {
-//      $modal.open({
-//        templateUrl: 'modal1.html'
-//      })
     }
   });
   
-  app.run(function ($rootScope, $state, $window, $timeout) {
+  app.run(function ($rootScope, $state, $window, $timeout, $previousState) {
     $rootScope.$state = $state;
     $rootScope.$on("$stateChangeSuccess", function() {
       $timeout(function() {
@@ -70,5 +76,22 @@
       } );
     });
   });
+
+  app.service("$previousState", [ '$rootScope', '$state', function($rootScope, $state) {
+    var previous = null;
+    var memos = {};
+
+    $rootScope.$on("$stateChangeStart", function(evt, toState, toStateParams, fromState, fromStateParams) {
+      previous = { state: fromState, params: fromStateParams }
+    });
+
+    return {
+      get: function(memoName) { 
+        return memoName ? memos[memoName] : previous; },
+      remember: function(memoName) { 
+        memos[memoName] = previous; }
+    }
+  }]);
+
 })();
   

@@ -26,7 +26,7 @@
       templateUrl: 'partials/dsr/dsr.html'
     });
     $sp.state("future", {
-      url: '/future/:section',
+      url: '/future',
       controller: 'tab',
       templateUrl: 'partials/future/future.html'
     });

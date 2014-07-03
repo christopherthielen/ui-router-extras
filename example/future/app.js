@@ -60,4 +60,24 @@ function (angularAMD) { // Only need to inject angularAMD for app config
     
     // The state factory returns the promise
     return d.promise;
-  }});
+  }
+  
+  function iframeStateFactory ($q, futureState) {
+    var state = {
+      name: futureState.stateName,
+      template: "<iframe src='" + futureState.src + "'></iframe>",
+      url: futureState.urlPrefix
+    };
+    return $q.when(state);
+  }
+
+  function ngloadStateFactory($q, futureState) {
+    var ngloadDeferred = $q.defer();
+    require([ "ngload!" + futureState.src , 'ngload', 'angularAMD'],
+        function ngloadCallback(result, ngload, angularAMD) {
+          angularAMD.processQueue();
+          ngloadDeferred.resolve(result.entryState);
+        });
+    return ngloadDeferred.promise;
+  } 
+});

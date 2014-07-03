@@ -76,16 +76,16 @@ module.exports = function (grunt) {
         main: {
           options: {
             hostname: '*',
-            port: 9003,
+            port: 9005,
             base: [ "." ],
             open: true,
-            livereload: true,
+            livereload: 35730
           }
         },
         livereload: {
           options: {
             hostname: '*',
-            port: 9004,
+            port: 9006,
             base: [ "." ]
           }
         }
@@ -93,7 +93,7 @@ module.exports = function (grunt) {
       watch: {
         main: {
           options: {
-            livereload: true,
+            livereload: 35730,
             livereloadOnError: false,
             spawn: false
           },
