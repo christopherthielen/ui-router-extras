@@ -26,9 +26,14 @@ function($rootScope, $state) {
     go: function(memoName) {
       var to = $previousState.get(memoName);
       return $state.go(to.state, to.params)},
-    remember: function(memoName) {
+    memo: function(memoName) {
       memos[memoName] = previous; }
   };
 
   return $previousState;
+}]);
+
+angular.module('ct.ui.router.extras').run(['$previousState', function($previousState) {
+  "use strict";
+  
 }]);
