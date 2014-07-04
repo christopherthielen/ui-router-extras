@@ -7,11 +7,12 @@ var files = {
   ],
   src: [
     'src/module.js',
+    'src/util.js',
     'src/deepStateRedirect.js',
     'src/stickyStateProvider.js',
     'src/stickyState.js',
     'src/futureState.js',
-    'src/util.js',
+    'src/previousState.js',
     'src/fsfactories/ngload.js',
     'src/fsfactories/iframe.js'
   ],
