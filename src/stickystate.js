@@ -302,9 +302,37 @@ angular.module("ct.ui.router.extras").config(
             transitionPromise.then(function transitionSuccess(state) {
               restore();
               state.status = 'active';
-              if (DEBUG) $log.debug("Current state: " + state.name + ", inactives: ", map(_StickyState.getInactiveStates(), function (s) {
-                return s.self.name;
-              }));
+              if (DEBUG) {
+                var currentState = internalStates[state.name];
+                $log.debug("Current state: " + currentState.self.name + ", inactive states: ", map(_StickyState.getInactiveStates(), function (s) {
+                  return s.self.name;
+                }));
+                
+                var viewMsg = function(local, name) {
+                  return "'" + name + "' (" + local.$$state.name + ")";
+                };
+                var statesOnly = function(local, name) {
+                  return name != 'globals' && name != 'resolve';
+                };
+                var viewsForState = function(state) {
+                  var views = map(filterObj(state.locals, statesOnly), viewMsg).join(", ");
+                  return "(" + (state.self.name ? state.self.name : "root") + ".locals" + (views.length ? ": " + views : "") + ")"; 
+                };
+                
+                var message = viewsForState(currentState);
+                var parent = currentState.parent;
+                while (parent && parent !== currentState) {
+                  if (parent.self.name === "") {
+                    // Show the __inactives before showing root state.
+                    message = viewsForState($state.$current.path[0]) + " / " + message;
+                  }
+                  message = viewsForState(parent) + " / " + message;
+                  currentState = parent;
+                  parent = currentState.parent;
+                }
+                
+                $log.debug("Views: " + message);
+              }
             }, function transitionFailed(err) {
               if (err.message !== "transition prevented" && 
                   err.message !== "transition aborted" && 
