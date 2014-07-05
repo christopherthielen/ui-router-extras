@@ -169,15 +169,16 @@
         // Do this better.  Want to load remote config once, before everything else
         if (!initPromise) {
           var promises = [];
-          _.each(resolveFunctions, function(promiseFn) {
+          angular.forEach(resolveFunctions, function(promiseFn) {
             promises.push($injector.invoke(promiseFn));
           });
-          initPromise = _.once(function flattenFutureStates() {
-            var allPromises = $q.all(promises);
-            return allPromises.then(function(data) { 
-              return _.flatten(data); 
-            });
-          });
+          initPromise = function() { return $q.all(promises); };
+//          initPromise = _.once(function flattenFutureStates() {
+//            var allPromises = $q.all(promises);
+//            return allPromises.then(function(data) { 
+//              return _.flatten(data); 
+//            });
+//          });
         }
 
         // TODO: analyze this. I'm calling $urlRouter.sync() in two places for retry-initial-transition.

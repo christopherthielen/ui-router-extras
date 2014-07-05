@@ -24,14 +24,18 @@ function($rootScope, $state) {
 
   var $previousState = {
     get: function(memoName) {
-      return memoName ? memos[memoName] : previous; },
+      return memoName ? memos[memoName] : previous; 
+    },
     go: function(memoName) {
       var to = $previousState.get(memoName);
-      return $state.go(to.state, to.params)},
+      return $state.go(to.state, to.params);
+    },
     memo: function(memoName) {
-      memos[memoName] = previous; },
+      memos[memoName] = previous; 
+    },
     forget: function(memoName) {
-      delete memos[memoName]; }
+      delete memos[memoName];
+    }
   };
 
   return $previousState;
