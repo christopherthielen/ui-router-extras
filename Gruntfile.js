@@ -10,6 +10,7 @@
 
 'use strict';
 
+var _ = require('lodash');
 module.exports = function (grunt) {
 
   /**
@@ -108,13 +109,23 @@ module.exports = function (grunt) {
           singleRun: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
-        build: {
-          configFile: 'test/karma.build.conf.js',
+        v0200: {
+          configFile: 'test/karma.0200.conf.js',
           singleRun: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
-        min: {
-          configFile: 'test/karma.min.conf.js',
+        v0208: {
+          configFile: 'test/karma.0208.conf.js',
+          singleRun: true,
+          browsers: [ grunt.option('browser') || 'PhantomJS' ]
+        },
+        v0210: {
+          configFile: 'test/karma.0210.conf.js',
+          singleRun: true,
+          browsers: [ grunt.option('browser') || 'PhantomJS' ]
+        },
+        vHEAD: {
+          configFile: 'test/karma.HEAD.conf.js',
           singleRun: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
@@ -139,7 +150,7 @@ module.exports = function (grunt) {
      @toc 6.
      */
       // Default task(s).
-    grunt.registerTask('default', ['jshint:beforeconcatQ', 'concat', 'uglify:build', 'karma:build', 'karma:min']);
+    grunt.registerTask('default', ['jshint:beforeconcatQ', 'concat', 'uglify:build', 'karma:v0200', 'karma:v0208', 'karma:v0210', 'karma:vHEAD']);
     grunt.registerTask('test', ['jshint:beforeconcatQ', 'karma:unit']);
     grunt.registerTask('test:watch', ['jshint:beforeconcatQ', 'karma:watch']);
 
