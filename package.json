@@ -1,9 +1,9 @@
 {
-  "author": "",
+  "author": "Chris Thielen",
   "name": "ui-router-extras",
-  "version": "0.0.4-preview",
-  "description": "",
-  "homepage": "",
+  "version": "0.0.5",
+  "description": "UI-Router Extras",
+  "homepage": "http://christopherthielen.github.io/ui-router-extras/",
   "dependencies": {},
   "devDependencies": {
     "express": "~3.4.4",
