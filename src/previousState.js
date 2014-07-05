@@ -7,11 +7,13 @@ function($rootScope, $state) {
   var lastPrevious = null;
 
   $rootScope.$on("$stateChangeStart", function(evt, toState, toStateParams, fromState, fromStateParams) {
+    // State change is starting.  Keep track of the CURRENT previous state in case we have to restore it
     lastPrevious = previous;
     previous = { state: fromState, params: fromStateParams };
   });
 
   $rootScope.$on("$stateChangeError", function() {
+    // State change did not occur due to an error.  Restore the previous previous state.
     previous = lastPrevious;
     lastPrevious = null;
   });
@@ -27,13 +29,14 @@ function($rootScope, $state) {
       var to = $previousState.get(memoName);
       return $state.go(to.state, to.params)},
     memo: function(memoName) {
-      memos[memoName] = previous; }
+      memos[memoName] = previous; },
+    forget: function(memoName) {
+      delete memos[memoName]; }
   };
 
   return $previousState;
 }]);
 
 angular.module('ct.ui.router.extras').run(['$previousState', function($previousState) {
-  "use strict";
-  
+  // Inject $previousState so it can register $rootScope events
 }]);
