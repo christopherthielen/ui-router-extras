@@ -26,9 +26,17 @@
     <h4><a ui-sref="^.future">Future States</a></h4>
     <section class="well-sm">
         <p>
-            Future States allow the UI-Router state tree to be late-bound.  The application's state tree can be loaded 
-            at Runtime.  Also, states can be lazy loaded (late binding), waiting until there is a request to transition 
+            Future States allow the UI-Router state tree to be late-bound.  The application's state tree can be loaded
+            at Runtime.  Also, states can be lazy loaded (late binding), waiting until there is a request to transition
             to the state.
+        </p>
+    </section>
+
+    <h4><a ui-sref="^.previous">Previous States</a></h4>
+    <section class="well-sm">
+        <p>
+            Previous States is a service that can be used to remember which state was the entry point to a complex
+            state tree and/or workflow.  It can then be used to return to the entry point when the workflow is complete.
         </p>
     </section>
 </div>

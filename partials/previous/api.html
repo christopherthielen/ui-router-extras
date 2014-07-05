@@ -1,0 +1,52 @@
+<div class="panel panel-primary">
+    <div class="panel-heading"><h2>API</h2></div>
+</div>
+
+<div class="container-fluid">
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong><code>$previousState.get([memoName: optional string])</code></strong></div>
+        <div class="panel-body">
+            <code>var previous = $previousState.get();</code>
+
+            <p>Gets a reference to the previous state.</p>
+
+            <p>
+                <code>previous</code> is an object that looks like: 
+                <code>{ state: fromState, params: fromParams }</code> where
+                <code>fromState</code> is the previous state and <code>fromParams</code> is the previous state
+                parameters.
+            </p>
+
+             <code>var previous = $previousState.get(memoName);</code>Gets a reference to a memorized previous state.
+        </div>
+    </section>
+
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong><code>$previousState.memo([memoName])</code></strong></div>
+        <div class="panel-body">
+            <p>Remember the previous state using a memoName.</p>
+            <pre>$previousState.memo('workflowEntrypoint');</pre>
+            <p>The previous state is memorized with a memoName of '<code>workflowEntrypoint</code>'</p>
+        </div>
+    </section>
+
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong><code>$previousState.forget([memoName])</code></strong></div>
+        <div class="panel-body">
+            <p>Forget a previously remembered state.</p>
+            <pre>$previousState.forget('workflowEntrypoint');</pre>
+            <p>The state remembered with a memoName of '<code>workflowEntrypoint</code>' is forgotten.</p>
+        </div>
+    </section>
+
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong><code>$previousState.go([memoName: optional string])</code></strong></div>
+        <div class="panel-body">
+            <code>$previousState.go();</code>
+            <p>The previous state is transitioned to.  Transitions use <code>$state.go(fromState, fromParams);</code></p>
+            
+            <code>$previousState.go(memoName);</code>
+            <p>The state memorized as <code>memoName</code> is transitioned to.</p>
+        </div>
+    </section>
+</div>

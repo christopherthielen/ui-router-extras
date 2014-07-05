@@ -1,6 +1,8 @@
 (function() {
   "use strict";
-  var app = angular.module("futureStates", ['ct.ui.router.extras']);
+  var app = angular.module("futureStates", ['ct.ui.router.extras'
+//    , 'ui.router.extras.chat', 'firebase'
+  ]);
   app.controller("tab", function($scope) {
     $scope.scrollTo = function scrollTo(elemid) {
       var elm = (document.getElementById(elemid));
@@ -24,6 +26,11 @@
       url: '/dsr',
       controller: 'tab',
       templateUrl: 'partials/dsr/dsr.html'
+    });
+    $sp.state("previous", {
+      url: '/previous',
+      controller: 'tab',
+      templateUrl: 'partials/previous/previous.html'
     });
     $sp.state("future", {
       url: '/future',

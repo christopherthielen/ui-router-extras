@@ -1,0 +1,23 @@
+<div class="panel panel-primary">
+    <div class="panel-heading"><h2>Overview</h2></div>
+</div>
+
+<div class="container-fluid">
+    <section class="panel panel-default">
+        <div class="panel-heading">
+            <div><strong>Previous State</strong></div>
+        </div>
+        <div class="panel-body">
+            <p>The <code>$previousState</code> remembers the previous state and allows you to transition to it.  
+                It also provides an api to apply a memo name to a previous state, then transition to the named named memo. </p>
+            
+            <p>This service can be useful if you transition into a complex workflow, then wish to transition back to the 
+                original entry point when the workflow is completed.</p>
+            
+            <p><code>$previousState</code> should not be used inside $stateChange event handlers.  <small>The reason for this
+                is that $previousState uses those events internally, and the events callbacks could be run out-of-order.</small>  
+                Inside $stateChangeStart and $stateChangeSuccess handlers, you can access the fromState and fromParams 
+                function parameters directly.</p>
+        </div>
+    </section>
+</div>

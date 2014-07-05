@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>ui-router-extras Deep State Redirect demo</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link href="../../css/bootstrap.css" rel="stylesheet">
+    <link href="../../css/statevis.css" rel="stylesheet">
+    <link href="style.css" rel="stylesheet">
+    <script type="text/javascript" src="../../js/ga.js"></script>
+    <script type="text/javascript" src="../../lib/jquery.js"></script>
+    <script type="text/javascript" src="../../lib/underscore.js"></script>
+    <script type="text/javascript" src="../../lib/d3.js"></script>
+    
+    <script type="text/javascript" src="../../lib/angular.js"></script>
+    <script type="text/javascript" src="../../lib/angular-ui-router.js"></script>
+    
+    <script type="text/javascript" src="../../lib/ct-ui-router-extras.js"></script>
+    
+    <script type="text/javascript" src="../statevis.js"></script>
+    <script type="text/javascript" src="../timerService.js"></script>
+    <script type="text/javascript" src="../dataService.js"></script>
+    
+    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="../controllers.js"></script>
+</head>
+
+<body ng-app="ct.ui.router.extras.examples.dsr">
+<div class="navbar navbar-default navbar-static-top" role="navigation">
+    <ul class="nav navbar-nav">
+        <li><a href="../../#/dsr">Back to UI-Router Extras</a></li>
+        <li ng-class="{active: $state.includes('top')}"><a ui-sref=".top">Top</a></li>
+        <li ng-class="{active: $state.includes('aside1')}"><a ui-sref=".aside1">Aside 1</a></li>
+        <li ng-class="{active: $state.includes('aside2')}"><a ui-sref=".aside2">Aside 2</a></li>
+        <li ng-class="{disabled: !previous}" ><a href="javascript: void(0)" ng-click="goPrevious()">{{previousLink}}</a> </li>
+    </ul>
+</div>
+<div ui-view="instructions"></div>
+<div class="container">
+    <div class="row">
+        <div ui-view class="col-sm-6"></div>
+        <div ng-include="'../partials/statevis.html'"></div>
+    </div>
+</div>
+</body>
+</html>

@@ -1,0 +1,13 @@
+.ng-cloak {
+    display:none;
+}
+div.hovercode {
+    display:none;
+}
+
+.hovertrigger .hovercode {
+    display: block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}

@@ -5,7 +5,7 @@
   app.controller("timerCtrl", function($scope, timerService) {
     timerService.instrument($scope);
   });
-  
+
   app.controller("tabCtrl", function($scope, $state, timerService) {
     var ctrl = $scope.tabCtrl = this;
     timerService.instrument($scope);
@@ -14,6 +14,18 @@
         ctrl.selected = $state.current.name.split(".").slice(1, 2).pop();
       }
     })
+  });
+
+  app.controller("tabPreviousCtrl", function($scope, $state, timerService, $previousState) {
+    var ctrl = $scope.tabCtrl = this;
+    timerService.instrument($scope);
+    $scope.$on('$stateChangeSuccess', function(toState) {
+      if ($state.includes("top") && !$state.is("top")) {
+        ctrl.selected = $state.current.name.split(".").slice(1, 2).pop();
+      }
+    });
+    
+    ctrl.previous = $previousState.get(); 
   });
 
   // Personnel stuff

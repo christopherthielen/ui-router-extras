@@ -47,8 +47,8 @@
     angular.forEach(states, function(state) { $stateProvider.state(state); });
     $urlRouterProvider.otherwise("/");
 
-    function showModal($modal, $state, $previousState) {
-      $previousState.remember("modalInvoker");
+    function showModal($modal, $previousState) {
+      $previousState.memo("modalInvoker"); // remember the previous state with memoName "modalInvoker"
       
       $modal.open({
         templateUrl: 'modal1.html',
@@ -60,8 +60,7 @@
           });
           $scope.close = function () {
             $modalInstance.dismiss('close');
-            var prev = $previousState.get("modalInvoker");
-            $state.go(prev.state, prev.params);
+            $previousState.go("modalInvoker"); // return to previous state
           };
         }
       })
@@ -76,22 +75,5 @@
       } );
     });
   });
-
-  app.service("$previousState", [ '$rootScope', '$state', function($rootScope, $state) {
-    var previous = null;
-    var memos = {};
-
-    $rootScope.$on("$stateChangeStart", function(evt, toState, toStateParams, fromState, fromStateParams) {
-      previous = { state: fromState, params: fromStateParams };
-    });
-
-    return {
-      get: function(memoName) { 
-        return memoName ? memos[memoName] : previous; },
-      remember: function(memoName) { 
-        memos[memoName] = previous; }
-    }
-  }]);
-
 })();
   
