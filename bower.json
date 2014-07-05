@@ -16,6 +16,7 @@
     "build",
     "node_modules",
     "bower_components",
+    "ui-router-versions",
     "src",
     "test",
     "tests",
