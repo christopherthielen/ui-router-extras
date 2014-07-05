@@ -2,7 +2,8 @@
   "use strict";
   var app = angular.module("ct.ui.router.extras.examples.dsr", [ 'ct.ui.router.extras.examples', 'ct.ui.router.extras.examples.statevis' ]);
   
-  app.config(function ($stateProvider, $urlRouterProvider) {
+  app.config(function ($stateProvider, $stickyStateProvider, $urlRouterProvider) {
+    $stickyStateProvider.enableDebug(true);
     var states = [];
     states.push({ name: 'aside1',                     url: '/aside1',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });
     states.push({ name: 'aside2',                     url: '/aside2',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });

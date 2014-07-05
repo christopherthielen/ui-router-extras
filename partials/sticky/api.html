@@ -35,8 +35,42 @@
         <div class="panel-heading"><strong>debug logging</strong></div>
         <div class="panel-body">
             <div>
-                <code>$stickyStateProvider</code> can be configured to log debugging information. 
+                <p><code>$stickyStateProvider</code> can be configured to log debugging information. </p>
 <pre>$stickyStateProvider.enableDebug(true);</pre>
+                <h4>Debug output</h4>
+<p>When debug is enabled, transitions are logged to the console in excessive detail.  Debugging information looks like this:</p>
+                <div class="well-sm">
+                    <ol>
+
+                        <li>Current transition details, including state parameters</li>
+                        <pre>Current transition:  top.people.manager.emplist: {"mid":"3"}:  -> top.inv.store.productlist: {"sid":"1"}</pre>
+                        <li>The states which were already inactive before the transition started.</li>
+                        <pre>Before transition, inactives are:   :  ["top.inv.store.productlist", "top.inv.store", "top.inv"]</pre>
+                        <li>The states that will be inactive after a successful transition.</li>
+                        <pre>After transition,  inactives will be:  ["top.people", "top.people.manager", "top.people.manager.emplist"]</pre>
+                        <li>States that will be "exited" marked with their exit transition (EXIT or INACTIVATE). States in (parens) are not exited.</li>
+                        <pre>Transition will exit:   ["(__inactives)", "(top)", "INACTIVATE: top.people", "INACTIVATE: top.people.manager", "INACTIVATE: top.people.manager.emplist"]</pre>
+                        <li>States that will be "entered" marked with their enter transition (ENTER, REACTIVATE, or
+                            UPDATESTATEPARAMS). States in (parens) are not entered.
+                        </li>
+                        <pre>Transition will enter:  ["(__inactives)", "(top)", "REACTIVATE: top.inv", "REACTIVATE: top.inv.store", "REACTIVATE: top.inv.store.productlist"]</pre>
+                        <li>Surrogate From and To paths are shown. This exposes the gory details of how Sticky States
+                            hooks into stock
+                            UI-Router transitions in order to get its desired behavior of managing locals.
+                        </li>
+                        <pre>SurrogateFromPath:  ["__inactives:__inactives", "top", "reactivate_p1:top.inv", "reactivate_p1:top.inv.store", "reactivate_p1:top.inv.store.productlist", "inactivate:top.people", "inactivate:top.people.manager", "inactivate:top.people.manager.emplist"]</pre>
+                        <pre>SurrogateToPath:    ["__inactives:__inactives", "top", "reactivate_p1:top.inv", "reactivate_p1:top.inv.store", "reactivate_p1:top.inv.store.productlist", "reactivate_p2:top.inv", "reactivate_p2:top.inv.store", "reactivate_p2:top.inv.store.productlist"]</pre>
+                        <li>After transition, the current state and the new inactive states list.</li>
+                        <pre>Current state: top.inv.store.productlist, inactive states:  ["top.people.manager.emplist", "top.people.manager", "top.people"]</pre>
+                        <li>
+                            <p>After transition, the stack of locals, i.e., views (from root up to the active state).</p>
+                            <p><small>For each state in the stack, views found in that state's locals in are shown. For 
+                                each view, the state which that view originates from is shown (in parens).</small></p>
+                            <p><small>The current state's locals inherit the prototype of each element of the state path.</small></p>
+                            <p><small>__inactives is a pseudostate inserted between the root state and any top-level states.</small></p>
+                        </li>
+                        <pre>Views: (root.locals) / (__inactives.locals: 'peopletab@top' (top.people), '@top.people' (top.people.manager), '@top.people.manager' (top.people.manager.emplist)) / (top.locals: 'instructions@' (top), '@' (top)) / (top.inv.locals: 'invtab@top' (top.inv)) / (top.inv.store.locals: '@top.inv' (top.inv.store)) / (top.inv.store.productlist.locals: '@top.inv.store' (top.inv.store.productlist))</div>
+                </ul>
             </div>
         </div>
     </section>

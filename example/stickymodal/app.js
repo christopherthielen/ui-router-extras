@@ -2,7 +2,8 @@
   "use strict";
   var app = angular.module("ct.ui.router.extras.examples.dsr", [ 'ui.bootstrap.modal', 'ui.bootstrap.tpls', 'ct.ui.router.extras.examples', 'ct.ui.router.extras.examples.statevis' ]);
   
-  app.config(function ($stateProvider, $urlRouterProvider) {
+  app.config(function ($stateProvider, $stickyStateProvider, $urlRouterProvider) {
+    $stickyStateProvider.enableDebug(true);
     var states = [];
     // Modal states
     states.push({ name: 'modal1',                     url: '/modal1',       controller: 'timerCtrl',  template: '<div ui-view></div>', // Not sure why this template works with $modal.open
