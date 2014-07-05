@@ -12,6 +12,7 @@ UI-Router Extras adds 3 additional features to help you write large modular appl
 - required:
     - "angular": "~1.2.0",
     - "angular-ui-router": "~0.2.10"
+    - "underscore": "latest" // Temporary dependency: See issue #8
 
 ## Install
 1. download the files
