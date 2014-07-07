@@ -93,7 +93,7 @@ module.exports = function (grunt) {
       },
       karma: {
         options: {
-          configFile: 'test/karma.conf.js',
+          configFile: 'test/conf/karma.conf.js',
           singleRun: true,
           exclude: [],
           frameworks: ['jasmine'],
@@ -105,32 +105,47 @@ module.exports = function (grunt) {
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
         unit: {
-          configFile: 'test/karma.dev.conf.js',
+          configFile: 'test/conf/karma.dev.conf.js',
           singleRun: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
-        v0200: {
-          configFile: 'test/karma.0200.conf.js',
+        min: {
+          configFile: 'test/conf/karma.min.conf.js',
           singleRun: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
-        v0208: {
-          configFile: 'test/karma.0208.conf.js',
+        uirouter0_2_5: {
+          configFile: 'test/conf/karma.0_2_5.conf.js',
           singleRun: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
-        v0210: {
-          configFile: 'test/karma.0210.conf.js',
+        uirouter0_2_6: {
+          configFile: 'test/conf/karma.0_2_6.conf.js',
           singleRun: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
-        vHEAD: {
-          configFile: 'test/karma.HEAD.conf.js',
+        uirouter0_2_7: {
+          configFile: 'test/conf/karma.0_2_7.conf.js',
+          singleRun: true,
+          browsers: [ grunt.option('browser') || 'PhantomJS' ]
+        },
+        uirouter0_2_8: {
+          configFile: 'test/conf/karma.0_2_8.conf.js',
+          singleRun: true,
+          browsers: [ grunt.option('browser') || 'PhantomJS' ]
+        },
+        uirouter0_2_10: {
+          configFile: 'test/conf/karma.0_2_10.conf.js',
+          singleRun: true,
+          browsers: [ grunt.option('browser') || 'PhantomJS' ]
+        },
+        HEAD: {
+          configFile: 'test/conf/karma.HEAD.conf.js',
           singleRun: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
         watch: {
-          configFile: 'test/karma.conf.js',
+          configFile: 'test/conf/karma.conf.js',
           browsers: [ grunt.option('browser') || 'PhantomJS' ],
           singleRun: false,
           autoWatch: true,
@@ -150,8 +165,10 @@ module.exports = function (grunt) {
      @toc 6.
      */
       // Default task(s).
-    grunt.registerTask('default', ['jshint:beforeconcatQ', 'concat', 'uglify:build', 'karma:v0200', 'karma:v0208', 'karma:v0210', 'karma:vHEAD']);
-    grunt.registerTask('test', ['jshint:beforeconcatQ', 'karma:unit']);
+    grunt.registerTask('default', ['jshint:beforeconcatQ', 'concat', 'uglify:build', 
+      'karma:uirouter0_2_5', 'karma:uirouter0_2_6', 'karma:uirouter0_2_7', 'karma:uirouter0_2_8', 'karma:uirouter0_2_10', 'karma:HEAD'
+    ]);
+    grunt.registerTask('test', ['jshint:beforeconcatQ', 'concat', 'karma:unit']);
     grunt.registerTask('test:watch', ['jshint:beforeconcatQ', 'karma:watch']);
 
   }

@@ -1,10 +1,10 @@
 var _ = require('lodash');
 var files = {
   dist: [
-    'release/ct-ui-router-extras.js'
+    'build/ct-ui-router-extras.js'
   ],
   min: [
-      'release/ct-ui-router-extras.min.js'
+    'build/ct-ui-router-extras.min.js'
   ],
   src: [
     'src/module.js',
@@ -13,20 +13,24 @@ var files = {
     'src/stickyStateProvider.js',
     'src/stickyState.js',
     'src/futureState.js',
-    'src/previousState.js',
-    'src/fsfactories/ngload.js',
-    'src/fsfactories/iframe.js'
+    'src/previousState.js'
   ],
   test: [
     'test/deepStateRedirectSpec.js',
     'test/futureStateSpec.js',
-    'test/stickyStateSpec.js'
+    'test/stickyStateSpec.js',
+    'test/previousStateSpec.js',
+    'src/fsfactories/ngload.js',
+    'src/fsfactories/iframe.js'
   ],
   testUtil: [ 'test/testUtil.js', 'bower_components/lodash/dist/lodash.js'],
+  jquery: [  'bower_components/jquery/dist/jquery.js' ],
   angular: [ 'bower_components/angular/angular.js' ],
   angular_mocks: [ 'bower_components/angular-mocks/angular-mocks.js' ],
   ui_router: [ 'bower_components/angular-ui-router/release/angular-ui-router.js' ],
-  ui_router_0_2_0: [ 'ui-router-versions/0.2.0/angular-ui-router.js' ],
+  ui_router_0_2_5: [ 'ui-router-versions/0.2.5/angular-ui-router.js' ],
+  ui_router_0_2_6: [ 'ui-router-versions/0.2.6/angular-ui-router.js' ],
+  ui_router_0_2_7: [ 'ui-router-versions/0.2.7/angular-ui-router.js' ],
   ui_router_0_2_8: [ 'ui-router-versions/0.2.8/angular-ui-router.js' ],
   ui_router_0_2_10: [ 'ui-router-versions/0.2.10/angular-ui-router.js' ],
   ui_router_HEAD: [ 'ui-router-versions/2014-07-05/angular-ui-router.js' ]
@@ -58,17 +62,23 @@ var minfiles = {
   angular_mocks: files.angular_mocks
 };
 
-var min0200files = _.extend(minfiles, { ui_router: files.ui_router_0_2_0 });
-var min0208files = _.extend(minfiles, { ui_router: files.ui_router_0_2_8 });
-var min0210files = _.extend(minfiles, { ui_router: files.ui_router_0_2_10 });
-var minHEADfiles = _.extend(minfiles, { ui_router: files.ui_router_HEAD });
+var min0_2_5files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_5 });
+var min0_2_6files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_6 });
+var min0_2_7files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_7 });
+var min0_2_8files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_8 });
+var min0_2_10files =  _.extend(minfiles, { ui_router: files.ui_router_0_2_10 });
+var minHEADfiles =    _.extend(minfiles, { ui_router: files.ui_router_HEAD });
 
 if (exports) {
   exports.files = files;
   exports.devfiles = devfiles;
   exports.buildfiles = buildfiles;
-  exports.min0208files = min0208files;
-  exports.min0210files = min0210files;
+  exports.minfiles = minfiles;
+  exports.min0_2_5files = min0_2_5files;
+  exports.min0_2_6files = min0_2_6files;
+  exports.min0_2_7files = min0_2_7files;
+  exports.min0_2_8files = min0_2_8files;
+  exports.min0_2_10files = min0_2_10files;
   exports.minHEADfiles = minHEADfiles;
 }
 

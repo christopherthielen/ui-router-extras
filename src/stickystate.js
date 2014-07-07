@@ -153,22 +153,30 @@ angular.module("ct.ui.router.extras").config(
 
             function stateReactivatedSurrogatePhase2(state) {
               var surrogate = angular.extend(new SurrogateState("reactivate_p2"), state);
-              surrogate.self = angular.extend({}, state.self);
+//              surrogate.self = angular.extend({}, state.self);
+              var oldOnEnter = surrogate.self.onEnter;
               surrogate.self.onEnter = function () {
                 // ui-router sets locals on the surrogate to a blank locals (because we gave it nothing to resolve)
                 // Re-set it back to the already loaded state.locals here.
                 surrogate.locals = state.locals;
                 _StickyState.stateReactivated(state);
               };
+              restore.addRestoreFunction(function() {
+                state.self.onEnter = oldOnEnter;
+              });
               return surrogate;
             }
 
             function stateInactivatedSurrogate(state) {
               var surrogate = new SurrogateState("inactivate");
-              surrogate.self = angular.extend({}, state.self);
+              surrogate.self = state.self;
+              var oldOnExit = state.self.onExit;
               surrogate.self.onExit = function () {
                 _StickyState.stateInactivated(state);
               };
+              restore.addRestoreFunction(function() {
+                state.self.onExit = oldOnExit;
+              });
               return surrogate;
             }
 
@@ -186,7 +194,7 @@ angular.module("ct.ui.router.extras").config(
 
             function stateExitedSurrogate(state) {
               var oldOnExit = state.self.onExit;
-              state.self = angular.extend({}, state.self);
+//              state.self = angular.extend({}, state.self);
               state.self.onExit = function () {
                 _StickyState.stateExiting(state, exited, oldOnExit);
               };

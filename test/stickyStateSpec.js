@@ -1,5 +1,5 @@
 "use strict";
-var $get, $state, $stickyState, $q, _stickyStateProvider, _stateProvider;
+var $get, $state, $stickyState, $compile, $rootScope, $q, _stickyStateProvider, _stateProvider;
 var tLog, tExpected;
 
 function resetTransitionLog() {
@@ -13,33 +13,8 @@ function ssReset(newStates, $stateProvider) {
   angular.forEach(newStates, function(s, name) {$stateProvider.state(name, s)});
 }
 
-function pathFrom(start, end) {
-  var startNodes = start.split(".");
-  var endNodes = end.split(".");
-  var reverse = startNodes.length > endNodes.length;
-  if (reverse) {
-    var tmp = startNodes;
-    startNodes = endNodes;
-    endNodes = tmp;
-  }
-  
-  var common = _.intersection(endNodes, startNodes);
-  var difference = _.difference(endNodes, startNodes);
-  difference.splice(0, 0, common.pop());
-  
-  var name = common.join(".");
-  var path = _.map(difference, function(segment) {
-    name = (name ? name + "." : "") + segment;
-    return name;
-  });
-  if (reverse) path.reverse();
-  return path;
-}
-
-describe('stickyState', function () {
+describe('simple stickyState', function () {
   beforeEach(module('ct.ui.router.extras', function($stickyStateProvider, $stateProvider) {
-    "use strict";
-    // Load and capture $stickyStateProvider and $stateProvider
     _stickyStateProvider = $stickyStateProvider;
     _stateProvider = $stateProvider;
   }));
@@ -48,11 +23,17 @@ describe('stickyState', function () {
   beforeEach(inject(function($injector) {
     $get = $injector.get;
     $state = $get('$state');
+    $compile = $get('$compile');
+    $rootScope = $get('$rootScope');
     $stickyState = $get('$stickyState');
     $q = $get('$q');
   }));
 
   describe('simple sticky .go() transitions', function () {
+    beforeEach(function() {
+      ssReset(getSimpleStates(), _stateProvider);
+    });
+
     // Set up base state heirarchy
     function getSimpleStates () {
       var newStates = {};
@@ -65,10 +46,6 @@ describe('stickyState', function () {
       return newStates;
     }
 
-    beforeEach(function() {
-      ssReset(getSimpleStates(), _stateProvider);
-    });
-
     it ('should transition normally between non-sticky states', function () {
       testGo('main');
       testGo('A');
@@ -80,14 +57,12 @@ describe('stickyState', function () {
     });
 
     it ('should inactivate sticky state tabs_tab1 when transitioning back to A', function () {
-      var transitions = new TransitionAudit();
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
       testGo('A', {inactivated: ['A._1']});
     });
 
     it ('should reactivate sticky state tabs_tab1 when transitioning back from A', function () {
-      var transitions = new TransitionAudit();
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
       testGo('A', {inactivated: ['A._1']});
@@ -95,7 +70,6 @@ describe('stickyState', function () {
     });
 
     it ('should inactivate and reactivate A._1 and A._2 when transitioning back and forth', function () {
-      var transitions = new TransitionAudit();
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
       testGo('A._2', {inactivated: ['A._1'], entered: ['A._2']});
@@ -104,7 +78,6 @@ describe('stickyState', function () {
     });
 
     it ('should inactivate and reactivate A._1 and A._2 and A._3 when transitioning back and forth', function () {
-      var transitions = new TransitionAudit();
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
       testGo('A._2', {inactivated: ['A._1'], entered: ['A._2']});
@@ -115,7 +88,6 @@ describe('stickyState', function () {
     });
 
     it ('should inactivate (not exit) A._1 and A._2 and A._3 when transitioning back to A', function () {
-      var transitions = new TransitionAudit();
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
       testGo('A._2', {inactivated: ['A._1'], entered: ['A._2']});
@@ -124,7 +96,6 @@ describe('stickyState', function () {
     });
 
     it ('should exit A._1 and A._2 and A._3 when transitioning back to main', function () {
-      var transitions = new TransitionAudit();
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
       testGo('A._2', {inactivated: ['A._1'], entered: ['A._2']});
@@ -180,4 +151,82 @@ describe('stickyState', function () {
       testGo('A._1', { inactivated: pathFrom('A._2.__2', 'A._2'), reactivated: pathFrom('A._1', 'A._1.__1') }, { redirect: 'A._1.__1' });
     });
   });
+});
+
+describe('stickyState+ui-sref-active', function () {
+  var document;
+  
+  beforeEach(module('ct.ui.router.extras', function($stickyStateProvider, $stateProvider) {
+    "use strict";
+    // Load and capture $stickyStateProvider and $stateProvider
+    _stickyStateProvider = $stickyStateProvider;
+    _stateProvider = $stateProvider;
+  }));
+  
+  beforeEach(inject(function($document) {
+    document = $document[0];
+  }));
+
+  // Capture $injector.get, $state, and $q
+  beforeEach(inject(function($injector) {
+    $get = $injector.get;
+    $state = $get('$state');
+    $stickyState = $get('$stickyState');
+    $q = $get('$q');
+  }));
+  var el, template;
+
+  var version = uiRouterVersion();
+  console.log("UI-Router version " + version);
+  if (!version || version >= 208) {
+    describe('ui-sref-active', function () {
+      beforeEach(function () {
+        ssReset(getStatesForUiSref(), _stateProvider);
+      });
+
+      // Set up base state heirarchy
+      function getStatesForUiSref() {
+        var newStates = {};
+        newStates['main'] = { };
+        newStates['A'] = { };
+        newStates['A._1'] = {sticky: true, views: { '_1@A': {} } };
+
+        return newStates;
+      }
+
+      it('should transition normally between non-sticky states', function () {
+        testGo('main');
+        testGo('A');
+      });
+
+      it('should have "active" class on div when state A._1 is active', inject(function ($rootScope, $q, $compile, $state) {
+        el = angular.element('' +
+            '<div>' +
+            '  <a class="" id="foo" ui-sref="A._1" ui-sref-active="active">Go to A._1</a>' +
+            '  <a class="" id="bar" ui-sref="main" ui-sref-active="active">Go to main</a>' +
+            '</div>');
+        template = $compile(el)($rootScope);
+        $rootScope.$digest();
+
+        expect(el.find("#foo").length).toBe(1);
+        expect(el.find("#bar").length).toBe(1);
+        expect(el.find("#baz").length).toBe(0);
+
+        expect(el.find("#bar").attr('class')).toBe('');
+        expect(el.find("#foo").attr('class')).toBe('');
+
+        testGo('main');
+        expect(el.find("#bar").attr('class')).toBe('active');
+        expect(el.find("#foo").attr('class')).toBe('');
+
+        testGo('A');
+        expect(el.find("#bar").attr('class')).toBe('');
+        expect(el.find("#foo").attr('class')).toBe('');
+
+        testGo('A._1');
+        expect(el.find("#bar").attr('class')).toBe('');
+        expect(el.find("#foo").attr('class')).toBe('active');
+      }));
+    });
+  }
 });

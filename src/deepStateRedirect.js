@@ -61,9 +61,9 @@
     });
   });
 
-  app.run(function ($deepStateRedirect) {
+  app.run(['$deepStateRedirect', function ($deepStateRedirect) {
     // Make sure $deepStateRedirect is instantiated
-  });
+  }]);
 
 //  return app;
 //});

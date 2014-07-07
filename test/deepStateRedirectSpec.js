@@ -2,7 +2,7 @@
 var $get, $state, $q, $deepStateRedirect;
 var tLog;
 
-function getStates () {
+function getDSRStates () {
   return [
     { name: 'other' },
     { name: 'tabs' },
@@ -16,8 +16,8 @@ function getStates () {
 }
 
 function dsrReset(newStates) {
-  tLog = new TransitionAudit();
   addCallbacks(newStates);
+  resetTransitionLog();
 }
 
 
@@ -25,7 +25,7 @@ describe('deepStateRedirect', function () {
   beforeEach(module('ct.ui.router.extras', function ($stateProvider, $urlRouterProvider) {
     // Load and capture $stickyStateProvider and $stateProvider
     $urlRouterProvider.otherwise("/");
-    var newStates = getStates();
+    var newStates = getDSRStates();
     dsrReset(newStates);
     angular.forEach(newStates, function(state) { $stateProvider.state(state); });
   }));

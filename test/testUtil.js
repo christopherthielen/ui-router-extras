@@ -104,6 +104,29 @@ function addCallbacks (basicStates) {
   });
 }
 
+function pathFrom(start, end) {
+  var startNodes = start.split(".");
+  var endNodes = end.split(".");
+  var reverse = startNodes.length > endNodes.length;
+  if (reverse) {
+    var tmp = startNodes;
+    startNodes = endNodes;
+    endNodes = tmp;
+  }
+
+  var common = _.intersection(endNodes, startNodes);
+  var difference = _.difference(endNodes, startNodes);
+  difference.splice(0, 0, common.pop());
+
+  var name = common.join(".");
+  var path = _.map(difference, function(segment) {
+    name = (name ? name + "." : "") + segment;
+    return name;
+  });
+  if (reverse) path.reverse();
+  return path;
+}
+
 function testGo(state, tAdditional, options) {
   $state.go(state);
   $q.flush();
@@ -120,7 +143,7 @@ function testGo(state, tAdditional, options) {
   expect(extra).toEqual([]);
   expect(missing).toEqual([]);
   
-  if (tExpected !== undefined && tAdditional !== undefined) {
+  if (tExpected && tAdditional) {
     // append all arrays in tAdditional to arrays in tExpected
     angular.forEach(tAdditional, function (value, key) {
       tExpected[key] = tExpected[key].concat(tAdditional[key]);
@@ -134,3 +157,13 @@ function testGo(state, tAdditional, options) {
   }
 }
 
+function uiRouterVersion() { 
+  var found = undefined;
+  _.each(__karma__.files, function(file, key) {
+    var matcher = /ui-router-versions\/(\d+)\.(\d+)\.(\d+)\/angular-ui-router.js/;
+    if (!found) found = matcher.exec(key);
+  });
+  if (!found) return undefined;
+
+  return (parseInt(found[1]) * 1000) + (parseInt(found[2]) * 100) + parseInt(found[3]);
+}
