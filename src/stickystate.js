@@ -14,6 +14,7 @@ function SurrogateState(type) {
     },
     views: { },
     self: { },
+    params: { },
     ownParams: [],
     surrogateType: type
   };
