@@ -1,5 +1,25 @@
 Version numbers correspond to `bower.json` version
 
+# 0.0.6
+## Features
+Added tests for $previousState.  closes #13
+Compatible with UI-Router HEAD (will probably be released as UI-Router 0.2.11 or 0.3.0). Closes #17
+Removed last usage of UnderscoreJS. closes #8
+Cleaned up bower release files. closes #15
+
+## Bug Fixes
+Fixed minification bug. closes #18
+Added array notation to deepStateRedirect.js initialization.  closes #18
+No longer setting a different state.self object on the surrogate states.  closes #1 , closes #16
+Reorganized karma tests to run against multiple versions (0.2.5, 0.2.6, 0.2.7, 0.2.8, 0.2.10, HEAD) of ui-router and minified ct-ui-router-extras.  closes #19
+Fixed DSR Spec so its getStates function doesn't conflict with other spec function.
+
+## Other stuff
+Moved pathFrom() into testUtil.js
+Added uiRouterVersion() parser to testUtil.js
+Reorganized files.js layout (this needs a makeover, i do not like)
+
+
 # 0.0.5
 ## Features
 Added state locals/view debugging output when $stickyStateProvider.enableDebug(true);
