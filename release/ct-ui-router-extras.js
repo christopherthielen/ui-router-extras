@@ -92,13 +92,12 @@ var DEBUG = false;
         event.preventDefault();
         $state.go(lastSubstate[toState.name], lastParams[toState.name]);
       }
-
     });
 
     $rootScope.$on("$stateChangeSuccess", function (event, toState, toParams, fromState, fromParams) {
       var deepStateStatus = computeDeepStateStatus(toState);
       if (deepStateStatus) {
-        _.each(lastSubstate, function (deepState, redirectState) {
+        angular.forEach(lastSubstate, function (deepState, redirectState) {
           if (toState.name == deepState || toState.name.indexOf(redirectState + ".") != -1) {
             lastSubstate[redirectState] = toState.name;
             lastParams[redirectState] = angular.copy(toParams);
@@ -108,9 +107,9 @@ var DEBUG = false;
     });
   });
 
-  app.run(function ($deepStateRedirect) {
+  app.run(['$deepStateRedirect', function ($deepStateRedirect) {
     // Make sure $deepStateRedirect is instantiated
-  });
+  }]);
 
 //  return app;
 //});
@@ -395,6 +394,7 @@ function SurrogateState(type) {
     },
     views: { },
     self: { },
+    params: { },
     ownParams: [],
     surrogateType: type
   };
@@ -534,22 +534,30 @@ angular.module("ct.ui.router.extras").config(
 
             function stateReactivatedSurrogatePhase2(state) {
               var surrogate = angular.extend(new SurrogateState("reactivate_p2"), state);
-              surrogate.self = angular.extend({}, state.self);
+//              surrogate.self = angular.extend({}, state.self);
+              var oldOnEnter = surrogate.self.onEnter;
               surrogate.self.onEnter = function () {
                 // ui-router sets locals on the surrogate to a blank locals (because we gave it nothing to resolve)
                 // Re-set it back to the already loaded state.locals here.
                 surrogate.locals = state.locals;
                 _StickyState.stateReactivated(state);
               };
+              restore.addRestoreFunction(function() {
+                state.self.onEnter = oldOnEnter;
+              });
               return surrogate;
             }
 
             function stateInactivatedSurrogate(state) {
               var surrogate = new SurrogateState("inactivate");
-              surrogate.self = angular.extend({}, state.self);
+              surrogate.self = state.self;
+              var oldOnExit = state.self.onExit;
               surrogate.self.onExit = function () {
                 _StickyState.stateInactivated(state);
               };
+              restore.addRestoreFunction(function() {
+                state.self.onExit = oldOnExit;
+              });
               return surrogate;
             }
 
@@ -567,7 +575,7 @@ angular.module("ct.ui.router.extras").config(
 
             function stateExitedSurrogate(state) {
               var oldOnExit = state.self.onExit;
-              state.self = angular.extend({}, state.self);
+//              state.self = angular.extend({}, state.self);
               state.self.onExit = function () {
                 _StickyState.stateExiting(state, exited, oldOnExit);
               };
@@ -985,23 +993,4 @@ angular.module('ct.ui.router.extras').run(['$previousState', function($previousS
   // Inject $previousState so it can register $rootScope events
 }]);
 
-"use strict";
-function ngloadStateFactory($q, futureState) {
-  var ngloadDeferred = $q.defer();
-  require([ "ngload!" + futureState.src , 'ngload', 'angularAMD'],
-      function ngloadCallback(result, ngload, angularAMD) {
-        angularAMD.processQueue();
-        ngloadDeferred.resolve(result.entryState);
-      });
-  return ngloadDeferred.promise;
-}
-"use strict";
-var iframeStateFactory = function($q, futureState) {
-  var state = {
-    name: futureState.stateName,
-    template: "<iframe src='" + futureState.src + "'></iframe>",
-    url: futureState.urlPrefix
-  };
-  return $q.when(state);
-};
 }(window));
