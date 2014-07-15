@@ -13,50 +13,49 @@ function ssReset(newStates, $stateProvider) {
   angular.forEach(newStates, function(s, name) {$stateProvider.state(name, s)});
 }
 
-describe('simple stickyState', function () {
-  beforeEach(module('ct.ui.router.extras', function($stickyStateProvider, $stateProvider) {
-    _stickyStateProvider = $stickyStateProvider;
+describe('stickyState', function () {
+  // Set up base state heirarchy
+  function getSimpleStates() {
+    var newStates = {};
+    newStates['main'] = {};
+    newStates['A'] = {};
+    newStates['A._1'] = {sticky: true, views: { '_1@A': {} } };
+    newStates['A._2'] = {sticky: true, views: { '_2@A': {} } };
+    newStates['A._3'] = {sticky: true, views: { '_3@A': {} } };
+
+    return newStates;
+  }
+
+  beforeEach(module('ct.ui.router.extras', function ($stateProvider, $stickyStateProvider) {
     _stateProvider = $stateProvider;
+    _stickyStateProvider = $stickyStateProvider;
   }));
-  
+
   // Capture $injector.get, $state, and $q
-  beforeEach(inject(function($injector) {
-    $get = $injector.get;
-    $state = $get('$state');
-    $compile = $get('$compile');
-    $rootScope = $get('$rootScope');
-    $stickyState = $get('$stickyState');
-    $q = $get('$q');
-  }));
+  beforeEach(inject(['$injector', '$state', '$q', '$compile', '$stickyState',
+    function ($injector, _state, _q, _compile, _stickyState) {
+      $state = _state;
+      $q = _q;
+      $compile = _compile;
+    }]));
+
 
   describe('simple sticky .go() transitions', function () {
     beforeEach(function() {
       ssReset(getSimpleStates(), _stateProvider);
     });
 
-    // Set up base state heirarchy
-    function getSimpleStates () {
-      var newStates = {};
-      newStates['main'] = {};
-      newStates['A'] = {};
-      newStates['A._1'] = {sticky: true, views: { '_1@A': {} } };
-      newStates['A._2'] = {sticky: true, views: { '_2@A': {} } };
-      newStates['A._3'] = {sticky: true, views: { '_3@A': {} } };
-
-      return newStates;
-    }
-
     it ('should transition normally between non-sticky states', function () {
       testGo('main');
       testGo('A');
     });
 
-    it ('should transition normally between non-sticky and sticky states', function () {
+    it('should transition normally between non-sticky and sticky states', function () {
       testGo('A', { entered: ['A'] });
       testGo('A._1', { entered: ['A._1'] });
     });
 
-    it ('should inactivate sticky state tabs_tab1 when transitioning back to A', function () {
+    it('should inactivate sticky state tabs_tab1 when transitioning back to A', function () {
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
       testGo('A', {inactivated: ['A._1']});
@@ -113,19 +112,19 @@ describe('simple stickyState', function () {
     beforeEach(function() {
       ssReset(getNestedStickyStates(), _stateProvider);
     });
-    
+
     function getNestedStickyStates() {
       var newStates = {};
       newStates['aside'] = {};
-      newStates['A'] = {sticky: true, deepStateRedirect: true, views: { 'A@': {} }};
-      
+      newStates['A'] =    {sticky: true, deepStateRedirect: true, views: { 'A@': {} }};
+
       newStates['A._1'] = {sticky: true, deepStateRedirect: true, views: { '_1@A': {} }};
       newStates['A._2'] = {sticky: true, deepStateRedirect: true, views: { '_2@A': {} }};
       newStates['A._3'] = {sticky: true, deepStateRedirect: true, views: { '_3@A': {} }};
-      
+
       newStates['A._1.__1'] = {};
       newStates['A._2.__2'] = {};
-      
+
       newStates['A._1.__1.B'] = {};
       newStates['A._1.__1.B.___1'] = {sticky: true, views: { '___1@A._1.__1.B': {} }};
       newStates['A._1.__1.B.___2'] = {sticky: true, views: { '___2@A._1.__1.B': {} }};
@@ -133,19 +132,18 @@ describe('simple stickyState', function () {
 
       return newStates;
     }
-    
+
     it ('should inactivate sticky state tabs_tab1 when transitioning back to A', function () {
-      var transitions = new TransitionAudit();
       testGo('aside', { entered: ['aside'] });
       testGo('A._1.__1.B.___1', { exited: ['aside'],                entered: pathFrom('A', 'A._1.__1.B.___1') });
       testGo('A._1.__1.B.___2', { inactivated: ['A._1.__1.B.___1'], entered:     ['A._1.__1.B.___2'] });
     });
-    
+
     it ('should reactivate child-of-sticky state ___1 when transitioning back to A', function () {
       testGo('aside', { entered: ['aside']});
       testGo('A._1.__1', { exited: ['aside'],                         entered: pathFrom('A', 'A._1.__1') });
       testGo('A._2.__2', { inactivated: pathFrom('A._1.__1', 'A._1'), entered: pathFrom('A._2', 'A._2.__2') });
-      testGo('aside', { inactivated: pathFrom('A._2.__2', 'A') ,      entered: ['aside'] });
+      testGo('aside',    { inactivated: pathFrom('A._2.__2', 'A') ,   entered: ['aside'] });
       testGo('A._2', { exited: ['aside'],                             reactivated: pathFrom('A', 'A._2.__2') }, { redirect: 'A._2.__2' });
       resetTransitionLog();
       testGo('A._1', { inactivated: pathFrom('A._2.__2', 'A._2'), reactivated: pathFrom('A._1', 'A._1.__1') }, { redirect: 'A._1.__1' });
@@ -155,14 +153,13 @@ describe('simple stickyState', function () {
 
 describe('stickyState+ui-sref-active', function () {
   var document;
-  
+
   beforeEach(module('ct.ui.router.extras', function($stickyStateProvider, $stateProvider) {
-    "use strict";
     // Load and capture $stickyStateProvider and $stateProvider
     _stickyStateProvider = $stickyStateProvider;
     _stateProvider = $stateProvider;
   }));
-  
+
   beforeEach(inject(function($document) {
     document = $document[0];
   }));

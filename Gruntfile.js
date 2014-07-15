@@ -152,6 +152,7 @@ module.exports = function (grunt) {
           autoWatchInterval: 1
         },
         debug: {
+          configFile: 'test/conf/karma.dev.conf.js',
           singleRun: false,
           background: false,
           browsers: [ grunt.option('browser') || 'Chrome' ]

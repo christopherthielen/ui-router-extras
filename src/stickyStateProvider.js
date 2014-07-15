@@ -129,7 +129,6 @@ function $StickyStateProvider($stateProvider) {
 
         while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
           state = toPath[++keep];
-//          if (state != null && state.ownParams == null) debugger;
         }
 
         result.keep = keep;
@@ -158,9 +157,12 @@ function $StickyStateProvider($stateProvider) {
         // Inactive states, before the transition is processed, mapped to the parent to the sticky state.
         var inactivesByParent = mapInactives();
 
+        // root ("") is always kept. Find the remaining names of the kept path.
+        var keptStateNames = [""].concat(map(fromPath.slice(0, keep), function(state) { return state.self.name; }));
+
         // Locate currently and newly inactive states (at pivot and above) and store them in the output array 'inactives'.
-        for (idx = 0; idx < keep; idx++) {
-          var inactiveChildren = inactivesByParent[fromPath[idx].self.name];
+        angular.forEach(keptStateNames, function(name) {
+          var inactiveChildren = inactivesByParent[name];
           for (var i = 0; inactiveChildren && i < inactiveChildren.length; i++) {
             var child = inactiveChildren[i];
             // Don't organize state as inactive if we're about to reactivate it.
@@ -169,7 +171,7 @@ function $StickyStateProvider($stateProvider) {
                 (!deepestUpdatedParams || (child.self.name.indexOf(deepestUpdatedParams) !== 0)))
               result.inactives.push(child);
           }
-        }
+        });
 
         // Calculate the "exit" transition for states not kept, in fromPath.
         // Exit transition can be one of:

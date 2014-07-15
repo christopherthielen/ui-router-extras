@@ -20,7 +20,6 @@ function SurrogateState(type) {
   };
 }
 
-
 // Grab a copy of the $stickyState service for use by the transition management code
 angular.module("ct.ui.router.extras").run(["$stickyState", function ($stickyState) { _StickyState = $stickyState; }]);
 
@@ -33,50 +32,46 @@ angular.module("ct.ui.router.extras").config(
         // so copy a reference to root.locals onto __inactives.locals (then when ui-router populates root.locals.globals
         // it also populates __inactives.locals.globals.  Likewise, this means inactive states are stored on the 
         // root state's locals, hmmm that might not be great.
-        var pState = { 
-          self: {  name: '__inactives'  },
-          onEnter: function() { inactivePseudoState.locals.globals = root.locals.globals; }
-        };
-        inactivePseudoState = angular.extend(new SurrogateState("__inactives"), pState);
-        
+        inactivePseudoState = angular.extend(new SurrogateState("__inactives"), { self: {  name: '__inactives'  } });
+        // Reset other "global" variables.  This is to primarily to flush any state during karma runs.
+        root = pendingRestore = undefined;
+        pendingTransitions = [];
+
         // Need access to the internal 'root' state object.  Get it by decorating the StateBuilder parent function.  
         $stateProvider.decorator('parent', function (state, parentFn) {
           if (!root) {
             // Note: this code gets run only on the first state
             root = parentFn({}); // StateBuilder.parent({}) returns the root internal state object
-            inactivePseudoState.parent = root; // Hook pseudoState.parent up to the root state
-            inactivePseudoState.locals = root.locals; 
+            root.parent = inactivePseudoState; // Hook pseudoState.parent up to the root state
+            inactivePseudoState.parent = undefined;
           }
+
+          // Capture each internal state representations
+          internalStates[state.self.name] = state;
+          state.self.$$state = function() { return internalStates[state.self.name]; };
+
+          // Register the ones marked as "sticky"
+          if (state.self.sticky === true) {
+              $stickyStateProvider.registerStickyState(state.self);
+          }
+
           return parentFn(state);
         });
 
         // Sticky States retains views by holding onto the inactivated locals of states.  It stores 
         // them in a pseudo state called __inactives which is inserted between root and each top level state.
-        $stateProvider.decorator('path', function (state, parentFn) {
-          // Decorate the path of each state, adding the __inactives pseudostate to the beginning.
-          
-          // Note to self: I think this could be simplified by adding __inactives to the root state in the 'parent' 
-          // decorator.  Then, stock UI-Router code will build the substate path with __inactives as pre-root.
-          
-          // Capture each internal state representations
-          internalStates[state.self.name] = state;
-          state.self.$$state = function() { return internalStates[state.self.name]; };
-          
-          // Register the ones marked as "sticky"
-          if (state.self.sticky === true) {
-            $stickyStateProvider.registerStickyState(state.self);
-          }
-          // Add a fake parent node to each state's path to hold all the inactive states' locals
-          var realPath = [], temp = parentFn(state); // call parent path function, which returns an array of states
-          angular.forEach(temp, function (pathElem) {
-            // paths are constructed from the parent paths
-            if (pathElem !== inactivePseudoState) {
-              realPath.push(pathElem);
-            }
-          });
-          // Return a fake path with the first element being the inactivePseudState
-          return [ inactivePseudoState ].concat(realPath);
-        });
+//        $stateProvider.decorator('path', function (state, parentFn) {
+//          // Add a fake parent node to each state's path to hold all the inactive states' locals
+//          var realPath = [], temp = parentFn(state); // call parent path function, which returns an array of states
+//          angular.forEach(temp, function (pathElem) {
+//            // paths are constructed from the parent paths
+//            if (pathElem !== inactivePseudoState) {
+//              realPath.push(pathElem);
+//            }
+//          });
+//          // Return a fake path with the first element being the inactivePseudState
+//          return [ inactivePseudoState ].concat(realPath);
+//        });
 
         $provide.decorator("$state", ['$delegate', '$log', function ($state, $log) {
           var realTransitionTo = $state.transitionTo;

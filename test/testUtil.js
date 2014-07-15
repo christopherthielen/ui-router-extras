@@ -135,13 +135,15 @@ function testGo(state, tAdditional, options) {
     expect($state.current.name).toBe(state);
   else
     expect($state.current.name).toBe(expectRedirect);
-  
-  var __inactiveViews = _.without(_.keys($state.$current.path[0].locals), "resolve", "globals");
+
+  var root = $state.$current.path[0].parent;
+  var __inactives = root.parent;
+  var __inactiveViews = _.keys(__inactives.locals);
   var extra = _.difference(__inactiveViews, tLog.views);
   var missing = _.difference(tLog.views, __inactiveViews);
   
-  expect(extra).toEqual([]);
-  expect(missing).toEqual([]);
+  expect("Extra Views: " + extra).toEqual("Extra Views: " + []);
+  expect("Missing Views: " + missing).toEqual("Missing Views: " + []);
   
   if (tExpected && tAdditional) {
     // append all arrays in tAdditional to arrays in tExpected
