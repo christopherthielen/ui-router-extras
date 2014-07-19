@@ -16,6 +16,7 @@
     // Personnel tab
     states.push({ name: 'top.people',                 url: 'people',        
                   views: { 'peopletab@top': { controller: 'peopleCtrl', templateUrl: '../partials/people.html'} },
+                  resolve: { foo: function() { console.log("resolving 'foo' for top.people (issue #22)"); return "foo"; }},
                   deepStateRedirect: true, sticky: true });
     states.push({ name: 'top.people.managerlist',     url: '/managers',     controller: 'managerCtrl',templateUrl: '../partials/managers.html' });
     states.push({ name: 'top.people.manager',         url: '/manager/:mid', controller: 'managerCtrl',templateUrl: '../partials/manager.html' });
