@@ -33,6 +33,9 @@
         <li ng-class="{active: $state.includes('aside2')}"><a ui-sref=".aside2">Aside 2</a></li>
         <li ng-class="{disabled: !previous}" ><a href="javascript: void(0)" ng-click="goPrevious()">{{previousLink}}</a> </li>
     </ul>
+    <div class="navbar-right">
+        <ul class="nav navbar-nav"><li><a target="_blank" href="https://github.com/christopherthielen/ui-router-extras/tree/gh-pages/example/previous">Source code</a></li></ul>
+    </div>
 </div>
 <div ui-view="instructions"></div>
 <div class="container">
