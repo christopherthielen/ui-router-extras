@@ -89,7 +89,7 @@ angular.module("ct.ui.router.extras").config(
 
             // Custom transitionTo logic here
             var fromState = $state.$current, fromParams = $state.params;
-            var rel = options.relative || $state.$current; // Not sure if/when $state.$current is appropriate here.
+            var rel = options && options.relative || $state.$current; // Not sure if/when $state.$current is appropriate here.
             var toStateSelf = $state.get(to, rel); // exposes findState relative path functionality, returns state.self
             var savedToStatePath, savedFromStatePath, stickyTransitions;
             var reactivated = [], exited = [], terminalReactivatedState;
