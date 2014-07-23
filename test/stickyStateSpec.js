@@ -14,14 +14,22 @@ function ssReset(newStates, $stateProvider) {
 }
 
 describe('stickyState', function () {
+  var resolveCount = 0, Xvalue = undefined;
+  function resetXResolve() {
+    resolveCount = 0; Xvalue = undefined;
+  }
   // Set up base state heirarchy
   function getSimpleStates() {
     var newStates = {};
     newStates['main'] = {};
-    newStates['A'] = {};
+    newStates['A'] = { template: '<div ui-view="_1"></div><div ui-view="_2"></div><div ui-view="_3"></div>'};
     newStates['A._1'] = {sticky: true, views: { '_1@A': {} } };
     newStates['A._2'] = {sticky: true, views: { '_2@A': {} } };
-    newStates['A._3'] = {sticky: true, views: { '_3@A': {} } };
+    newStates['A._3'] = {
+      sticky: true,
+      views: { '_3@A': { controller: function ($scope, X) { Xvalue = X; } } },
+      resolve: { X: function () { return $q.when(++resolveCount); }}
+    };
 
     return newStates;
   }
@@ -42,6 +50,7 @@ describe('stickyState', function () {
 
   describe('simple sticky .go() transitions', function () {
     beforeEach(function() {
+      resetXResolve();
       ssReset(getSimpleStates(), _stateProvider);
     });
 
@@ -55,7 +64,7 @@ describe('stickyState', function () {
       testGo('A._1', { entered: ['A._1'] });
     });
 
-    it('should inactivate sticky state tabs_tab1 when transitioning back to A', function () {
+    it('should inactivate sticky state tabs_tab1 when transitioning to parent-to-sticky A', function () {
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
       testGo('A', {inactivated: ['A._1']});
@@ -105,9 +114,49 @@ describe('stickyState', function () {
         exited: ['A._1', 'A._2', 'A._3', 'A']
       });
     });
-
   });
-  
+
+  describe('resolve function', function () {
+    beforeEach(function () {
+      resetXResolve();
+      ssReset(getSimpleStates(), _stateProvider);
+    });
+    beforeEach(inject(function($compile, $rootScope) {
+      var el = angular.element('<div ui-view></div>');
+      $compile(el)($rootScope);
+      $rootScope.$digest();
+    }));
+
+    it('should resolve when the sticky state is entered', function () {
+      testGo('main');
+      testGo('A._3');
+      expect(Xvalue).toBe(1);
+      expect(resolveCount).toBe(1);
+    });
+
+    // Test for issue #22
+    it('should not re-resolve when the sticky state is reactivated', function () {
+      testGo('main', { entered: 'main' });
+      testGo('A._3', { exited: 'main', entered: [ 'A', 'A._3' ]});
+      testGo('A._1', { inactivated: 'A._3', entered: 'A._1' });
+      testGo('A._3', { reactivated: 'A._3', inactivated: 'A._1'});
+      expect(Xvalue).toBe(1);
+      expect(resolveCount).toBe(1);
+    });
+    it('should re-resolve when the sticky state is reactivated/exited/reentered', function () {
+      testGo('main', { entered: 'main' });
+      testGo('A._3', { exited: 'main', entered: [ 'A', 'A._3' ]});
+      testGo('A._1', { inactivated: 'A._3', entered: 'A._1' });
+      testGo('A._3', { reactivated: 'A._3', inactivated: 'A._1'});
+      expect(Xvalue).toBe(1);
+      expect(resolveCount).toBe(1);
+      testGo('main', { entered: 'main', exited: [ 'A._3', 'A._1', 'A' ] });
+      testGo('A._3', { entered: [ 'A', 'A._3' ], exited: 'main'});
+      expect(Xvalue).toBe(2);
+      expect(resolveCount).toBe(2);
+    });
+  });
+
   describe('nested sticky .go() transitions', function () {
     beforeEach(function() {
       ssReset(getNestedStickyStates(), _stateProvider);

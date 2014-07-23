@@ -180,15 +180,15 @@ angular.module("ct.ui.router.extras").config(
 
 
             function stateReactivatedSurrogatePhase1(state) {
-              var surrogate = angular.extend(new SurrogateState("reactivate_p1"), { locals: state.locals });
+              var surrogate = angular.extend(new SurrogateState("reactivate_phase1"), { locals: state.locals });
               surrogate.self = angular.extend({}, state.self);
               return surrogate;
             }
 
             function stateReactivatedSurrogatePhase2(state) {
-              var surrogate = angular.extend(new SurrogateState("reactivate_p2"), state);
-//              surrogate.self = angular.extend({}, state.self);
+              var surrogate = angular.extend(new SurrogateState("reactivate_phase2"), state);
               var oldOnEnter = surrogate.self.onEnter;
+              surrogate.resolve = {}; // Don't re-resolve when reactivating states (fixes issue #22)
               surrogate.self.onEnter = function () {
                 // ui-router sets locals on the surrogate to a blank locals (because we gave it nothing to resolve)
                 // Re-set it back to the already loaded state.locals here.
