@@ -3,6 +3,7 @@ Version numbers correspond to `bower.json` version
 # 0.0.7
 ## Features
 - chore($stickyState) Technical documentation of Sticky State internal implementation.  closes #23
+- Added an transitionTo option, { ignoreDsr: true } to transition directly to a DSR state.  closes #25
 
 ## Bug Fixes
 
