@@ -248,7 +248,7 @@ angular.module("ct.ui.router.extras").config(
                 savedToStatePath = toState.path;
                 savedFromStatePath = fromState.path;
 
-                var currentTransition = {toState: toState, toParams: toParams || {}, fromState: fromState, fromParams: fromParams || {}};
+                var currentTransition = {toState: toState, toParams: toParams || {}, fromState: fromState, fromParams: fromParams || {}, options: options};
 
                 pendingTransitions.push(currentTransition); // TODO: See if a list of pending transitions is necessary.
                 pendingRestore = restore;

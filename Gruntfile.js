@@ -119,11 +119,6 @@ module.exports = function (grunt) {
           singleRun: true,
           browsers: [ grunt.option('browser') || 'PhantomJS' ]
         },
-        uirouter0_2_6: {
-          configFile: 'test/conf/karma.0_2_6.conf.js',
-          singleRun: true,
-          browsers: [ grunt.option('browser') || 'PhantomJS' ]
-        },
         uirouter0_2_7: {
           configFile: 'test/conf/karma.0_2_7.conf.js',
           singleRun: true,
@@ -167,7 +162,7 @@ module.exports = function (grunt) {
      */
       // Default task(s).
     grunt.registerTask('default', ['jshint:beforeconcatQ', 'concat', 'uglify:build', 
-      'karma:uirouter0_2_5', 'karma:uirouter0_2_6', 'karma:uirouter0_2_7', 'karma:uirouter0_2_8', 'karma:uirouter0_2_10', 'karma:HEAD'
+      'karma:uirouter0_2_5', 'karma:uirouter0_2_7', 'karma:uirouter0_2_8', 'karma:uirouter0_2_10', 'karma:HEAD'
     ]);
     grunt.registerTask('test', ['jshint:beforeconcatQ', 'concat', 'karma:unit']);
     grunt.registerTask('test:watch', ['jshint:beforeconcatQ', 'karma:watch']);

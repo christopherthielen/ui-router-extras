@@ -143,6 +143,7 @@ describe('stickyState', function () {
       expect(Xvalue).toBe(1);
       expect(resolveCount).toBe(1);
     });
+
     it('should re-resolve when the sticky state is reactivated/exited/reentered', function () {
       testGo('main', { entered: 'main' });
       testGo('A._3', { exited: 'main', entered: [ 'A', 'A._3' ]});
@@ -154,6 +155,32 @@ describe('stickyState', function () {
       testGo('A._3', { entered: [ 'A', 'A._3' ], exited: 'main'});
       expect(Xvalue).toBe(2);
       expect(resolveCount).toBe(2);
+    });
+  });
+
+  function getIssue24States() {
+    return {
+      'main': { },
+      'main.product': { url: '/products/:product_id' },
+      'main.product.something': {},
+      'main.product.something.tab1': { sticky: true, views: { 'tab1@main.product.something': {} } },
+      'main.product.something.tab2': { sticky: true, views: { 'tab2@main.product.something': {} } }
+    };
+  }
+
+  describe('with params in parent', function() {
+    beforeEach(function() {
+      ssReset(getIssue24States(), _stateProvider);
+    });
+
+    it("should reactivate", function() {
+      testGo('main');
+      $state.go('main.product', { 'product_id': 12345 }); $q.flush();
+
+      resetTransitionLog();
+      testGo('main.product.something.tab1', { entered: ['main.product.something', 'main.product.something.tab1' ]} );
+      testGo('main.product.something.tab2', { entered: 'main.product.something.tab2', inactivated: 'main.product.something.tab1' });
+      testGo('main.product.something.tab1', { reactivated: 'main.product.something.tab1', inactivated: 'main.product.something.tab2' });
     });
   });
 

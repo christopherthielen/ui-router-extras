@@ -16,7 +16,7 @@ function $StickyStateProvider($stateProvider) {
     DEBUG = enabled;
   };
 
-  this.$get = [ '$rootScope', '$state', '$injector', '$log', function ($rootScope, $state, $injector, $log) {
+  this.$get = [ '$rootScope', '$state', '$stateParams', '$injector', '$log', function ($rootScope, $state, $stateParams, $injector, $log) {
     // Each inactive states is either a sticky state, or a child of a sticky state.
     // This function finds the closest ancestor sticky state, then find that state's parent.
     // Map all inactive states to their closest parent-to-sticky state.
@@ -124,8 +124,13 @@ function $StickyStateProvider($stateProvider) {
         var fromPath = transition.fromState.path,
             fromParams = transition.fromParams,
             toPath = transition.toState.path,
-            toParams = transition.toParams;
+            toParams = transition.toParams,
+            options = transition.options;
         var keep = 0, state = toPath[keep];
+
+        if (options.inherit) {
+          toParams = inheritParams($stateParams, toParams || {}, $state.$current, transition.toState);
+        }
 
         while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
           state = toPath[++keep];
@@ -187,7 +192,6 @@ function $StickyStateProvider($stateProvider) {
           result.exit[idx] = exitTrans;
         }
 
-//      $log.debug("processTransition: " , result);
         return result;
       },
 
