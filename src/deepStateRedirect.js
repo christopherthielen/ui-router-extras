@@ -1,6 +1,32 @@
 //define(['angularAMD'], function (angularAMD) {
 
   var app = angular.module("ct.ui.router.extras");
+
+  var ignoreDsr;
+  function resetIgnoreDsr() {
+    ignoreDsr = undefined;
+  }
+
+  // Decorate $state.transitionTo to gain access to the last transition.options variable.
+  // This is used to process the options.ignoreDsr option
+  app.config([ "$provide", function ($provide) {
+    var $state_transitionTo;
+    $provide.decorator("$state", ['$delegate', function ($state) {
+      $state_transitionTo = $state.transitionTo;
+      $state.transitionTo = function (to, toParams, options) {
+        if (options.ignoreDsr) {
+          ignoreDsr = options.ignoreDsr;
+        }
+
+        return $state_transitionTo.apply($state, arguments).then(
+          function(result) { resetIgnoreDsr(); return result;         },
+          function(err)    { resetIgnoreDsr(); return $q.reject(err); }
+        );
+      };
+      return $state;
+    }]);
+  }]);
+
   app.service("$deepStateRedirect", function ($rootScope, $state) {
     var lastSubstate = {};
     var lastParams = {};
@@ -37,11 +63,11 @@
       function shouldRedirect() {
         var deepStateStatus = computeDeepStateStatus(toState);
         var substate = lastSubstate[toState.name];
-        // We're changing directly to one of the redirect (tab) states and we have a last substate recorded 
-        return deepStateStatus === REDIRECT && substate && substate != toState.name ? true : false;
+        // We're changing directly to one of the redirect (tab) states and we have a last substate recorded
+        return !ignoreDsr && deepStateStatus === REDIRECT && substate && substate != toState.name ? true : false;
       }
 
-      if (shouldRedirect()) { // send them to the last known state for that tab 
+      if (shouldRedirect()) { // send them to the last known state for that tab
         event.preventDefault();
         $state.go(lastSubstate[toState.name], lastParams[toState.name]);
       }
@@ -58,6 +84,8 @@
         });
       }
     });
+
+    return {};
   });
 
   app.run(['$deepStateRedirect', function ($deepStateRedirect) {

@@ -57,7 +57,6 @@
 
 // ------------------------ Sticky State module-level variables -----------------------------------------------
 var _StickyState; // internal reference to $stickyStateProvider
-var $state_transitionTo; // internal reference to the real $state.transitionTo function
 var internalStates = {}; // Map { statename -> InternalStateObj } holds internal representation of all states
 var root, // Root state, internal representation
     pendingTransitions = [], // One transition may supersede another.  This holds references to all pending transitions
@@ -117,6 +116,7 @@ angular.module("ct.ui.router.extras").config(
           return parentFn(state);
         });
 
+        var $state_transitionTo; // internal reference to the real $state.transitionTo function
         // Decorate the $state service, so we can decorate the $state.transitionTo() function with sticky state stuff.
         $provide.decorator("$state", ['$delegate', '$log', function ($state, $log) {
           // Hold on to the real $state.transitionTo in a module-scope variable.
