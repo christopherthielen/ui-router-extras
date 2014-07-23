@@ -2,43 +2,43 @@ Version numbers correspond to `bower.json` version
 
 # 0.0.7
 ## Features
-chore($stickyState) Technical documentation of Sticky State internal implementation.  closes #23
+- chore($stickyState) Technical documentation of Sticky State internal implementation.  closes #23
 
 ## Bug Fixes
 
-fix(stickyState) Allow transitionTo without options specified.  fixes #21
-fix($stickyState): Fixed sticky-state triggers unnecessary re-resolves. closes #22
-fix($stickyState): Fixed state params inheritance not accounted for when processing the transitions causing sticky transitions to fail when parent state has a parameter.  closes #24
-fix($deepStateRedirect): Added ignoreDsr option for $state.transitionTo. closes #25
+- fix(stickyState) Allow transitionTo without options specified.  fixes #21
+- fix($stickyState): Fixed sticky-state triggers unnecessary re-resolves. closes #22
+- fix($stickyState): Fixed state params inheritance not accounted for when processing the transitions causing sticky transitions to fail when parent state has a parameter.  closes #24
+- fix($deepStateRedirect): Added ignoreDsr option for $state.transitionTo. closes #25
 
 ## Other Stuff
-Removed UI-Router 0.2.6 from the grunt test runner.  See issue #26
-chore($stickyState) Refactored sticky state internals from inserting __inactives into each state's path to prepending __inactives as a parent to root ("")
+- Removed UI-Router 0.2.6 from the grunt test runner.  See issue #26
+- chore($stickyState) Refactored sticky state internals from inserting __inactives into each state's path to prepending __inactives as a parent to root ("")
 
 # 0.0.6
 ## Features
-Added tests for $previousState.  closes #13
-Compatible with UI-Router HEAD (will probably be released as UI-Router 0.2.11 or 0.3.0). Closes #17
-Removed last usage of UnderscoreJS. closes #8
-Cleaned up bower release files. closes #15
+- Added tests for $previousState.  closes #13
+- Compatible with UI-Router HEAD (will probably be released as UI-Router 0.2.11 or 0.3.0). Closes #17
+- Removed last usage of UnderscoreJS. closes #8
+- Cleaned up bower release files. closes #15
 
 ## Bug Fixes
-Fixed minification bug. closes #18
-Added array notation to deepStateRedirect.js initialization.  closes #18
-No longer setting a different state.self object on the surrogate states.  closes #1 , closes #16
-Reorganized karma tests to run against multiple versions (0.2.5, 0.2.6, 0.2.7, 0.2.8, 0.2.10, HEAD) of ui-router and minified ct-ui-router-extras.  closes #19
-Fixed DSR Spec so its getStates function doesn't conflict with other spec function.
+- Fixed minification bug. closes #18
+- Added array notation to deepStateRedirect.js initialization.  closes #18
+- No longer setting a different state.self object on the surrogate states.  closes #1 , closes #16
+- Reorganized karma tests to run against multiple versions (0.2.5, 0.2.6, 0.2.7, 0.2.8, 0.2.10, HEAD) of ui-router and minified ct-ui-router-extras.  closes #19
+- Fixed DSR Spec so its getStates function doesn't conflict with other spec function.
 
 ## Other stuff
-Moved pathFrom() into testUtil.js
-Added uiRouterVersion() parser to testUtil.js
-Reorganized files.js layout (this needs a makeover, i do not like)
+- Moved pathFrom() into testUtil.js
+- Added uiRouterVersion() parser to testUtil.js
+- Reorganized files.js layout (this needs a makeover, i do not like)
 
 
 # 0.0.5
 ## Features
-Added state locals/view debugging output when $stickyStateProvider.enableDebug(true);
-Added Previous State service for returning to a workflows entry point issue #10
+- Added state locals/view debugging output when $stickyStateProvider.enableDebug(true);
+- Added Previous State service for returning to a workflows entry point issue #10
 
 ## Bug Fixes
 - Added karma runner for UI-Router versions 0.2.0, 0.2.8, 0.2.10, HEAD@2014-07-05 issue #12
@@ -54,8 +54,8 @@ Added Previous State service for returning to a workflows entry point issue #10
 
 # 0.0.4-preview
 ## Features
-Sticky states
-Deep State Redirect
+- Sticky states
+- Deep State Redirect
 Future States
 
 ## Bug Fixes
