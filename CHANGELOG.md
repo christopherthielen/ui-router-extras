@@ -1,5 +1,20 @@
 Version numbers correspond to `bower.json` version
 
+# 0.0.7
+## Features
+chore($stickyState) Technical documentation of Sticky State internal implementation.  closes #23
+
+## Bug Fixes
+
+fix(stickyState) Allow transitionTo without options specified.  fixes #21
+fix($stickyState): Fixed sticky-state triggers unnecessary re-resolves. closes #22
+fix($stickyState): Fixed state params inheritance not accounted for when processing the transitions causing sticky transitions to fail when parent state has a parameter.  closes #24
+fix($deepStateRedirect): Added ignoreDsr option for $state.transitionTo. closes #25
+
+## Other Stuff
+Removed UI-Router 0.2.6 from the grunt test runner.  See issue #26
+chore($stickyState) Refactored sticky state internals from inserting __inactives into each state's path to prepending __inactives as a parent to root ("")
+
 # 0.0.6
 ## Features
 Added tests for $previousState.  closes #13
