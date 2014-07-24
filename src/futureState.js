@@ -140,7 +140,7 @@
     };
     
     // Used in .run() block to init
-    this.$get = function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $log) {
+    this.$get = function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $timeout, $log) {
       function init() {
         $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
           if (transitionPending) return;
@@ -184,7 +184,7 @@
         // TODO: analyze this. I'm calling $urlRouter.sync() in two places for retry-initial-transition.
         // TODO: I should only need to do this once.  Pick the better place and remove the extra resync.
         initPromise().then(function retryInitialState() {
-          $urlRouter.sync();
+          $timeout(function() { $urlRouter.sync(); } );
         });
       }
       init();
