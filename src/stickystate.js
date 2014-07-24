@@ -119,7 +119,7 @@ angular.module("ct.ui.router.extras").config(
 
         var $state_transitionTo; // internal reference to the real $state.transitionTo function
         // Decorate the $state service, so we can decorate the $state.transitionTo() function with sticky state stuff.
-        $provide.decorator("$state", ['$delegate', '$log', function ($state, $log) {
+        $provide.decorator("$state", ['$delegate', '$log', '$q', function ($state, $log, $q) {
           // Hold on to the real $state.transitionTo in a module-scope variable.
           $state_transitionTo = $state.transitionTo;
 
@@ -269,7 +269,7 @@ angular.module("ct.ui.router.extras").config(
                 // 4) which states will be inactive if the transition succeeds.
                 stickyTransitions = _StickyState.processTransition(currentTransition);
 
-                if (DEBUG) debugTransition(currentTransition, stickyTransitions);
+                if (DEBUG) debugTransition($log, currentTransition, stickyTransitions);
 
                 // Begin processing of surrogate to and from paths.
                 var surrogateToPath = toState.path.slice(0, stickyTransitions.keep);

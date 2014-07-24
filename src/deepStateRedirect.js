@@ -11,7 +11,7 @@
   // This is used to process the options.ignoreDsr option
   app.config([ "$provide", function ($provide) {
     var $state_transitionTo;
-    $provide.decorator("$state", ['$delegate', function ($state) {
+    $provide.decorator("$state", ['$delegate', '$q', function ($state, $q) {
       $state_transitionTo = $state.transitionTo;
       $state.transitionTo = function (to, toParams, options) {
         if (options.ignoreDsr) {
@@ -27,7 +27,7 @@
     }]);
   }]);
 
-  app.service("$deepStateRedirect", function ($rootScope, $state) {
+  app.service("$deepStateRedirect", [ '$rootScope', '$state', function ($rootScope, $state) {
     var lastSubstate = {};
     var lastParams = {};
     var deepStateRedirectsByName = {};
@@ -86,7 +86,7 @@
     });
 
     return {};
-  });
+  }]);
 
   app.run(['$deepStateRedirect', function ($deepStateRedirect) {
     // Make sure $deepStateRedirect is instantiated
