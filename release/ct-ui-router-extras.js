@@ -108,6 +108,9 @@ function inheritParams(currentParams, newParams, $current, $to) {
   return extend({}, inherited, newParams);
 }
 
+function inherit(parent, extra) {
+  return extend(new (extend(function() {}, {prototype:parent}))(), extra);
+}
 
 //define(['angularAMD'], function (angularAMD) {
 
@@ -122,7 +125,7 @@ function inheritParams(currentParams, newParams, $current, $to) {
   // This is used to process the options.ignoreDsr option
   app.config([ "$provide", function ($provide) {
     var $state_transitionTo;
-    $provide.decorator("$state", ['$delegate', function ($state) {
+    $provide.decorator("$state", ['$delegate', '$q', function ($state, $q) {
       $state_transitionTo = $state.transitionTo;
       $state.transitionTo = function (to, toParams, options) {
         if (options.ignoreDsr) {
@@ -138,7 +141,7 @@ function inheritParams(currentParams, newParams, $current, $to) {
     }]);
   }]);
 
-  app.service("$deepStateRedirect", function ($rootScope, $state) {
+  app.service("$deepStateRedirect", [ '$rootScope', '$state', function ($rootScope, $state) {
     var lastSubstate = {};
     var lastParams = {};
     var deepStateRedirectsByName = {};
@@ -197,7 +200,7 @@ function inheritParams(currentParams, newParams, $current, $to) {
     });
 
     return {};
-  });
+  }]);
 
   app.run(['$deepStateRedirect', function ($deepStateRedirect) {
     // Make sure $deepStateRedirect is instantiated
@@ -578,6 +581,7 @@ angular.module("ct.ui.router.extras").config(
             root = parentFn({}); // StateBuilder.parent({}) returns the root internal state object
             root.parent = inactivePseudoState; // Hook root.parent up to the inactivePsuedoState
             inactivePseudoState.parent = undefined;
+            inactivePseudoState.locals = undefined;
           }
 
           // Capture each internal UI-Router state representations as opposed to the user-defined state object.
@@ -596,12 +600,17 @@ angular.module("ct.ui.router.extras").config(
 
         var $state_transitionTo; // internal reference to the real $state.transitionTo function
         // Decorate the $state service, so we can decorate the $state.transitionTo() function with sticky state stuff.
-        $provide.decorator("$state", ['$delegate', '$log', function ($state, $log) {
+        $provide.decorator("$state", ['$delegate', '$log', '$q', function ($state, $log, $q) {
           // Hold on to the real $state.transitionTo in a module-scope variable.
           $state_transitionTo = $state.transitionTo;
 
           // ------------------------ Decorated transitionTo implementation begins here ---------------------------
           $state.transitionTo = function (to, toParams, options) {
+            // TODO: Move this to module.run?
+            // TODO: I'd rather have root.locals prototypally inherit from inactivePseudoState.locals
+            // Link root.locals and inactives.locals.  Do this at runtime, after root.locals has been set.
+            if (!inactivePseudoState.locals)
+              inactivePseudoState.locals = root.locals;
             var idx = pendingTransitions.length;
             if (pendingRestore) {
               pendingRestore();
@@ -667,6 +676,8 @@ angular.module("ct.ui.router.extras").config(
               var surrogate = angular.extend(new SurrogateState("reactivate_phase2"), state);
               var oldOnEnter = surrogate.self.onEnter;
               surrogate.resolve = {}; // Don't re-resolve when reactivating states (fixes issue #22)
+              // TODO: Not 100% sure if this is necessary.  I think resolveState will load the views if I don't do this.
+              surrogate.views = {}; // Don't re-activate controllers when reactivating states (fixes issue #22)
               surrogate.self.onEnter = function () {
                 // ui-router sets locals on the surrogate to a blank locals (because we gave it nothing to resolve)
                 // Re-set it back to the already loaded state.locals here.
@@ -739,7 +750,7 @@ angular.module("ct.ui.router.extras").config(
                 // 4) which states will be inactive if the transition succeeds.
                 stickyTransitions = _StickyState.processTransition(currentTransition);
 
-                if (DEBUG) debugTransition(currentTransition, stickyTransitions);
+                if (DEBUG) debugTransition($log, currentTransition, stickyTransitions);
 
                 // Begin processing of surrogate to and from paths.
                 var surrogateToPath = toState.path.slice(0, stickyTransitions.keep);
@@ -870,7 +881,7 @@ angular.module("ct.ui.router.extras").config(
         }]);
       }]);
 
-function debugTransition(currentTransition, stickyTransition) {
+function debugTransition($log, currentTransition, stickyTransition) {
   function message(path, index, state) {
     return (path[index] ? path[index].toUpperCase() + ": " + state.self.name : "(" + state.self.name + ")");
   }
@@ -1074,7 +1085,7 @@ function debugViewsAfterSuccess($log, currentState, $state) {
     };
     
     // Used in .run() block to init
-    this.$get = function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $log) {
+    this.$get = function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $timeout, $log) {
       function init() {
         $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
           if (transitionPending) return;
@@ -1118,7 +1129,7 @@ function debugViewsAfterSuccess($log, currentState, $state) {
         // TODO: analyze this. I'm calling $urlRouter.sync() in two places for retry-initial-transition.
         // TODO: I should only need to do this once.  Pick the better place and remove the extra resync.
         initPromise().then(function retryInitialState() {
-          $urlRouter.sync();
+          $timeout(function() { $urlRouter.sync(); } );
         });
       }
       init();
