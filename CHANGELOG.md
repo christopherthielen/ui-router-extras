@@ -1,6 +1,6 @@
 Version numbers correspond to `bower.json` version
 
-# 0.0.7
+# 0.0.8
 ## Features
 - chore($stickyState) Technical documentation of Sticky State internal implementation.  closes #23
 - Added an transitionTo option, { ignoreDsr: true } to transition directly to a DSR state.  closes #25
@@ -11,10 +11,15 @@ Version numbers correspond to `bower.json` version
 - fix($stickyState): Fixed sticky-state triggers unnecessary re-resolves. closes #22
 - fix($stickyState): Fixed state params inheritance not accounted for when processing the transitions causing sticky transitions to fail when parent state has a parameter.  closes #24
 - fix($deepStateRedirect): Added ignoreDsr option for $state.transitionTo. closes #25
+- fix($futureState): Delay initial re-sync using $timeout.  This stops the standard ui-router sync from superseding the futureStates resync.  I think this fixes #28
+- fix($deepStateRedirect): $q not defined (when a transition is aborted or fails).  closes #27
+- fix($stickyState): Fixed bug introduced in 0.0.7 refactor which caused sticky states to fail completely.  Now, I made root.locals prototype inherit from __inactives.locals so views can be located by the ui-views.  fixes #29
 
 ## Other Stuff
 - Removed UI-Router 0.2.6 from the grunt test runner.  See issue #26
 - chore($stickyState) Refactored sticky state internals from inserting __inactives into each state's path to prepending __inactives as a parent to root ("")
+- test($stickyState): Added unit test for controller not re-invoked on state reactivation.  closes #24 again.
+- test($stickyState): Added unit tests for root locals prototypally inheriting from __inactives.locals to test for the scenario in issue #29
 
 # 0.0.6
 ## Features
