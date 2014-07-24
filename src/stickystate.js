@@ -100,6 +100,7 @@ angular.module("ct.ui.router.extras").config(
             root = parentFn({}); // StateBuilder.parent({}) returns the root internal state object
             root.parent = inactivePseudoState; // Hook root.parent up to the inactivePsuedoState
             inactivePseudoState.parent = undefined;
+            inactivePseudoState.locals = undefined;
           }
 
           // Capture each internal UI-Router state representations as opposed to the user-defined state object.
@@ -124,6 +125,11 @@ angular.module("ct.ui.router.extras").config(
 
           // ------------------------ Decorated transitionTo implementation begins here ---------------------------
           $state.transitionTo = function (to, toParams, options) {
+            // TODO: Move this to module.run?
+            // TODO: I'd rather have root.locals prototypally inherit from inactivePseudoState.locals
+            // Link root.locals and inactives.locals.  Do this at runtime, after root.locals has been set.
+            if (!inactivePseudoState.locals)
+              inactivePseudoState.locals = root.locals;
             var idx = pendingTransitions.length;
             if (pendingRestore) {
               pendingRestore();
@@ -189,6 +195,8 @@ angular.module("ct.ui.router.extras").config(
               var surrogate = angular.extend(new SurrogateState("reactivate_phase2"), state);
               var oldOnEnter = surrogate.self.onEnter;
               surrogate.resolve = {}; // Don't re-resolve when reactivating states (fixes issue #22)
+              // TODO: Not 100% sure if this is necessary.  I think resolveState will load the views if I don't do this.
+              surrogate.views = {}; // Don't re-activate controllers when reactivating states (fixes issue #22)
               surrogate.self.onEnter = function () {
                 // ui-router sets locals on the surrogate to a blank locals (because we gave it nothing to resolve)
                 // Re-set it back to the already loaded state.locals here.
@@ -392,7 +400,7 @@ angular.module("ct.ui.router.extras").config(
         }]);
       }]);
 
-function debugTransition(currentTransition, stickyTransition) {
+function debugTransition($log, currentTransition, stickyTransition) {
   function message(path, index, state) {
     return (path[index] ? path[index].toUpperCase() + ": " + state.self.name : "(" + state.self.name + ")");
   }

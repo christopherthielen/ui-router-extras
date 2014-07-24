@@ -17,6 +17,7 @@ var files = {
     'src/noop.js'
   ],
   test: [
+//    'test/temp.js',
     'test/deepStateRedirectSpec.js',
     'test/futureStateSpec.js',
     'test/stickyStateSpec.js',

@@ -14,10 +14,11 @@ function ssReset(newStates, $stateProvider) {
 }
 
 describe('stickyState', function () {
-  var resolveCount = 0, Xvalue = undefined;
+  var controllerInvokeCount = 0, resolveCount = 0, Xvalue = undefined;
   function resetXResolve() {
-    resolveCount = 0; Xvalue = undefined;
+    controllerInvokeCount = resolveCount = 0; Xvalue = undefined;
   }
+
   // Set up base state heirarchy
   function getSimpleStates() {
     var newStates = {};
@@ -27,7 +28,8 @@ describe('stickyState', function () {
     newStates['A._2'] = {sticky: true, views: { '_2@A': {} } };
     newStates['A._3'] = {
       sticky: true,
-      views: { '_3@A': { controller: function ($scope, X) { Xvalue = X; } } },
+      views: { '_3@A': { controller: function ($scope, X) {
+        controllerInvokeCount++; Xvalue = X; } } },
       resolve: { X: function () { return $q.when(++resolveCount); }}
     };
 
@@ -45,8 +47,46 @@ describe('stickyState', function () {
       $state = _state;
       $q = _q;
       $compile = _compile;
-    }]));
+  }]));
 
+  describe('setup: ', function() {
+    beforeEach(function() {
+      ssReset(getSimpleStates(), _stateProvider);
+    });
+
+    it('parent state of "main" should be called ""', function() {
+      var root = $state.get("main").$$state().parent;
+      expect(root.name).toBe("");
+    });
+
+    it('parent.parent state of "main" should be surrogateType "__inactives"', function() {
+      var root = $state.get("main").$$state().parent;
+      var __inactives = root.parent;
+      expect(__inactives.surrogateType).toBe("__inactives");
+    });
+
+    it('__inactive.locals should hold inactive views', function() {
+      var root = $state.get("main").$$state().parent;
+      var __inactives = root.parent;
+      testGo("A._1", { entered: [ "A", "A._1" ]});
+      testGo("A._2", { inactivated: "A._1", entered: "A._2" });
+      var views = Object.keys(__inactives.locals);
+      expect(views.length).toBe(1);
+      var view = views[0];
+      expect(view).toBe("_1@A");
+    });
+
+    it('root.locals should mirror __inactive.locals (prototypally)', function() {
+      var root = $state.get("main").$$state().parent;
+      var __inactives = root.parent;
+      testGo("A._1", { entered: [ "A", "A._1" ]});
+      testGo("A._2", { inactivated: "A._1", entered: "A._2" });
+      var views = Object.keys(__inactives.locals);
+      expect(views.length).toBe(1);
+      expect(root.locals[views[0]]).toBeDefined();
+      expect(root.locals[views[0]]).toBe(__inactives.locals[views[0]]);
+    });
+  });
 
   describe('simple sticky .go() transitions', function () {
     beforeEach(function() {
@@ -116,11 +156,12 @@ describe('stickyState', function () {
     });
   });
 
-  describe('resolve function', function () {
+  describe('resolve/controller function', function () {
     beforeEach(function () {
       resetXResolve();
       ssReset(getSimpleStates(), _stateProvider);
     });
+
     beforeEach(inject(function($compile, $rootScope) {
       var el = angular.element('<div ui-view></div>');
       $compile(el)($rootScope);
@@ -142,6 +183,21 @@ describe('stickyState', function () {
       testGo('A._3', { reactivated: 'A._3', inactivated: 'A._1'});
       expect(Xvalue).toBe(1);
       expect(resolveCount).toBe(1);
+    });
+
+    it('(controller) should be called when the sticky state is entered', function () {
+      testGo('main');
+      testGo('A._3');
+      expect(controllerInvokeCount).toBe(1);
+    });
+
+    it('(controller) should not be called when the sticky state is reactivated', function () {
+      testGo('main', { entered: 'main' });
+      testGo('A._3', { exited: 'main', entered: [ 'A', 'A._3' ]});
+      expect(controllerInvokeCount).toBe(1);
+      testGo('A._1', { inactivated: 'A._3', entered: 'A._1' });
+      testGo('A._3', { reactivated: 'A._3', inactivated: 'A._1'});
+      expect(controllerInvokeCount).toBe(1);
     });
 
     it('should re-resolve when the sticky state is reactivated/exited/reentered', function () {
