@@ -26,9 +26,9 @@ function($rootScope, $state) {
     get: function(memoName) {
       return memoName ? memos[memoName] : previous; 
     },
-    go: function(memoName) {
+    go: function(memoName, options) {
       var to = $previousState.get(memoName);
-      return $state.go(to.state, to.params);
+      return $state.go(to.state, to.params, options);
     },
     memo: function(memoName) {
       memos[memoName] = previous; 
