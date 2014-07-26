@@ -184,7 +184,13 @@
         // TODO: analyze this. I'm calling $urlRouter.sync() in two places for retry-initial-transition.
         // TODO: I should only need to do this once.  Pick the better place and remove the extra resync.
         initPromise().then(function retryInitialState() {
-          $timeout(function() { $urlRouter.sync(); } );
+          $timeout(function() {
+            if ($state.transition) {
+              $state.transition.then($urlRouter.sync, $urlRouter.sync);
+            } else {
+              $urlRouter.sync();
+            }
+          });
         });
       }
       init();
