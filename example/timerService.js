@@ -1,5 +1,5 @@
 (function () {
-  var app = angular.module("ct.ui.router.extras.examples", ['ct.ui.router.extras']);
+  var app = angular.module("ct.ui.router.extras.examples", []);
   
   app.directive("scopeAge", function () {
     return {

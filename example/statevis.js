@@ -24,8 +24,8 @@
                       })
                   ;
 
-              var root = angular.copy($state.get("")),
-                  nodes = tree(root);
+              var root = angular.copy(_.find($state.get(), function(state) { return state.name === ""; }));
+              var nodes = tree(root);
 
               root.parent = root;
               root.px = root.x = width / 2;
@@ -84,7 +84,7 @@
                   }
                 });
 //          _scope.futureStates = $futureState.get();
-              }, 50);
+              }, 250);
 
               _scope.$watchCollection("states", function (newval, oldval) {
                 var oldstates = _.map(oldval, function (s) {
