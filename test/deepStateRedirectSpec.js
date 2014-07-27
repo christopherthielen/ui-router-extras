@@ -12,7 +12,7 @@ function getDSRStates () {
     { name: 'tabs.tabs2', deepStateRedirect: true },
     { name: 'tabs.tabs2.deep' },
     { name: 'tabs.tabs2.deep.nest' }
-  ]; 
+  ];
 }
 
 function dsrReset(newStates) {
@@ -51,7 +51,9 @@ describe('deepStateRedirect', function () {
       testGo("tabs.tabs1", {entered: 'tabs.tabs1', exited: [ 'tabs.tabs2.deep.nest', 'tabs.tabs2.deep', 'tabs.tabs2' ]});
       testGo("tabs.tabs2", {entered: ['tabs.tabs2', 'tabs.tabs2.deep', 'tabs.tabs2.deep.nest'], exited: 'tabs.tabs1'}, { redirect: 'tabs.tabs2.deep.nest' });
     });
+  });
 
+  describe('ignoreDsr option', function () {
     it("should not redirect to tabs.tabs2.deep.nest when options are: { ignoreDsr: true }", function() {
       testGo("tabs", {entered: 'tabs'});
       testGo("tabs.tabs2.deep.nest", {entered: pathFrom('tabs.tabs2', 'tabs.tabs2.deep.nest') });
@@ -71,6 +73,17 @@ describe('deepStateRedirect', function () {
 
       resetTransitionLog();
       testGo("tabs.tabs1", { exited: 'tabs.tabs2', entered: pathFrom('tabs.tabs1', 'tabs.tabs1.deep.nest') }, { redirect: 'tabs.tabs1.deep.nest' } );
+    });
+
+    it("should remember the DSR state itself when transitioned to using ignoreDsr ", function() {
+      testGo("tabs.tabs1.deep", {entered: pathFrom('tabs', 'tabs.tabs1.deep') });
+      testGo("tabs.tabs2", {entered: 'tabs.tabs2', exited: pathFrom('tabs.tabs1.deep', 'tabs.tabs1')});
+      $state.go("tabs.tabs1", {}, { ignoreDsr: true }); $q.flush();
+      expect($state.current.name).toBe("tabs.tabs1");
+      $state.go("tabs.tabs2", {}, { }); $q.flush();
+      expect($state.current.name).toBe("tabs.tabs2");
+      $state.go("tabs.tabs1", {}, { }); $q.flush();
+      expect($state.current.name).toBe("tabs.tabs1");
     });
   });
 });

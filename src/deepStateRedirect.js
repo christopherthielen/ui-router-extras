@@ -76,9 +76,10 @@
     $rootScope.$on("$stateChangeSuccess", function (event, toState, toParams, fromState, fromParams) {
       var deepStateStatus = computeDeepStateStatus(toState);
       if (deepStateStatus) {
+        var name = toState.name;
         angular.forEach(lastSubstate, function (deepState, redirectState) {
-          if (toState.name == deepState || toState.name.indexOf(redirectState + ".") != -1) {
-            lastSubstate[redirectState] = toState.name;
+          if (name == redirectState || name.indexOf(redirectState + ".") != -1) {
+            lastSubstate[redirectState] = name;
             lastParams[redirectState] = angular.copy(toParams);
           }
         });
