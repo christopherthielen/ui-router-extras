@@ -1,7 +1,7 @@
 {
   "author": "Chris Thielen",
   "name": "ui-router-extras",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "UI-Router Extras",
   "homepage": "http://christopherthielen.github.io/ui-router-extras/",
   "dependencies": {},

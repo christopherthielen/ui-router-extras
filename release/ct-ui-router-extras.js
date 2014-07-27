@@ -1,6 +1,11 @@
-;(function( window, undefined ){
-  'use strict';
+/**
+ * UI-Router Extras
+ * @version v0.0.9
+ * @link http://christopherthielen.github.io/ui-router-extras/
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
 
+(function (window, angular, undefined) {
 angular.module("ct.ui.router.extras", [ 'ui.router' ]);
 
 
@@ -190,9 +195,10 @@ function inherit(parent, extra) {
     $rootScope.$on("$stateChangeSuccess", function (event, toState, toParams, fromState, fromParams) {
       var deepStateStatus = computeDeepStateStatus(toState);
       if (deepStateStatus) {
+        var name = toState.name;
         angular.forEach(lastSubstate, function (deepState, redirectState) {
-          if (toState.name == deepState || toState.name.indexOf(redirectState + ".") != -1) {
-            lastSubstate[redirectState] = toState.name;
+          if (name == redirectState || name.indexOf(redirectState + ".") != -1) {
+            lastSubstate[redirectState] = name;
             lastParams[redirectState] = angular.copy(toParams);
           }
         });
@@ -1129,7 +1135,13 @@ function debugViewsAfterSuccess($log, currentState, $state) {
         // TODO: analyze this. I'm calling $urlRouter.sync() in two places for retry-initial-transition.
         // TODO: I should only need to do this once.  Pick the better place and remove the extra resync.
         initPromise().then(function retryInitialState() {
-          $timeout(function() { $urlRouter.sync(); } );
+          $timeout(function() {
+            if ($state.transition) {
+              $state.transition.then($urlRouter.sync, $urlRouter.sync);
+            } else {
+              $urlRouter.sync();
+            }
+          });
         });
       }
       init();
@@ -1178,9 +1190,9 @@ function($rootScope, $state) {
     get: function(memoName) {
       return memoName ? memos[memoName] : previous; 
     },
-    go: function(memoName) {
+    go: function(memoName, options) {
       var to = $previousState.get(memoName);
-      return $state.go(to.state, to.params);
+      return $state.go(to.state, to.params, options);
     },
     memo: function(memoName) {
       memos[memoName] = previous; 
@@ -1197,5 +1209,4 @@ angular.module('ct.ui.router.extras').run(['$previousState', function($previousS
   // Inject $previousState so it can register $rootScope events
 }]);
 
-
-}(window));
+})(window, window.angular);
