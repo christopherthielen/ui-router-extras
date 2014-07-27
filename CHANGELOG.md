@@ -1,4 +1,14 @@
-Version numbers correspond to `bower.json` version
+# 0.0.9
+## Features
+
+- fix(build): Add versioned header to release files. closes #33
+
+## Bug Fixes
+
+- fix($futureState) Fixed double resolve on initial app load.  Closes #28  Closes #32
+- fix($deepStateRedirect): DSR state is now remembered correctly when using { ignoreDsr: true } to transition directly to DSR state.  Closes #31
+- fix($previousState): Added options parameter to $previousState.go().  Closes #30
+
 
 # 0.0.8
 ## Features
