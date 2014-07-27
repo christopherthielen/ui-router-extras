@@ -34,10 +34,23 @@ module.exports = function (grunt) {
      @toc 5.
      */
     grunt.initConfig({
+      pkg: grunt.file.readJSON('package.json'),
+      meta: {
+        banner: '/**\n' +
+        ' * <%= pkg.description %>\n' +
+        ' * @version v<%= pkg.version %><%= buildtag %>\n' +
+        ' * @link <%= pkg.homepage %>\n' +
+        ' * @license MIT License, http://www.opensource.org/licenses/MIT\n' +
+        ' */'
+      },
       concat: {
-        options: {},
+        options: {
+          banner: '<%= meta.banner %>\n\n' +
+            '(function (window, angular, undefined) {\n',
+          footer: '})(window, window.angular);'
+        },
         dist: {
-          src: ['src/_intro.js.txt'].concat(files.src).concat(['src/_outtro.js.txt']),
+          src: files.src,
           dest: 'build/ct-ui-router-extras.js'
         }
       },
@@ -83,12 +96,14 @@ module.exports = function (grunt) {
       },
       uglify: {
         options: {
-          mangle: false
+          mangle: false,
+          banner: '/*! <%= pkg.name %> - v<%= pkg.version %> - ' +
+              '<%= grunt.template.today("yyyy-mm-dd") %> */'
         },
         build: {
-          files: {},
-          src: 'build/ct-ui-router-extras.js',
-          dest: 'build/ct-ui-router-extras.min.js'
+          files: {
+            'build/ct-ui-router-extras.min.js': [ 'build/ct-ui-router-extras.js' ]
+          }
         }
       },
       karma: {
