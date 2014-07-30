@@ -91,18 +91,8 @@ angular.module("ct.ui.router.extras").config(
         root = pendingRestore = undefined;
         pendingTransitions = [];
 
-        // Need access to the internal 'root' state object.  Get it by decorating the StateBuilder parent function.
-        // Known bug: At least one state must be defined by the application.  If no states are defined, then the
-        // decorator never gets invoked.  If the decorator never gets invoked, then the root state variable remains undefined.
+        // Decorate any state attribute in order to get access to the internal state representation.
         $stateProvider.decorator('parent', function (state, parentFn) {
-          if (root === undefined) {
-            // Note: this code gets run only on the first state that is decorated
-            root = parentFn({}); // StateBuilder.parent({}) returns the root internal state object
-            root.parent = inactivePseudoState; // Hook root.parent up to the inactivePsuedoState
-            inactivePseudoState.parent = undefined;
-            inactivePseudoState.locals = undefined;
-          }
-
           // Capture each internal UI-Router state representations as opposed to the user-defined state object.
           // The internal state is, e.g., the state returned by $state.$current as opposed to $state.current
           internalStates[state.self.name] = state;
@@ -120,6 +110,13 @@ angular.module("ct.ui.router.extras").config(
         var $state_transitionTo; // internal reference to the real $state.transitionTo function
         // Decorate the $state service, so we can decorate the $state.transitionTo() function with sticky state stuff.
         $provide.decorator("$state", ['$delegate', '$log', '$q', function ($state, $log, $q) {
+          // Note: this code gets run only on the first state that is decorated
+          root = $state.$current;
+          root.parent = inactivePseudoState; // Make inactivePsuedoState the parent of root.  "wat"
+          inactivePseudoState.parent = undefined; // Make inactivePsuedoState the real root.
+          inactivePseudoState.locals = root.locals; // Steal the root locals
+          root.locals = inherit(inactivePseudoState.locals, {}); // make root locals extend the real root locals.
+
           // Hold on to the real $state.transitionTo in a module-scope variable.
           $state_transitionTo = $state.transitionTo;
 
