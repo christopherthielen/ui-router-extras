@@ -114,8 +114,8 @@ angular.module("ct.ui.router.extras").config(
           root = $state.$current;
           root.parent = inactivePseudoState; // Make inactivePsuedoState the parent of root.  "wat"
           inactivePseudoState.parent = undefined; // Make inactivePsuedoState the real root.
-          inactivePseudoState.locals = root.locals; // Steal the root locals
-          root.locals = inherit(inactivePseudoState.locals, {}); // make root locals extend the real root locals.
+          root.locals = inherit(inactivePseudoState.locals, root.locals); // make root locals extend the __inactives locals.
+          delete inactivePseudoState.locals["globals"];
 
           // Hold on to the real $state.transitionTo in a module-scope variable.
           $state_transitionTo = $state.transitionTo;
@@ -274,7 +274,7 @@ angular.module("ct.ui.router.extras").config(
 
                 // Clear out and reload inactivePseudoState.locals each time transitionTo is called
                 angular.forEach(inactivePseudoState.locals, function(local, name) {
-                  delete inactivePseudoState.locals[name];
+                  if (name.indexOf("@") != -1) delete inactivePseudoState.locals[name];
                 });
 
                 // Find all states that will be inactive once the transition succeeds.  For each of those states,
