@@ -396,7 +396,7 @@ angular.module("ct.ui.router.extras").config(
               $log.debug("transition failed", err);
               console.log(err.stack);
             }
-            return $q.when(err);
+            return $q.reject(err);
           });
         };
         return $state;
