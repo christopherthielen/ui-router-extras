@@ -1,5 +1,7 @@
 //define(['angularAMD'], function (angularAMD) {
-  angular.module('ct.ui.router.extras').provider('$futureState', function _futureStateProvider($stateProvider, $urlRouterProvider) {
+  angular.module('ct.ui.router.extras').provider('$futureState',
+    [ '$stateProvider', '$urlRouterProvider',
+      function _futureStateProvider($stateProvider, $urlRouterProvider) {
     var stateFactories = {}, futureStates = {}, futureUrlPrefixes = {};
     var transitionPending = false, resolveFunctions = [], initPromise, initDone = false;
     var provider = this;
@@ -88,12 +90,15 @@
       var resyncing = false;
       var $log = $injector.get("$log");
 
-      var otherwiseFunc = function otherwiseFunc($state) {
+      var otherwiseFunc = [ '$state',
+        function otherwiseFunc($state) {
         $log.debug("Unable to map " + $location.path());
         $location.url("/");
-      };
+      }];
 
-      var lazyLoadMissingState = function lazyLoadMissingState($rootScope, $urlRouter, $state) {
+      var lazyLoadMissingState =
+        ['$rootScope', '$urlRouter', '$state',
+          function lazyLoadMissingState($rootScope, $urlRouter, $state) {
         if (!initDone) {
           // Asynchronously load state definitions, then resync URL
           initPromise().then(function initialResync() {
@@ -125,7 +130,7 @@
           transitionPending = false;
           $state.go("top");
         });
-      };
+      }];
       if (transitionPending) return;
 
       var nextFn = resyncing ? otherwiseFunc : lazyLoadMissingState;
@@ -140,7 +145,8 @@
     };
     
     // Used in .run() block to init
-    this.$get = function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $timeout, $log) {
+    this.$get = [ '$injector', '$state', '$q', '$rootScope', '$urlRouter', '$timeout', '$log',
+      function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $timeout, $log) {
       function init() {
         $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
           if (transitionPending) return;
@@ -200,10 +206,10 @@
       serviceObject.get = provider.get;
       
       return serviceObject;
-    };
-  });
+    }];
+}]);
 
-  angular.module('ct.ui.router.extras').run(['$futureState', 
+  angular.module('ct.ui.router.extras').run(['$futureState',
       // Just inject $futureState so it gets initialized.
     function ($futureState) { }
   ]);

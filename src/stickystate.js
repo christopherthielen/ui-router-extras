@@ -115,7 +115,7 @@ angular.module("ct.ui.router.extras").config(
           root.parent = inactivePseudoState; // Make inactivePsuedoState the parent of root.  "wat"
           inactivePseudoState.parent = undefined; // Make inactivePsuedoState the real root.
           root.locals = inherit(inactivePseudoState.locals, root.locals); // make root locals extend the __inactives locals.
-          delete inactivePseudoState.locals["globals"];
+          delete inactivePseudoState.locals.globals;
 
           // Hold on to the real $state.transitionTo in a module-scope variable.
           $state_transitionTo = $state.transitionTo;

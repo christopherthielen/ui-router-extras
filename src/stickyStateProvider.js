@@ -16,7 +16,8 @@ function $StickyStateProvider($stateProvider) {
     DEBUG = enabled;
   };
 
-  this.$get = [ '$rootScope', '$state', '$stateParams', '$injector', '$log', function ($rootScope, $state, $stateParams, $injector, $log) {
+  this.$get = [  '$rootScope', '$state', '$stateParams', '$injector', '$log',
+    function ($rootScope, $state, $stateParams, $injector, $log) {
     // Each inactive states is either a sticky state, or a child of a sticky state.
     // This function finds the closest ancestor sticky state, then find that state's parent.
     // Map all inactive states to their closest parent-to-sticky state.
