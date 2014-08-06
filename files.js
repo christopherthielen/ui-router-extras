@@ -18,14 +18,14 @@ var files = {
     'src/noop.js'
   ],
   test: [
-//    'test/temp.js',
-//    'test/deepStateRedirectSpec.js',
-//    'test/futureStateSpec.js',
-//    'test/stickyStateSpec.js',
-//    'test/previousStateSpec.js',
+    'test/temp.js',
+    'test/deepStateRedirectSpec.js',
+    'test/futureStateSpec.js',
+    'test/stickyStateSpec.js',
+    'test/previousStateSpec.js',
     'test/transitionSpec.js',
-//    'src/fsfactories/ngload.js',
-//    'src/fsfactories/iframe.js',
+    'src/fsfactories/ngload.js',
+    'src/fsfactories/iframe.js',
     'src/noop.js'
   ],
   testUtil: [ 'test/testUtil.js', 'bower_components/lodash/dist/lodash.js'],
