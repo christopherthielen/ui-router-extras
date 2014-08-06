@@ -28,13 +28,17 @@ angular.module("ct.ui.router.extras").config( [ "$provide",  function ($provide)
             };
           }
 
+          function popStack() {
+            restoreFnStack.pop()();
+            tDataStack.pop();
+            transitionDepth--;
+          }
+
           // This promise callback (for when the real transitionTo is successful) runs the restore function for the
           // current stack level, then broadcasts the $transitionSuccess event.
           function transitionSuccess(deferred, tSuccess) {
             return function successFn(data) {
-              restoreFnStack.pop()();
-              tDataStack.pop();
-              transitionDepth--;
+              popStack();
               $rootScope.$broadcast("$transitionSuccess", tSuccess);
               return deferred.resolve(data);
             };
@@ -44,9 +48,7 @@ angular.module("ct.ui.router.extras").config( [ "$provide",  function ($provide)
           // current stack level, then broadcasts the $transitionError event.
           function transitionFailure(deferred, tFail) {
             return function failureFn(error) {
-              restoreFnStack.pop()();
-              tDataStack.pop();
-              transitionDepth--;
+              popStack();
               $rootScope.$broadcast("$transitionError", tFail, error);
               return deferred.reject(error);
             };
@@ -57,7 +59,9 @@ angular.module("ct.ui.router.extras").config( [ "$provide",  function ($provide)
             // Create a deferred/promise which can be used earlier than UI-Router's transition promise.
             var deferred = $q.defer();
             // Place the promise in a transition data, and place it on the stack to be used in $stateChangeStart
-            var tData = tDataStack[++transitionDepth] = { promise: deferred.promise };
+            var tData = tDataStack[++transitionDepth] = {
+              promise: deferred.promise
+            };
             // placeholder restoreFn in case transitionTo doesn't reach $stateChangeStart (state not found, etc)
             restoreFnStack[transitionDepth] = function() { };
             // Invoke the real $state.transitionTo
