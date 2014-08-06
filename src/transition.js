@@ -33,6 +33,8 @@ angular.module("ct.ui.router.extras").config( [ "$provide",  function ($provide)
           function transitionSuccess(deferred, tSuccess) {
             return function successFn(data) {
               restoreFnStack.pop()();
+              tDataStack.pop();
+              transitionDepth--;
               $rootScope.$broadcast("$transitionSuccess", tSuccess);
               return deferred.resolve(data);
             };
@@ -43,6 +45,8 @@ angular.module("ct.ui.router.extras").config( [ "$provide",  function ($provide)
           function transitionFailure(deferred, tFail) {
             return function failureFn(error) {
               restoreFnStack.pop()();
+              tDataStack.pop();
+              transitionDepth--;
               $rootScope.$broadcast("$transitionError", tFail, error);
               return deferred.reject(error);
             };
@@ -58,8 +62,6 @@ angular.module("ct.ui.router.extras").config( [ "$provide",  function ($provide)
             restoreFnStack[transitionDepth] = function() { };
             // Invoke the real $state.transitionTo
             var tPromise = $state_transitionTo.apply($state, arguments);
-            tDataStack.pop();
-            transitionDepth--;
 
             // insert our promise callbacks into the chain.
             return tPromise.then(transitionSuccess(deferred, tData), transitionFailure(deferred, tData));
@@ -74,14 +76,8 @@ angular.module("ct.ui.router.extras").config( [ "$provide",  function ($provide)
                 from: { state: fromState, params: fromParams }
               });
 
-              var restoreItemFns = []; // list of restore functions for this stack level
-              restoreFnStack.push(function() {
-                for (var i = 0; i < restoreItemFns.length; i++) {
-                  restoreItemFns[i]();
-                }
-              });
-
-              restoreItemFns.push(decorateInjector(tData));
+              var restoreFn = decorateInjector(tData);
+              restoreFnStack[depth] = restoreFn;
               $rootScope.$broadcast("$transitionStart", tData);
             }
           );
