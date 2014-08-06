@@ -12,10 +12,10 @@
     "grunt-contrib-uglify": "~0.2.5",
     "grunt-contrib-jshint": "~0.7.0",
     "grunt-karma": "^0.8.3",
-    "karma-chrome-launcher": "^0.1.4",
-    "karma-phantomjs-launcher": "^0.1.4",
-    "karma": "^0.12.16",
-    "karma-jasmine": "^0.1.5",
+    "karma-chrome-launcher": "latest",
+    "karma-phantomjs-launcher": "latest",
+    "karma": "latest",
+    "karma-jasmine": "0.2.0",
     "lodash": "latest"
   },
   "scripts": {
