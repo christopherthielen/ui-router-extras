@@ -441,7 +441,6 @@ function $StickyStateProvider($stateProvider) {
         // registry of inactivated states for descendants of the exited state and also exits those descendants.  It then
         // removes the locals and de-registers the state from the inactivated registry.
         stateExiting: function (exiting, exitQueue, onExit) {
-          var substatePrefix = exiting.self.name + "."; // All descendant states will start with this prefix
           var exitingNames = {};
           angular.forEach(exitQueue, function (state) {
             exitingNames[state.self.name] = true;
@@ -449,8 +448,8 @@ function $StickyStateProvider($stateProvider) {
 
           angular.forEach(inactiveStates, function (inactiveExiting, name) {
             // TODO: Might need to run the inactivations in the proper depth-first order?
-            if (!exitingNames[name] && name.indexOf(substatePrefix) === 0) { // inactivated state's name starts with the prefix.
-              if (DEBUG) $log.debug("Exiting " + name + " because it's a substate of " + substatePrefix + " and wasn't found in ", exitingNames);
+            if (!exitingNames[name] && inactiveExiting.includes[exiting.name]) {
+              if (DEBUG) $log.debug("Exiting " + name + " because it's a substate of " + exiting.name + " and wasn't found in ", exitingNames);
               if (inactiveExiting.self.onExit)
                 $injector.invoke(inactiveExiting.self.onExit, inactiveExiting.self, inactiveExiting.locals.globals);
               inactiveExiting.locals = null;
