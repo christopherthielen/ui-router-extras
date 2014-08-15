@@ -29,7 +29,7 @@ angular.module("ct.ui.router.extras").config([ "$provide", function ($provide) {
   }]);
 }]);
 
-angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScope', '$state', function ($rootScope, $state) {
+angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScope', '$state', '$injector', function ($rootScope, $state, $injector) {
   var lastSubstate = {};
   var lastParams = {};
   var deepStateRedirectsByName = {};
@@ -45,7 +45,7 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
 
   function recordDeepStateRedirectStatus(stateName) {
     var state = $state.get(stateName);
-    if (state && state.deepStateRedirect === true) {
+    if (state && state.deepStateRedirect) {
       deepStateRedirectsByName[stateName] = REDIRECT;
       if (lastSubstate[stateName] === undefined)
         lastSubstate[stateName] = stateName;
@@ -63,10 +63,17 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
 
   $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
     function shouldRedirect() {
+      if (ignoreDsr) return false;
+
       var deepStateStatus = computeDeepStateStatus(toState);
       var substate = lastSubstate[toState.name];
+
       // We're changing directly to one of the redirect (tab) states and we have a last substate recorded
-      return !ignoreDsr && deepStateStatus === REDIRECT && substate && substate != toState.name ? true : false;
+      var isDSR = (deepStateStatus === REDIRECT && substate && substate != toState.name ? true : false);
+      if (isDSR && angular.isFunction(toState.deepStateRedirect))
+        return $injector.invoke(toState.deepStateRedirect, toState);
+
+      return isDSR;
     }
 
     if (shouldRedirect()) { // send them to the last known state for that tab
