@@ -13,17 +13,17 @@ var map = function (collection, callback) {
   return result;
 };
 
-var keys = function(collection) {
+var keys = function (collection) {
   "use strict";
-  return map(collection, function(collection, key) {
+  return map(collection, function (collection, key) {
     return key;
   });
 };
 
-var filter = function(collection, callback) {
+var filter = function (collection, callback) {
   "use strict";
   var result = [];
-  forEach(collection, function(item, index) {
+  forEach(collection, function (item, index) {
     if (callback(item, index)) {
       result.push(item);
     }
@@ -31,10 +31,10 @@ var filter = function(collection, callback) {
   return result;
 };
 
-var filterObj = function(collection, callback) {
+var filterObj = function (collection, callback) {
   "use strict";
   var result = {};
-  forEach(collection, function(item, index) {
+  forEach(collection, function (item, index) {
     if (callback(item, index)) {
       result[index] = item;
     }
@@ -60,7 +60,7 @@ function objectKeys(object) {
   }
   var result = [];
 
-  angular.forEach(object, function(val, key) {
+  angular.forEach(object, function (val, key) {
     result.push(key);
   });
   return result;
@@ -103,5 +103,5 @@ function inheritParams(currentParams, newParams, $current, $to) {
 }
 
 function inherit(parent, extra) {
-  return extend(new (extend(function() {}, {prototype:parent}))(), extra);
+  return extend(new (extend(function () { }, {prototype: parent}))(), extra);
 }

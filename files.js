@@ -14,14 +14,16 @@ var files = {
     'src/stickyState.js',
     'src/futureState.js',
     'src/previousState.js',
+    'src/transition.js',
     'src/noop.js'
   ],
   test: [
-//    'test/temp.js',
+    'test/temp.js',
     'test/deepStateRedirectSpec.js',
     'test/futureStateSpec.js',
     'test/stickyStateSpec.js',
     'test/previousStateSpec.js',
+    'test/transitionSpec.js',
     'src/fsfactories/ngload.js',
     'src/fsfactories/iframe.js',
     'src/noop.js'
