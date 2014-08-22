@@ -50,7 +50,7 @@
 
     function showModal($modal, $previousState) {
       $previousState.memo("modalInvoker"); // remember the previous state with memoName "modalInvoker"
-      
+
       $modal.open({
         templateUrl: 'modal1.html',
         backdrop: 'static',
@@ -63,6 +63,11 @@
             $modalInstance.dismiss('close');
             $previousState.go("modalInvoker"); // return to previous state
           };
+          $scope.$on("$stateChangeStart", function(evt, toState) {
+            if (!toState.$$state().includes['modal1']) {
+              $modalInstance.dismiss('close');
+            }
+          });
         }
       })
     }
