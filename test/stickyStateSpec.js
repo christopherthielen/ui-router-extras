@@ -281,6 +281,71 @@ describe('stickyState', function () {
       testGo('A._1', { inactivated: pathFrom('A._2.__2', 'A._2'), reactivated: pathFrom('A._1', 'A._1.__1') }, { redirect: 'A._1.__1' });
     });
   });
+
+  describe('nested .go() transitions with parent attributes', function () {
+    beforeEach(function() {
+      ssReset(getNestedStickyStates(), _stateProvider);
+    });
+
+    function getNestedStickyStates() {
+      var newStates = {};
+
+      newStates['aside'] = {};
+      newStates['A'] =    {views: { 'A@': {} }};
+
+      newStates['A._1'] = {sticky: true, views: { '_1@A': {} }};
+      newStates['_2'] = {sticky: true, views: { '_2@A': {} }, parent: 'A'};
+
+      newStates['A._1.__1'] = {};
+      newStates['__2'] = {parent: '_2'};
+
+      return newStates;
+    }
+
+    it ('should have states attributes correctly set', function() {
+      var A = $state.get('A');
+      var A_1 = $state.get('A._1');
+      var A_1__1 = $state.get('A._1.__1');
+      var A_2 = $state.get('_2');
+      var A_2__2 = $state.get('__2');
+
+      // Check includes
+      expect(A.$$state().includes).toEqual({'' : true, 'A': true});
+      expect(A_1.$$state().includes).toEqual({'' : true, 'A': true, 'A._1': true});
+
+      expect(A_2.$$state().includes).toEqual({'' : true, 'A': true, '_2': true});
+      expect(A_2__2.$$state().includes).toEqual({'' : true, 'A': true, '_2': true, '__2': true});
+
+      // Check name attribute
+      expect(A.$$state().name).toEqual('A');
+      expect(A_1.$$state().name).toEqual('A._1');
+      expect(A_1__1.$$state().name).toEqual('A._1.__1');
+
+      expect(A_2.$$state().name).toEqual('_2');
+      expect(A_2__2.$$state().name).toEqual('__2');
+
+      // Check parent attribute
+      expect(A.$$state().parent.name).toBe('');
+      expect(A_1.$$state().parent.self).toBe(A);
+      expect(A_1__1.$$state().parent.self).toBe(A_1);
+
+      expect(A_2.$$state().parent.self).toBe(A);
+      expect(A_2__2.$$state().parent.self).toBe(A_2);
+    });
+
+    it ('should set transition attributes correctly', function() {
+      resetTransitionLog();
+
+      // Test some transitions
+      testGo('aside', { entered: ['aside'] });
+      testGo('_2', { exited: ['aside'],  entered: ['A', '_2'] });
+      testGo('__2', { entered: ['__2'] });
+      testGo('A._1.__1', { inactivated: ['__2', '_2'], entered: ['A._1', 'A._1.__1'] });
+      testGo('_2', { reactivated: ['_2'], inactivated: ['A._1.__1', 'A._1'] });
+      testGo('A', { inactivated: ['_2'] });
+      testGo('aside', { exited: ['__2', 'A._1.__1', 'A._1', '_2', 'A'], entered: ['aside'] });
+    });
+  });
 });
 
 describe('stickyState+ui-sref-active', function () {
