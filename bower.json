@@ -9,7 +9,7 @@
     "angular", "angularjs", "ui-router", "ui-router-extras", "tab", "tabs", "state", "states", "parallel", "sticky", "lazy", "future"
   ],
   "license": "MIT",
-  "main": [ "./release/ct-ui-router-extras.js", "./release/ct-ui-router-extras.min.js" ],
+  "main": "./release/ct-ui-router-extras.js",
   "ignore": [
     "**/.*",
     "pages",
