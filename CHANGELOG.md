@@ -6,13 +6,17 @@
 * Proper filename casing for case-sensitive filesystems #47 from theomy ((9b5a62b2))
 * **$stickyState:**
   * Fix states not exiting when the state parent attribute is used ((a3f0f9db))
-    * (instead of the fully qualified dotted notation)
+
+(instead of the fully qualified dotted notation)
   * Fixed the decorated $state.transitionTo promise result. ((873e9a79))
-    * When it should have been returning a rejected promise, it was instead returning a resolved promise with the error as the value. closes #42
+
+When it should have been returning a rejected promise, it was instead returning a resolved promise with the error as the value. closes #42
   * Made root.locals inherit from __inactives.locals. ((02c804c0))
-    * Removed resolve and globals from __inactives. closes #37
+
+Removed resolve and globals from __inactives. closes #37
   * Sticky States needs access to the root state. ((f3cf772c))
-    * It can now access it even if no user-defined states have been decorated. closes #36
+
+It can now access it even if no user-defined states have been decorated. closes #36
   * Proper filename casing for case-sensitive filesystems - renamed stickystate.js to stickyState.js
 
 #### Features
