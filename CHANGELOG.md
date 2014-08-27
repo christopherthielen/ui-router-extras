@@ -1,3 +1,31 @@
+<a name="0.0.10"></a>
+### 0.0.10 (2014-08-27)
+
+#### Bug Fixes
+
+* Proper filename casing for case-sensitive filesystems #47 from theomy ((9b5a62b2))
+* **$stickyState:**
+  * Fix states not exiting when the state parent attribute is used ((a3f0f9db))
+    * (instead of the fully qualified dotted notation)
+  * Fixed the decorated $state.transitionTo promise result. ((873e9a79))
+    * When it should have been returning a rejected promise, it was instead returning a resolved promise with the error as the value. closes #42
+  * Made root.locals inherit from __inactives.locals. ((02c804c0))
+    * Removed resolve and globals from __inactives. closes #37
+  * Sticky States needs access to the root state. ((f3cf772c))
+    * It can now access it even if no user-defined states have been decorated. closes #36
+  * Proper filename casing for case-sensitive filesystems - renamed stickystate.js to stickyState.js
+
+#### Features
+* **DSR:**
+  * state.deepStateRedirect may now be a function. closes #44 ((d37442e))
+* **$transition$:** 
+  * new injectable promise object $transition$ ... docs pending
+
+#### Other
+  * Add injection annotations so other people can minify correctly.  closes #38 ((68105836))
+  * Reformatted code
+
+
 # 0.0.9
 ## Features
 

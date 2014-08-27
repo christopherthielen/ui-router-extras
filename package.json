@@ -1,8 +1,8 @@
 {
-  "author": "Chris Thielen",
+  "author": "Christopher Thielen",
   "name": "ui-router-extras",
-  "version": "0.0.9",
-  "description": "UI-Router Extras",
+  "version": "0.0.10",
+  "description": "UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise",
   "homepage": "http://christopherthielen.github.io/ui-router-extras/",
   "dependencies": {},
   "devDependencies": {
@@ -12,15 +12,14 @@
     "grunt-contrib-uglify": "~0.2.5",
     "grunt-contrib-jshint": "~0.7.0",
     "grunt-karma": "^0.8.3",
+    "grunt-conventional-changelog": "~1.1",
     "karma-chrome-launcher": "latest",
     "karma-phantomjs-launcher": "latest",
     "karma": "latest",
     "karma-jasmine": "0.2.0",
     "lodash": "latest"
   },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+  "files": [ "release" ],
   "repository": "",
   "engines": {
     "node": "0.10.10"

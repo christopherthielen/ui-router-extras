@@ -20,6 +20,7 @@ module.exports = function (grunt) {
   grunt.loadNpmTasks('grunt-contrib-concat');
   grunt.loadNpmTasks('grunt-contrib-uglify');
   grunt.loadNpmTasks('grunt-contrib-jshint');
+  grunt.loadNpmTasks('grunt-conventional-changelog');
   grunt.loadNpmTasks('grunt-karma');
 
   /**
@@ -53,6 +54,11 @@ module.exports = function (grunt) {
           src: files.src,
           dest: 'build/ct-ui-router-extras.js'
         }
+      },
+      changelog: {
+        options: {
+          dest: 'CHANGELOG.md'
+	}
       },
       jshint: {
         options: {
