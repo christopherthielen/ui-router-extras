@@ -119,7 +119,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
               // Config loaded.  Asynchronously lazy-load state definition from URL fragment, if mapped.
               lazyLoadState($injector, futureState).then(function lazyLoadedStateCallback(state) {
                 // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
-                if (state && !$state.get(state))
+                if (state && !$state.get(state.name ? state.name : state))
                   $stateProvider.state(state);
                 resyncing = true;
                 $urlRouter.sync();
