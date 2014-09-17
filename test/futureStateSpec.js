@@ -1,5 +1,5 @@
 "use strict";
-var $get, $state, $futureState, $q, _futureStateProvider, _stateProvider;
+var $get, $state, $futureState, $q, _futureStateProvider, _stateProvider, $location, $rootScope;
 
 function futureState(stateName, pathFragment, urlPrefix, url, type) {
   return {
@@ -33,6 +33,8 @@ describe('futureState', function () {
     $state = $get('$state');
     $futureState = $get('$futureState');
     $q = $get('$q');
+    $location = $get("$location");
+    $rootScope = $get("$rootScope");
   }));
 
   describe('futureState', function () {
@@ -43,7 +45,18 @@ describe('futureState', function () {
       $state.go("top.foo");
       $q.flush();
       expect($state.current.name).toBe("top.foo");
-    })
+      expect($location.path()).toBe("/foo/")
+    });
 
+    it("should work by changing url", function() {
+      expect($location.path()).toBe("");
+      $location.path("/foo/");
+
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      $q.flush();
+      expect($location.path()).toBe("/foo/");
+      expect($state.current.name).toBe("top.foo");
+    });
   });
 });
