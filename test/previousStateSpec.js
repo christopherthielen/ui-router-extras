@@ -103,5 +103,16 @@ describe("$previousState", function () {
       $previousState.go('foo'); // triggers issue #16
       expect($state.current).toBe($state.get('top.inv.storelist'))
     });
+
+    it("should return to 'top.people.managerList' with memoName 'foo'", function() {
+      $previousState.memo('foo', 'top.people.managerList');
+      expect($previousState.get('foo').state).toBe($state.get('top.people.managerList'));
+    });
+
+    it("should return to 'top.people.managerList' with parameter 'id' equal to 5 with memoName 'foo'", function() {
+      $previousState.memo('foo', 'top.people.managerList', { id: 5 });
+      expect($previousState.get('foo').state).toBe($state.get('top.people.managerList'));
+      expect($previousState.get('foo').params).toEqual({ id: 5 });
+    });
   });
 });
