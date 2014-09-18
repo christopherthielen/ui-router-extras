@@ -30,8 +30,8 @@ angular.module('ct.ui.router.extras').service("$previousState",
           var to = $previousState.get(memoName);
           return $state.go(to.state, to.params, options);
         },
-        memo: function (memoName) {
-          memos[memoName] = previous;
+        memo: function (memoName, defaultStateName, defaultStateParams) {
+          memos[memoName] = previous || { state: $state.get(defaultStateName), params: defaultStateParams };
         },
         forget: function (memoName) {
           delete memos[memoName];
