@@ -1,6 +1,6 @@
 angular.module('ct.ui.router.extras').provider('$futureState',
-  [ '$stateProvider', '$urlRouterProvider',
-    function _futureStateProvider($stateProvider, $urlRouterProvider) {
+  [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactory'
+    function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory) {
       var stateFactories = {}, futureStates = {}, futureUrlPrefixes = {};
       var transitionPending = false, resolveFunctions = [], initPromise, initDone = false;
       var provider = this;
@@ -41,6 +41,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
       this.futureState = function (futureState) {
         futureStates[futureState.stateName] = futureState;
         futureUrlPrefixes[futureState.urlPrefix] = futureState;
+		futureUrlPrefixes[futureState.urlPrefix].regexp = $urlMatcherFactory.compile(futureState.urlPrefix).regexp;
       };
 
       this.get = function () {
@@ -62,13 +63,12 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         }
 
         if (options.url) {
-          var urlComponents = options.url.split(/\//);
-          while (urlComponents.length) {
-            var urlPrefix = urlComponents.join("/");
-            if (futureUrlPrefixes[urlPrefix])
-              return futureUrlPrefixes[urlPrefix];
-            urlComponents.pop();
-          }
+            for(var future in futureUrlPrefixes)
+            {
+                if (futureUrlPrefixes[future].regexp.test(options.url)) {
+                    return futureUrlPrefixes[future];
+                }
+            }
         }
       }
 
