@@ -89,15 +89,13 @@ angular.module('ct.ui.router.extras').provider('$futureState',
           });
       }
 
+      var otherwiseFunc = [ '$log', '$location',
+        function otherwiseFunc($log, $location) {
+          $log.debug("Unable to map " + $location.path());
+        }];
+
       function futureState_otherwise($injector, $location) {
         var resyncing = false;
-        var $log = $injector.get("$log");
-
-        var otherwiseFunc = [ '$state',
-          function otherwiseFunc($state) {
-            $log.debug("Unable to map " + $location.path());
-            $location.url("/");
-          }];
 
         var lazyLoadMissingState =
           ['$rootScope', '$urlRouter', '$state',
@@ -131,8 +129,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
                 transitionPending = false;
               }, function lazyLoadStateAborted() {
                 transitionPending = false;
-                // TODO: this is bad, mmmmkay. Should delegate to $urlRouterProvider.otherwise() somehow.
-                $state.go("top");
+                return $injector.invoke(otherwiseFunc);
               });
             }];
         if (transitionPending) return;
@@ -142,6 +139,16 @@ angular.module('ct.ui.router.extras').provider('$futureState',
       }
 
       $urlRouterProvider.otherwise(futureState_otherwise);
+
+      $urlRouterProvider.otherwise = function(rule) {
+        if (angular.isString(rule)) {
+          var redirect = rule;
+          rule = function () { return redirect; };
+        }
+        else if (!angular.isFunction(rule)) throw new Error("'rule' must be a function");
+        otherwiseFunc = rule;
+        return $urlRouterProvider;
+      }; 
 
       var serviceObject = {
         getResolvePromise: function () {

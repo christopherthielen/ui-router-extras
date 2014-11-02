@@ -1,5 +1,5 @@
 "use strict";
-var $get, $state, $futureState, $q, _futureStateProvider, _stateProvider, $location, $rootScope;
+var $get, $state, $futureState, $q, _futureStateProvider, _stateProvider, _urlRouterProvider, $location, $rootScope;
 
 function futureState(stateName, pathFragment, urlPrefix, url, type) {
   return {
@@ -11,20 +11,19 @@ function futureState(stateName, pathFragment, urlPrefix, url, type) {
   };
 }
 
-function getSingleFuture () {
-  return futureState("top.foo", "foo/", "/foo/", "hmmm", "iframe");
-}
-
 describe('futureState', function () {
   beforeEach(module('ct.ui.router.extras', function ($futureStateProvider, $stateProvider, $urlRouterProvider) {
     // Load and capture $stickyStateProvider and $stateProvider
     _futureStateProvider = $futureStateProvider;
     _stateProvider = $stateProvider;
+    _urlRouterProvider = $urlRouterProvider;
     _stateProvider.state("top", { url: '/' });
 
-    $futureStateProvider.futureState(getSingleFuture());
+    $futureStateProvider.futureState(futureState("top.foo", "foo/", "/foo/", "hmmm", "iframe"));
+    $futureStateProvider.futureState(futureState("top.bar", "bar/", "/bar/", "404.js", "doesntwork"));
     $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
     $futureStateProvider.stateFactory('iframe', iframeStateFactory);
+    $futureStateProvider.stateFactory('doesntwork', function(futureState) { return $q.reject("doesntwork"); });
   }));
 
   // Capture $injector.get, $state, and $q
@@ -58,5 +57,30 @@ describe('futureState', function () {
       expect($location.path()).toBe("/foo/");
       expect($state.current.name).toBe("top.foo");
     });
+
+    it("should respect $urp.otherwise() if the state/futurestate is not found", function() {
+      expect($location.path()).toBe("");
+      _urlRouterProvider.otherwise("/foo/");
+      $location.path("/badpath");
+
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      $q.flush();
+      expect($location.path()).toBe("/foo/");
+      expect($state.current.name).toBe("top.foo");
+    });
+
+    it("should respect $urp.otherwise() if a futurestate was found, but could not be loaded", function() {
+      expect($location.path()).toBe("");
+      _urlRouterProvider.otherwise("/foo/");
+      $location.path("/bar/");
+
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      $q.flush();
+      expect($location.path()).toBe("/foo/");
+      expect($state.current.name).toBe("top.foo");
+    });
+
   });
 });
