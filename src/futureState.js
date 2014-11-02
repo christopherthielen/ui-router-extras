@@ -1,5 +1,5 @@
 angular.module('ct.ui.router.extras').provider('$futureState',
-  [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactory'
+  [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider',
     function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory) {
       var stateFactories = {}, futureStates = {}, futureUrlPrefixes = {};
       var transitionPending = false, resolveFunctions = [], initPromise, initDone = false;
