@@ -19,6 +19,7 @@
     "karma-jasmine": "0.2.0",
     "lodash": "latest"
   },
+  "main": "release/ct-ui-router-extras",
   "files": [ "release" ],
   "repository": "",
   "engines": {
