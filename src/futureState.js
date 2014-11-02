@@ -1,7 +1,7 @@
 angular.module('ct.ui.router.extras').provider('$futureState',
   [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider',
     function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory) {
-      var stateFactories = {}, futureStates = {}, futureUrlPrefixes = {};
+      var stateFactories = {}, futureStates = {};
       var transitionPending = false, resolveFunctions = [], initPromise, initDone = false;
       var provider = this;
 
@@ -39,14 +39,27 @@ angular.module('ct.ui.router.extras').provider('$futureState',
       };
 
       this.futureState = function (futureState) {
-        futureStates[futureState.stateName] = futureState;
-        futureUrlPrefixes[futureState.urlPrefix] = futureState;
-		futureUrlPrefixes[futureState.urlPrefix].regexp = $urlMatcherFactory.compile(futureState.urlPrefix).regexp;
+        if (futureState.stateName)  // backwards compat for now
+          futureState.name = futureState.stateName;
+        if (futureState.urlPrefix)  // backwards compat for now
+          futureState.url = "^" + futureState.urlPrefix;
+
+        futureStates[futureState.name] = futureState;
+        var parent = findState(futureState.parent || futureState.name.split(/\./).slice(0,-1).join("."));
+        if (!parent) throw new Error("Couldn't determine parent state of future state. FutureState:" + angular.toJson(futureState));
+        futureState.urlMatcher = futureState.url.charAt(0) === "^" ?
+          $urlMatcherFactory.compile(futureState.url.substring(1) + "*rest") :
+          parent.url.concat(futureState.url + "*rest");
       };
 
       this.get = function () {
         return angular.extend({}, futureStates);
       };
+
+      function findState(stateOrName) {
+        var statename = angular.isObject(stateOrName) ? stateOrName.name : stateOrName;
+        return internalStates[statename];
+      }
 
       /* options is an object with at least a name or url attribute */
       function findFutureState($state, options) {
@@ -63,12 +76,11 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         }
 
         if (options.url) {
-            for(var future in futureUrlPrefixes)
-            {
-                if (futureUrlPrefixes[future].regexp.test(options.url)) {
-                    return futureUrlPrefixes[future];
-                }
+          for(var future in futureStates) {
+            if (futureStates[future].urlMatcher.exec(options.url)) {
+              return futureStates[future];
             }
+          }
         }
       }
 
@@ -84,8 +96,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
         return $injector.invoke(factory, factory, { futureState: futureState })
           .finally(function() {
-            delete(futureStates[futureState.stateName]);
-            delete(futureUrlPrefixes[futureState.urlPrefix]);
+            delete(futureStates[futureState.name]);
           });
       }
 

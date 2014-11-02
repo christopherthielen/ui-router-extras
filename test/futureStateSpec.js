@@ -1,13 +1,14 @@
 "use strict";
 var $get, $state, $futureState, $q, _futureStateProvider, _stateProvider, _urlRouterProvider, $location, $rootScope;
 
-function futureState(stateName, pathFragment, urlPrefix, url, type) {
+function futureState(stateName, urlPrefix, url, type, parent) {
   return {
-    stateName: stateName,       // Fully qualified name of future state
-    pathFragment: pathFragment, // URL path fragment (used to build the real state.url)
-    urlPrefix: urlPrefix,       // Placeholder URL prefix used to indicate a future state lives at or below here
-    url: url,                   // The url that the state definition lives at
-    type: type                  // Type of future state, used to build the real state definition
+    name: stateName,       // Fully qualified name of future state
+    urlPrefix: urlPrefix,       // Deprecated; Placeholder URL prefix used to indicate a future state lives at or below here
+    url: url,                   // The url portion used to indicate a future state lives at, or below here.
+                                // Concat'd with the parent state's url similar to a regular state.url definition
+    type: type,                 // Type of future state, used to build the real state definition
+    parent: parent              // The parent state or parent state name, (used to build the UrlMatcher)
   };
 }
 
@@ -18,11 +19,23 @@ describe('futureState', function () {
     _stateProvider = $stateProvider;
     _urlRouterProvider = $urlRouterProvider;
     _stateProvider.state("top", { url: '/' });
+    _stateProvider.state("other", { url: '/other/:param' });
 
-    $futureStateProvider.futureState(futureState("top.foo", "foo/", "/foo/", "hmmm", "iframe"));
-    $futureStateProvider.futureState(futureState("top.bar", "bar/", "/bar/", "404.js", "doesntwork"));
+    $futureStateProvider.futureState(futureState("top.foo", "/foo/", null, "iframe"));
+    $futureStateProvider.futureState(futureState("top.bar", "/bar/", null, "doesntwork"));
+    $futureStateProvider.futureState(futureState("qux", null, "/qux", "iframe", "other")); // has a parent
+    $futureStateProvider.futureState(futureState("top.baz", null, "baz/", "iframeWithParam"));
     $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
     $futureStateProvider.stateFactory('iframe', iframeStateFactory);
+    $futureStateProvider.stateFactory('iframeWithParam', function(futureState) {
+      var state = {
+        name: futureState.name,
+        template: "<h1>{{header}}</h1><iframe src='" + futureState.src + "'></iframe>",
+        controller: function($scope, $stateParams) { $scope.header = $stateParams.header; },
+        url: futureState.url + ":header"
+      };
+      return $q.when(state);
+    });
     $futureStateProvider.stateFactory('doesntwork', function(futureState) { return $q.reject("doesntwork"); });
   }));
 
@@ -80,6 +93,40 @@ describe('futureState', function () {
       $q.flush();
       expect($location.path()).toBe("/foo/");
       expect($state.current.name).toBe("top.foo");
+    });
+
+    it("should match futurestates urls using regexp", function() {
+      expect($location.path()).toBe("");
+      $location.path("/baz/");
+
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      $q.flush();
+      expect($location.path()).toBe("/baz/");
+      expect($state.current.name).toBe("top.baz");
+    });
+
+    it("should build futurestates urls using parent reference", function() {
+      expect($location.path()).toBe("");
+      $location.path("/other/123/qux");
+
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      $q.flush();
+      expect($location.path()).toBe("/other/123/qux");
+      expect($state.current.name).toBe("qux");
+    });
+
+
+    it("should match futurestates urls using wildcard regexp", function() {
+      expect($location.path()).toBe("");
+      $location.path("/baz/This+is+the+title");
+
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      $q.flush();
+      expect($location.path()).toBe("/baz/This+is+the+title");
+      expect($state.current.name).toBe("top.baz");
     });
 
   });

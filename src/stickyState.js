@@ -116,6 +116,7 @@ angular.module("ct.ui.router.extras").config(
       $provide.decorator("$state", ['$delegate', '$log', '$q', function ($state, $log, $q) {
         // Note: this code gets run only on the first state that is decorated
         root = $state.$current;
+        internalStates[""] = root;
         root.parent = inactivePseudoState; // Make inactivePsuedoState the parent of root.  "wat"
         inactivePseudoState.parent = undefined; // Make inactivePsuedoState the real root.
         root.locals = inherit(inactivePseudoState.locals, root.locals); // make root locals extend the __inactives locals.
