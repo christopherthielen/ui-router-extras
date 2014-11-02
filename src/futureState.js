@@ -82,7 +82,11 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         var type = futureState.type;
         var factory = stateFactories[type];
         if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
-        return $injector.invoke(factory, factory, { futureState: futureState });
+        return $injector.invoke(factory, factory, { futureState: futureState })
+          .finally(function() {
+            delete(futureStates[futureState.stateName]);
+            delete(futureUrlPrefixes[futureState.urlPrefix]);
+          });
       }
 
       function futureState_otherwise($injector, $location) {
@@ -127,6 +131,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
                 transitionPending = false;
               }, function lazyLoadStateAborted() {
                 transitionPending = false;
+                // TODO: this is bad, mmmmkay. Should delegate to $urlRouterProvider.otherwise() somehow.
                 $state.go("top");
               });
             }];
@@ -161,7 +166,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
               var promise = lazyLoadState($injector, futureState);
               promise.then(function (state) {
                 // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
-                if (state)
+                if (state && (!$state.get(state) || (state.name && !$state.get(state.name))))
                   $stateProvider.state(state);
                 $state.go(unfoundState.to, unfoundState.toParams);
                 transitionPending = false;
