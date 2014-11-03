@@ -61,7 +61,10 @@ var internalStates = {}; // Map { statename -> InternalStateObj } holds internal
 var root, // Root state, internal representation
   pendingTransitions = [], // One transition may supersede another.  This holds references to all pending transitions
   pendingRestore, // The restore function from the superseded transition
-  inactivePseudoState; // This pseudo state holds all the inactive states' locals (resolved state data, such as views etc)
+  inactivePseudoState, // This pseudo state holds all the inactive states' locals (resolved state data, such as views etc)
+  versionHeuristics = { // Heuristics used to guess the current UI-Router Version
+    hasParamSet: false
+  };
 
 // Creates a blank surrogate state
 function SurrogateState(type) {
@@ -73,7 +76,7 @@ function SurrogateState(type) {
     views: { },
     self: { },
     params: { },
-    ownParams: [],
+    ownParams: ( versionHeuristics.hasParamSet ? { $$equals: function() { return true; } } : []),
     surrogateType: type
   };
 }
@@ -85,8 +88,9 @@ angular.module("ct.ui.router.extras").run(["$stickyState", function ($stickyStat
 }]);
 
 angular.module("ct.ui.router.extras").config(
-  [ "$provide", "$stateProvider", '$stickyStateProvider',
-    function ($provide, $stateProvider, $stickyStateProvider) {
+  [ "$provide", "$stateProvider", '$stickyStateProvider', '$urlMatcherFactoryProvider',
+    function ($provide, $stateProvider, $stickyStateProvider, $urlMatcherFactoryProvider) {
+      versionHeuristics.hasParamSet = !!$urlMatcherFactoryProvider.ParamSet;
       // inactivePseudoState (__inactives) holds all the inactive locals which includes resolved states data, i.e., views, scope, etc
       inactivePseudoState = angular.extend(new SurrogateState("__inactives"), { self: {  name: '__inactives'  } });
       // Reset other module scoped variables.  This is to primarily to flush any previous state during karma runs.
