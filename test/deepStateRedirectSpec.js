@@ -55,6 +55,20 @@ describe('deepStateRedirect', function () {
       testGo("tabs.tabs1", {entered: 'tabs.tabs1', exited: [ 'tabs.tabs2.deep.nest', 'tabs.tabs2.deep', 'tabs.tabs2' ]});
       testGo("tabs.tabs2", {entered: ['tabs.tabs2', 'tabs.tabs2.deep', 'tabs.tabs2.deep.nest'], exited: 'tabs.tabs1'}, { redirect: 'tabs.tabs2.deep.nest' });
     });
+
+    it("should forget a previous redirect to tabs.tabs2.deep.nest", inject(function($deepStateRedirect) {
+      testGo("tabs", {entered: 'tabs'});
+      testGo("tabs.tabs2.deep.nest", {entered: ['tabs.tabs2', 'tabs.tabs2.deep', 'tabs.tabs2.deep.nest' ]});
+      testGo("tabs.tabs1.deep.nest", {entered: ['tabs.tabs1', 'tabs.tabs1.deep', 'tabs.tabs1.deep.nest' ], exited: [ 'tabs.tabs2.deep.nest', 'tabs.tabs2.deep', 'tabs.tabs2' ]});
+      testGo("tabs.tabs2", {entered: ['tabs.tabs2', 'tabs.tabs2.deep', 'tabs.tabs2.deep.nest'], exited: [ 'tabs.tabs1.deep.nest', 'tabs.tabs1.deep', 'tabs.tabs1' ]}, { redirect: 'tabs.tabs2.deep.nest' });
+      testGo("tabs.tabs1", {entered: ['tabs.tabs1', 'tabs.tabs1.deep', 'tabs.tabs1.deep.nest' ], exited: [ 'tabs.tabs2.deep.nest', 'tabs.tabs2.deep', 'tabs.tabs2' ]}, { redirect: 'tabs.tabs1.deep.nest' });
+      $deepStateRedirect.reset("tabs.tabs2");
+      testGo("tabs.tabs2", {entered: ['tabs.tabs2'], exited: [ 'tabs.tabs1.deep.nest', 'tabs.tabs1.deep', 'tabs.tabs1' ]});
+      testGo("tabs.tabs1", {entered: ['tabs.tabs1', 'tabs.tabs1.deep', 'tabs.tabs1.deep.nest' ], exited: [ 'tabs.tabs2' ]}, { redirect: 'tabs.tabs1.deep.nest' });
+      $deepStateRedirect.reset();
+      testGo("tabs.tabs2", { entered: 'tabs.tabs2', exited: [ 'tabs.tabs1.deep.nest', 'tabs.tabs1.deep', 'tabs.tabs1' ]});
+      testGo("tabs.tabs1", { entered: 'tabs.tabs1', exited: [ 'tabs.tabs2' ]});
+    }));
   });
 
   describe('with configured params', function () {

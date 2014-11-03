@@ -115,7 +115,18 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
     }
   });
 
-  return {};
+  return {
+    reset: function(stateOrName) {
+      if (!stateOrName) {
+        angular.forEach(lastSubstate, function(redirect, dsrState) { lastSubstate[dsrState] = {}; })
+      } else {
+        var state = $state.get(stateOrName);
+        if (!state) throw new Error("Unknown state: " + stateOrName);
+        if (lastSubstate[state.name])
+          lastSubstate[state.name] = {};
+      }
+    }
+  };
 }]);
 
 angular.module("ct.ui.router.extras").run(['$deepStateRedirect', function ($deepStateRedirect) {
