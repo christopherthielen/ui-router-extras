@@ -11,7 +11,11 @@ function getDSRStates () {
     { name: 'tabs.tabs1.deep.nest' },
     { name: 'tabs.tabs2', deepStateRedirect: true },
     { name: 'tabs.tabs2.deep' },
-    { name: 'tabs.tabs2.deep.nest' }
+    { name: 'tabs.tabs2.deep.nest' },
+    { name: 'p1', url: '/p1/:param1/:param2', deepStateRedirect: { params: ['param1'] } },
+    { name: 'p1.child' },
+    { name: 'p2', url: '/p2/:param1/:param2', deepStateRedirect: { params: true } },
+    { name: 'p2.child' }
   ];
 }
 
@@ -38,7 +42,7 @@ describe('deepStateRedirect', function () {
     $deepStateRedirect = $get('$deepStateRedirect');
   }));
 
-  describe('deepStateRedirect', function () {
+  describe(' - ', function () {
     it("should toggle between tab states", function() {
       testGo("tabs", {entered: 'tabs'});
       testGo("tabs.tabs2", {entered: 'tabs.tabs2'});
@@ -51,6 +55,41 @@ describe('deepStateRedirect', function () {
       testGo("tabs.tabs1", {entered: 'tabs.tabs1', exited: [ 'tabs.tabs2.deep.nest', 'tabs.tabs2.deep', 'tabs.tabs2' ]});
       testGo("tabs.tabs2", {entered: ['tabs.tabs2', 'tabs.tabs2.deep', 'tabs.tabs2.deep.nest'], exited: 'tabs.tabs1'}, { redirect: 'tabs.tabs2.deep.nest' });
     });
+  });
+
+  describe('with configured params', function () {
+    it("should redirect only when params match", inject(function($state, $q) {
+      $state.go("p1", { param1: "foo", param2: "foo2" } ); $q.flush();
+      expect($state.current.name).toEqual("p1");
+      expect($state.params).toEqual({ param1: "foo", param2: "foo2" });
+
+      $state.go(".child"); $q.flush();
+      expect($state.current.name).toEqual("p1.child");
+
+      $state.go("p1", { param1: "bar" } ); $q.flush();
+      expect($state.current.name).toEqual("p1");
+
+      $state.go("p1", { param1: "foo", param2: "somethingelse" } ); $q.flush();
+      expect($state.current.name).toEqual("p1.child"); // DSR
+    }));
+
+    it("should redirect only when all params match if 'params: true'", inject(function($state, $q) {
+      $state.go("p2", { param1: "foo", param2: "foo2" } ); $q.flush();
+      expect($state.current.name).toEqual("p2");
+      expect($state.params).toEqual({ param1: "foo", param2: "foo2" });
+
+      $state.go(".child"); $q.flush();
+      expect($state.current.name).toEqual("p2.child");
+
+      $state.go("p2", { param1: "bar" } ); $q.flush();
+      expect($state.current.name).toEqual("p2");
+
+      $state.go("p2", { param1: "foo", param2: "somethingelse" } ); $q.flush();
+      expect($state.current.name).toEqual("p2");
+
+      $state.go("p2", { param1: "foo", param2: "foo2" } ); $q.flush();
+      expect($state.current.name).toEqual("p2.child"); // DSR
+    }));
   });
 
   describe('ignoreDsr option', function () {
