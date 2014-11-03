@@ -33,11 +33,10 @@ var files = {
   angular: [ 'bower_components/angular/angular.js' ],
   angular_mocks: [ 'bower_components/angular-mocks/angular-mocks.js' ],
   ui_router: [ 'bower_components/angular-ui-router/release/angular-ui-router.js' ],
-  ui_router_0_2_5: [ 'ui-router-versions/0.2.5/angular-ui-router.js' ],
-  ui_router_0_2_7: [ 'ui-router-versions/0.2.7/angular-ui-router.js' ],
   ui_router_0_2_8: [ 'ui-router-versions/0.2.8/angular-ui-router.js' ],
   ui_router_0_2_10: [ 'ui-router-versions/0.2.10/angular-ui-router.js' ],
-  ui_router_HEAD: [ 'ui-router-versions/2014-07-05/angular-ui-router.js' ]
+  ui_router_0_2_11: [ 'ui-router-versions/0.2.11/angular-ui-router.js' ],
+  ui_router_HEAD: [ 'ui-router-versions/2014-11-03/angular-ui-router.js' ]
 };
 
 var devfiles = {
@@ -70,6 +69,7 @@ var min0_2_5files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_5 });
 var min0_2_7files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_7 });
 var min0_2_8files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_8 });
 var min0_2_10files =  _.extend(minfiles, { ui_router: files.ui_router_0_2_10 });
+var min0_2_11files =  _.extend(minfiles, { ui_router: files.ui_router_0_2_11 });
 var minHEADfiles =    _.extend(minfiles, { ui_router: files.ui_router_HEAD });
 
 if (exports) {
@@ -81,6 +81,7 @@ if (exports) {
   exports.min0_2_7files = min0_2_7files;
   exports.min0_2_8files = min0_2_8files;
   exports.min0_2_10files = min0_2_10files;
+  exports.min0_2_11files = min0_2_11files;
   exports.minHEADfiles = minHEADfiles;
 }
 

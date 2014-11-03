@@ -64,7 +64,7 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
     }
 
     var parent = state.$$state && state.$$state().parent;
-    if (parent != null) {
+    if (parent) {
       var parentStatus = recordDeepStateRedirectStatus(parent.self.name);
       if (parentStatus && deepStateRedirectsByName[state.name] === undefined) {
         deepStateRedirectsByName[state.name] = ANCESTOR_REDIRECT;
@@ -74,9 +74,9 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
   }
 
   function getParamsString(params, dsrParams) {
-    function safeString(input) { return input == null ? input : input.toString(); }
+    function safeString(input) { return !input ? input : input.toString(); }
     if (dsrParams === true) dsrParams = Object.keys(params);
-    if (dsrParams == null) dsrParams = [];
+    if (dsrParams === null || dsrParams === undefined) dsrParams = [];
 
     var paramsToString = {};
     angular.forEach(dsrParams.sort(), function(name) { paramsToString[name] = safeString(params[name]); });
@@ -118,7 +118,7 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
   return {
     reset: function(stateOrName) {
       if (!stateOrName) {
-        angular.forEach(lastSubstate, function(redirect, dsrState) { lastSubstate[dsrState] = {}; })
+        angular.forEach(lastSubstate, function(redirect, dsrState) { lastSubstate[dsrState] = {}; });
       } else {
         var state = $state.get(stateOrName);
         if (!state) throw new Error("Unknown state: " + stateOrName);
