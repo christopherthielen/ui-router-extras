@@ -236,6 +236,9 @@ function $StickyStateProvider($stateProvider) {
               if (DEBUG) $log.debug("Exiting " + name + " because it's a substate of " + exiting.name + " and wasn't found in ", exitingNames);
               if (inactiveExiting.self.onExit)
                 $injector.invoke(inactiveExiting.self.onExit, inactiveExiting.self, inactiveExiting.locals.globals);
+              angular.forEach(inactiveExiting.locals, function(localval, key) {
+                delete inactivePseudoState.locals[key];
+              });
               inactiveExiting.locals = null;
               inactiveExiting.self.status = 'exited';
               delete inactiveStates[name];
@@ -261,6 +264,14 @@ function $StickyStateProvider($stateProvider) {
 
           if (onEnter)
             $injector.invoke(onEnter, entering.self, entering.locals.globals);
+        },
+        reset: function reset(inactiveState, params) {
+          var state = $state.get(inactiveState);
+          var exiting = getInactivatedState(state, params);
+          if (!exiting) return false;
+          stickySupport.stateExiting(exiting);
+          $rootScope.$broadcast("$viewContentLoading");
+          return true;
         }
       };
 
