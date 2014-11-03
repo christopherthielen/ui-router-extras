@@ -60,6 +60,16 @@ describe('futureState', function () {
       expect($location.path()).toBe("/foo/")
     });
 
+    it("should async load via relative sref .foo", function() {
+      $state.go("top");
+      $q.flush();
+      expect($state.current.name).toBe("top");
+      $state.go(".foo");
+      $q.flush();
+      expect($state.current.name).toBe("top.foo");
+      expect($location.path()).toBe("/foo/")
+    });
+
     it("should work by changing url", function() {
       expect($location.path()).toBe("");
       $location.path("/foo/");

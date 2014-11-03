@@ -65,9 +65,11 @@ angular.module('ct.ui.router.extras').provider('$futureState',
       function findFutureState($state, options) {
         if (options.name) {
           var nameComponents = options.name.split(/\./);
+          if (options.name.charAt(0) === '.')
+            nameComponents[0] = $state.current.name;
           while (nameComponents.length) {
             var stateName = nameComponents.join(".");
-            if ($state.get(stateName))
+            if ($state.get(stateName, { relative: $state.current }))
               return null; // State is already defined; nothing to do
             if (futureStates[stateName])
               return futureStates[stateName];
