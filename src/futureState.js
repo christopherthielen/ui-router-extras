@@ -67,10 +67,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
 
       function findState(stateOrName, findFutureState) {
         var statename = angular.isObject(stateOrName) ? stateOrName.name : stateOrName;
-        if (!findFutureState) {
-          return internalStates[statename];
-        }
-        return futureStates[statename];
+        return !findFutureState ? internalStates[statename] : futureStates[statename];
       }
 
       /* options is an object with at least a name or url attribute */
