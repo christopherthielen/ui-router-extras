@@ -1,3 +1,35 @@
+<a name="0.0.11"></a>
+### 0.0.11 (2014-11-03)
+
+
+#### Bug Fixes
+
+* allow regexp matching in urlPrefix ((15c150d1))
+* **$deepStateRedirect:**
+  * add service function to reset DSR ((c17e27f0), closes (#87))
+  * add support for DSR only when params match. ((ed16ae4c))
+* **$futureState:**
+  * future states may now have parent futurestate ((8e11a7c6), closes (#63))
+  * fix transition to future state using .relative sref ((e953de61), closes (#3))
+  * use UrlMatcher for future url ((f1b0fe57), closes (#54), (#82))
+  * support $urlRouterProvider.otherwise() ((748f2f1f))
+  * unregister lazyloaded future states closes #2 ((67ad0d47))
+  * allow state lookup by object reference, or by state name ((6ca316cd))
+* **$stickyState:**
+  * Added $stickyState.reset() function ((af427116), closes (#48))
+  * Make sticky state compatible with UI-Router 0.2.12 ((751db8e1), closes (#88))
+
+
+#### Features
+
+* **$previousState:** Add support for default previous state/params ((1c08ed7c))
+
+
+#### Breaking Changes
+
+* use FutureState.name instead of FutureState.stateName to be consistent with UI-Router (backwards compat attempted, but not guaranteed)
+* use FutureState.url instead of FutureState.urlPrefix to be consistent with UI-Router (backwards compat attempted, but not guaranteed)
+
 <a name="0.0.10"></a>
 ### 0.0.10 (2014-08-27)
 
