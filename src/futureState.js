@@ -105,6 +105,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
       }
 
       function lazyLoadState($injector, futureState) {
+        var $q = $injector.get("$q");
         if (!futureState) {
           var deferred = $q.defer();
           deferred.reject("No lazyState passed in " + futureState);
