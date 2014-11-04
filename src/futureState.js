@@ -45,20 +45,32 @@ angular.module('ct.ui.router.extras').provider('$futureState',
           futureState.url = "^" + futureState.urlPrefix;
 
         futureStates[futureState.name] = futureState;
-        var parent = findState(futureState.parent || futureState.name.split(/\./).slice(0,-1).join("."));
-        if (!parent) throw new Error("Couldn't determine parent state of future state. FutureState:" + angular.toJson(futureState));
+        var parentMatcher,  parentName = futureState.name.split(/\./).slice(0, -1).join("."),
+          realParent = findState(futureState.parent || parentName);
+        if (realParent) {
+          parentMatcher = realParent.url;
+        } else {
+          var futureParent = findState((futureState.parent || parentName), true);
+          if (!futureParent) throw new Error("Couldn't determine parent state of future state. FutureState:" + angular.toJson(futureState));
+          var pattern = futureParent.urlMatcher.source.replace(/\*rest$/, "");
+          parentMatcher = $urlMatcherFactory.compile(pattern);
+          futureState.parentFutureState = futureParent;
+        }
         futureState.urlMatcher = futureState.url.charAt(0) === "^" ?
           $urlMatcherFactory.compile(futureState.url.substring(1) + "*rest") :
-          parent.url.concat(futureState.url + "*rest");
+          parentMatcher.concat(futureState.url + "*rest");
       };
 
       this.get = function () {
         return angular.extend({}, futureStates);
       };
 
-      function findState(stateOrName) {
+      function findState(stateOrName, findFutureState) {
         var statename = angular.isObject(stateOrName) ? stateOrName.name : stateOrName;
-        return internalStates[statename];
+        if (!findFutureState) {
+          return internalStates[statename];
+        }
+        return futureStates[statename];
       }
 
       /* options is an object with at least a name or url attribute */
@@ -78,11 +90,20 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         }
 
         if (options.url) {
+          var matches = [];
           for(var future in futureStates) {
             if (futureStates[future].urlMatcher.exec(options.url)) {
-              return futureStates[future];
+              matches.push(futureStates[future]);
             }
           }
+          // Find most specific by ignoring matching parents from matches
+          var copy = matches.slice(0);
+          for (var i = matches.length - 1; i >= 0; i--) {
+            for (var j = 0; j < copy.length; j++) {
+              if (matches[i] === copy[j].parentFutureState) matches.splice(i, 1);
+            }
+          }
+          return matches[0];
         }
       }
 
@@ -93,10 +114,18 @@ angular.module('ct.ui.router.extras').provider('$futureState',
           return deferred.promise;
         }
 
+        var promise = $q.when(true), parentFuture = futureState.parentFutureState;
+        if (parentFuture && futureStates[parentFuture.name]) {
+          promise = lazyLoadState($injector, futureStates[parentFuture.name]);
+        }
+
         var type = futureState.type;
         var factory = stateFactories[type];
         if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
-        return $injector.invoke(factory, factory, { futureState: futureState })
+        return promise
+          .then(function() {
+            return $injector.invoke(factory, factory, { futureState: futureState });
+          })
           .finally(function() {
             delete(futureStates[futureState.name]);
           });

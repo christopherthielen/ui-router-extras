@@ -23,8 +23,10 @@ describe('futureState', function () {
 
     $futureStateProvider.futureState(futureState("top.foo", "/foo/", null, "iframe"));
     $futureStateProvider.futureState(futureState("top.bar", "/bar/", null, "doesntwork"));
-    $futureStateProvider.futureState(futureState("qux", null, "/qux", "iframe", "other")); // has a parent
     $futureStateProvider.futureState(futureState("top.baz", null, "baz/", "iframeWithParam"));
+    $futureStateProvider.futureState(futureState("qux", null, "/qux", "iframe", "other")); // has a parent 'other'
+    $futureStateProvider.futureState(futureState("other.hey", null, "/hey", "iframe"));
+    $futureStateProvider.futureState(futureState("hwat", null, "/hwat", "iframe", "other.hey")); // has a parent 'other.hey'
     $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
     $futureStateProvider.stateFactory('iframe', iframeStateFactory);
     $futureStateProvider.stateFactory('iframeWithParam', function(futureState) {
@@ -107,13 +109,35 @@ describe('futureState', function () {
 
     it("should match futurestates urls using regexp", function() {
       expect($location.path()).toBe("");
-      $location.path("/baz/");
+      $location.path("/baz/123");
 
       $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
       $q.flush();
-      expect($location.path()).toBe("/baz/");
+      expect($location.path()).toBe("/baz/123");
       expect($state.current.name).toBe("top.baz");
+    });
+
+    it("should lazy load futurestates that have parent futurestates", function() {
+      expect($location.path()).toBe("");
+      $location.path("/other/123/hey");
+
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      $q.flush();
+      expect($location.path()).toBe("/other/123/hey");
+      expect($state.current.name).toBe("other.hey");
+    });
+
+    it("should lazy load futurestates that have parent futurestates2", function() {
+      expect($location.path()).toBe("");
+      $location.path("/other/123/hey/hwat");
+
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $rootScope.$apply();
+      $q.flush();
+      expect($location.path()).toBe("/other/123/hey/hwat");
+      expect($state.current.name).toBe("hwat");
     });
 
     it("should build futurestates urls using parent reference", function() {
