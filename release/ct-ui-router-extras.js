@@ -1,6 +1,6 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
- * @version v0.0.11-pre1
+ * @version v0.0.11-pre2
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -1116,6 +1116,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
       }
 
       function lazyLoadState($injector, futureState) {
+        var $q = $injector.get("$q");
         if (!futureState) {
           var deferred = $q.defer();
           deferred.reject("No lazyState passed in " + futureState);
