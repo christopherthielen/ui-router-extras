@@ -46,10 +46,17 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
     var declaration = state.deepStateRedirect;
     if (!declaration) return { dsr: false };
     var dsrCfg = { dsr: true };
+
     if (angular.isFunction(declaration))
       dsrCfg.fn = declaration;
     else if (angular.isObject(declaration))
       dsrCfg = angular.extend(dsrCfg, declaration);
+
+    if (!dsrCfg.fn) {
+      dsrCfg.fn = [ '$dsr$', function($dsr$) {
+        return $dsr$.redirect.state != $dsr$.to.state;
+      } ];
+    }
     return dsrCfg;
   }
 
@@ -90,12 +97,13 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
     var cfg = getConfig(toState);
     var key = getParamsString(toParams, cfg.params);
     var redirect = lastSubstate[toState.name][key];
-    // we have a last substate recorded
-    var isDSR = (redirect && redirect.state != toState.name ? true : false);
-    if (isDSR && cfg.fn)
-      isDSR = $injector.invoke(cfg.fn, toState);
-    if (!isDSR) return;
+    if (!redirect) return;
 
+    // we have a last substate recorded
+    var $dsr$ = { redirect: { state: redirect.state, params: redirect.params}, to: { state: toState.name, params: toParams } };
+    var result = $injector.invoke(cfg.fn, toState, { $dsr$: $dsr$ });
+    if (!result) return;
+    if (result.state) redirect = result;
     event.preventDefault();
     $state.go(redirect.state, redirect.params);
   });
