@@ -36,6 +36,7 @@ var files = {
   ui_router_0_2_8: [ 'ui-router-versions/0.2.8/angular-ui-router.js' ],
   ui_router_0_2_10: [ 'ui-router-versions/0.2.10/angular-ui-router.js' ],
   ui_router_0_2_11: [ 'ui-router-versions/0.2.11/angular-ui-router.js' ],
+  ui_router_0_2_13: [ 'ui-router-versions/0.2.13/angular-ui-router.js' ],
   ui_router_HEAD: [ 'ui-router-versions/2014-11-03/angular-ui-router.js' ]
 };
 
