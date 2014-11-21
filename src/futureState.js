@@ -124,7 +124,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
           .then(function() {
             return $injector.invoke(factory, factory, { futureState: futureState });
           })
-          .finally(function() {
+          ["finally"](function() { // IE8 hack
             delete(futureStates[futureState.name]);
           });
       }
