@@ -1,4 +1,69 @@
 <a name="0.0.11"></a>
+### 0.0.11 (2014-11-21)
+
+This release focuses on improvements to Future States.
+
+#### Bug Fixes
+
+* load  in lazyLoadState ((32fcf169))
+* **$futureState:**
+  * when concatting with parent url, use parent.navigable.url ((63ec61bf), closes (#69))
+  * fix top-level future states (root state is parent) ((e5847356), closes (#98))
+  * also register parent future states returned from factory fn ((48995fb3), closes (#99))
+  * fix transition to future state using .relative sref ((e953de61), closes (#3))
+  * unregister lazyloaded future states closes #2 ((67ad0d47))
+  * allow state lookup by object reference, or by state name ((6ca316cd))
+* **$stickyState:** Make sticky state compatible with UI-Router 0.2.12 ((751db8e1), closes (#88))
+* **ie:** added ['finally'] method invocation on ((095e5675))
+
+
+#### Features
+
+* **$futureState:** 
+  * use UrlMatcher for future url ((f1b0fe57), closes (#54), (#82))
+  * allow regexp matching in urlPrefix ((15c150d1))
+  * future states may now have parent futurestate ((8e11a7c6), closes (#63))
+  * support $urlRouterProvider.otherwise() ((748f2f1f))
+
+* **$previousState:** Add support for default previous state/params ((1c08ed7c))
+* **$stickyState:** Added $stickyState.reset() function ((af427116), closes (#48))
+* **$deepStateRedirect:** 
+  * add support for DSR only when params match. ((ed16ae4c))
+  * add service function to reset DSR ((c17e27f0), closes (#87))
+  * provide state dsr function with to and redirect info. ((c46fd283), closes (#91))
+
+
+#### Breaking Changes
+
+* use FutureState.name instead of FutureState.stateName to be consistent with UI-Router (backwards compat attempted, but not guaranteed)
+- BREAKING CHANGE: use FutureState.url instead of FutureState.urlPrefix to be consistent with UI-Router (backwards compat attempted, but not guaranteed)
+- FutureState.url is now processed using UI-Router's UrlMatcher code.
+- FutureState.url is concat'd with the parent state's url to create the UrlMatcher/regexp.
+- FutureState.url has a wildcard added to the end to match anything extra (.*)
+- Changed example iframe factory to use .name and .url and .parent
+- internalStates map now gets root internal state
+
+Fixes #54
+Closes #82 (PR)
+ ((f1b0fe57))
+
+
+<a name="0.0.11"></a>
+### 0.0.11 (2014-11-21)
+
+
+#### Bug Fixes
+
+* load  in lazyLoadState ((32fcf169))
+* **$deepStateRedirect:** provide state dsr function with to and redirect info. ((c46fd283), closes (#91))
+* **$futureState:**
+  * when concatting with parent url, use parent.navigable.url ((63ec61bf), closes (#69))
+  * fix top-level future states (root state is parent) ((e5847356), closes (#98))
+  * also register parent future states returned from factory fn ((48995fb3), closes (#99))
+* **ie:** added ['finally'] method invocation on ((095e5675))
+
+
+<a name="0.0.11"></a>
 ### 0.0.11 (2014-11-03)
 
 
