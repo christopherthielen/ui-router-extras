@@ -49,6 +49,8 @@ angular.module('ct.ui.router.extras').provider('$futureState',
           realParent = findState(futureState.parent || parentName);
         if (realParent) {
           parentMatcher = realParent.url;
+        } else if (parentName === "") {
+          parentMatcher = $urlMatcherFactory.compile("");
         } else {
           var futureParent = findState((futureState.parent || parentName), true);
           if (!futureParent) throw new Error("Couldn't determine parent state of future state. FutureState:" + angular.toJson(futureState));
