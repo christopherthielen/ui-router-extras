@@ -1,6 +1,6 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
- * @version v0.0.11-pre2
+ * @version v0.0.11
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -165,10 +165,17 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
     var declaration = state.deepStateRedirect;
     if (!declaration) return { dsr: false };
     var dsrCfg = { dsr: true };
+
     if (angular.isFunction(declaration))
       dsrCfg.fn = declaration;
     else if (angular.isObject(declaration))
       dsrCfg = angular.extend(dsrCfg, declaration);
+
+    if (!dsrCfg.fn) {
+      dsrCfg.fn = [ '$dsr$', function($dsr$) {
+        return $dsr$.redirect.state != $dsr$.to.state;
+      } ];
+    }
     return dsrCfg;
   }
 
@@ -209,12 +216,13 @@ angular.module("ct.ui.router.extras").service("$deepStateRedirect", [ '$rootScop
     var cfg = getConfig(toState);
     var key = getParamsString(toParams, cfg.params);
     var redirect = lastSubstate[toState.name][key];
-    // we have a last substate recorded
-    var isDSR = (redirect && redirect.state != toState.name ? true : false);
-    if (isDSR && cfg.fn)
-      isDSR = $injector.invoke(cfg.fn, toState);
-    if (!isDSR) return;
+    if (!redirect) return;
 
+    // we have a last substate recorded
+    var $dsr$ = { redirect: { state: redirect.state, params: redirect.params}, to: { state: toState.name, params: toParams } };
+    var result = $injector.invoke(cfg.fn, toState, { $dsr$: $dsr$ });
+    if (!result) return;
+    if (result.state) redirect = result;
     event.preventDefault();
     $state.go(redirect.state, redirect.params);
   });
@@ -1059,7 +1067,9 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         var parentMatcher,  parentName = futureState.name.split(/\./).slice(0, -1).join("."),
           realParent = findState(futureState.parent || parentName);
         if (realParent) {
-          parentMatcher = realParent.url;
+          parentMatcher = realParent.navigable.url;
+        } else if (parentName === "") {
+          parentMatcher = $urlMatcherFactory.compile("");
         } else {
           var futureParent = findState((futureState.parent || parentName), true);
           if (!futureParent) throw new Error("Couldn't determine parent state of future state. FutureState:" + angular.toJson(futureState));
@@ -1123,7 +1133,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
           return deferred.promise;
         }
 
-        var promise = $q.when(true), parentFuture = futureState.parentFutureState;
+        var promise = $q.when([]), parentFuture = futureState.parentFutureState;
         if (parentFuture && futureStates[parentFuture.name]) {
           promise = lazyLoadState($injector, futureStates[parentFuture.name]);
         }
@@ -1132,10 +1142,14 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         var factory = stateFactories[type];
         if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
         return promise
-          .then(function() {
-            return $injector.invoke(factory, factory, { futureState: futureState });
+          .then(function(array) {
+            var injectorPromise = $injector.invoke(factory, factory, { futureState: futureState });
+            return injectorPromise.then(function(fullState) {
+              if (fullState) { array.push(fullState); } // Pass a chain of realized states back
+              return array;
+            });
           })
-          .finally(function() {
+          ["finally"](function() { // IE8 hack
             delete(futureStates[futureState.name]);
           });
       }
@@ -1162,7 +1176,6 @@ angular.module('ct.ui.router.extras').provider('$futureState',
                 return;
               }
 
-
               var futureState = findFutureState($state, { url: $location.path() });
               if (!futureState) {
                 return $injector.invoke(otherwiseFunc);
@@ -1170,10 +1183,11 @@ angular.module('ct.ui.router.extras').provider('$futureState',
 
               transitionPending = true;
               // Config loaded.  Asynchronously lazy-load state definition from URL fragment, if mapped.
-              lazyLoadState($injector, futureState).then(function lazyLoadedStateCallback(state) {
-                // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
-                if (state && (!$state.get(state) || (state.name && !$state.get(state.name))))
-                  $stateProvider.state(state);
+              lazyLoadState($injector, futureState).then(function lazyLoadedStateCallback(states) {
+                states.forEach(function (state) {
+                  if (state && (!$state.get(state) || (state.name && !$state.get(state.name))))
+                    $stateProvider.state(state);
+                });
                 resyncing = true;
                 $urlRouter.sync();
                 resyncing = false;
@@ -1222,10 +1236,11 @@ angular.module('ct.ui.router.extras').provider('$futureState',
               transitionPending = true;
 
               var promise = lazyLoadState($injector, futureState);
-              promise.then(function (state) {
-                // TODO: Should have a specific resolve value that says 'dont register a state because I already did'
-                if (state && (!$state.get(state) || (state.name && !$state.get(state.name))))
-                  $stateProvider.state(state);
+              promise.then(function (states) {
+                states.forEach(function (state) {
+                  if (state && (!$state.get(state) || (state.name && !$state.get(state.name))))
+                    $stateProvider.state(state);
+                });
                 $state.go(unfoundState.to, unfoundState.toParams);
                 transitionPending = false;
               }, function (error) {
