@@ -16,14 +16,16 @@
 
                 <dt><code>StateFactory</code> objects:</dt>
                 <dd>
-                    A user-defined factory object which builds a full UI-Router <code>state</code>, given a placeholder 
-                    <code>FutureState</code> object.
+                    A user-defined factory object which, given a placeholder <code>FutureState</code> object, either
+                    builds and returns a full UI-Router <code>state</code> definition or registers a full UI-Router
+                    <code>state</code> (or entire <code>state</code> tree) definition with <code>$stateProvider</code>,
+                    in place of the <code>FutureState</code>
                 </dd>
 
                 <dt><code>$futureStateProvider</code>:</dt>
                 <dd>
                     The main configuration point. Inject this into a <code>config</code> or 
-                    <code>provider</code> block in your app.
+                    <code>provider</code> block in your app.  Provides an API to register <code>FutureState</code>s.
                 </dd>
 
                 <dt><code>$futureState</code></dt>
@@ -48,7 +50,8 @@
                     <strong><code>$futureStateProvider.futureState</code></strong> (<code>futureStateDefinition</code>)
                 </div>
                 <div class="panel-body">
-                    This method registers a <code>FutureState</code> object as a placeholder for a full UI-Router <code>state</code>.
+                    This method registers a <code>FutureState</code> object as a placeholder for a full UI-Router
+                    <code>state</code> or <code>state</code> tree.
                 </div>
             </div>
             <br>
@@ -69,7 +72,8 @@
                 <div class="panel-body">
                     This method adds a resolve function.  Resolve functions are injected functions that return a promise.
                     <code>$futureStateProvider</code> won't reject any state transitions or routes until all resolveFunction
-                    promises have been resolved.
+                    promises have been resolved.  Resolves may be used to defer routing until the states have been loaded
+                    via $http, for instance.
                 </div>
             </div>
 
@@ -88,7 +92,7 @@ myapp.config($futureStateProvider) {
         return d.promise;
     });
     
-    var futureState = { type: 'ngload', stateName: 'foo', urlPrefix: '/foo', src: 'foo.js' };
+    var futureState = { type: 'ngload', stateName: 'foo', url: '/foo', src: 'foo.js' };
     $futureStateProvider.futureState(futureState);
     
     $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
@@ -111,12 +115,14 @@ myapp.config($futureStateProvider) {
                     any substates) will trigger a lazy load of the full UI-Router <code>state</code> represented by this FutureState.
                 </dd>
 
-                <dt><code>urlPrefix</code>:</dt>
+                <dt><small>(0.0.11)</small> <code>url</code>:</dt>
                 <dd>
                     The placeholder url path fragment <small>(the fragment is the URL prefix which the state will 
                     be accessed on, not the URL of the state's source code</small>).  Attempted navigations to a 
                     URL starting with this fragment will trigger a lazy load of the full UI-Router <code>state</code> 
                     represented by this FutureState.
+
+                    <small><code>urlPrefix</code> is now deprecated in favor of <code>url</code></small>
                 </dd>
 
                 <dt><code>type</code>:</dt>
@@ -135,9 +141,8 @@ myapp.config($futureStateProvider) {
                 <div class="panel-body">
 <pre>var adminModuleFutureState = {
     stateName: 'app.admin',
-    urlPrefix: '/app/pages/admin',
+    url: '/admin',
     type: 'ngload',
-    routeFragment: '/admin', // example custom attr
     src: 'js/modules/admin.js' // example custom attr
 }</pre>
                 </div>
@@ -146,13 +151,32 @@ myapp.config($futureStateProvider) {
     </div>
 
     <div class="panel panel-info">
-        <div class="panel-heading"><strong><code>StateFactory</code> factories convert a <code>FutureState</code> into a full UI-Router <code>state</code></strong></div>
+        <div class="panel-heading">
+            <strong><code>StateFactory</code> factories convert
+                <code>FutureState</code> into a full UI-Router
+                <code>state</code>, or <code>state</code> tree</strong>
+        </div>
         <div class="panel-body">
             <p>
                 A <code>StateFactory</code> is an injected factory function (<small>using the runtime $injector</small>). 
-                When invoked, the function is injected with a <code>FutureState</code> (using the camelCase name 
-                <code>futureState</code>) and should return a promise for a full UI-Router <code>state</code>
+                When invoked, the function is injected with a <code>FutureState</code> (using the camelCase variable name
+                <code>futureState</code>).  The function should process the <code>FutureState</code> and convert it into
+                a full UI-Router <code>state</code>, or <code>state</code> tree.  The function should return a promise
+                which is resolved when the full UI-Router <code>state</code> is loaded.
             </p>
+
+            <p>
+                The <code>StateFactory</code> may either:
+                <ul>
+                    <li>register the full UI-Router <code>state</code> (or<code>state</code> tree) with UI-Router's <code>$stateProvider</code> </li>
+                    <li> or return the <code>state</code> by resolving the promise with the <code>state</code> </li>
+                </ul>
+            If the promise resolves to an object,
+                Future States will register that object using <code>$stateProvider.state(obj)</code>.  If the promise
+                resolves to <code>undefined</code>, Future States assumes your own code has registered the state.  If
+                the promise is rejected, Future States will trigger <code>$urlRouter.otherwise()</code>.
+            </p>
+
             <div class="panel panel-primary">
                 <div class="panel-heading">Example</div>
                 <div class="panel-body">
@@ -176,5 +200,4 @@ myapp.config($futureStateProvider) {
             </div>
         </div>
     </div>
-
 </div>

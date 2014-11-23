@@ -76,7 +76,7 @@ function (angularAMD) { // Only need to inject angularAMD for app config
     require([ "ngload!" + futureState.src , 'ngload', 'angularAMD'],
         function ngloadCallback(result, ngload, angularAMD) {
           angularAMD.processQueue();
-          ngloadDeferred.resolve(result.entryState);
+          ngloadDeferred.resolve(undefined);
         });
     return ngloadDeferred.promise;
   } 
