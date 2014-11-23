@@ -48,7 +48,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         var parentMatcher,  parentName = futureState.name.split(/\./).slice(0, -1).join("."),
           realParent = findState(futureState.parent || parentName);
         if (realParent) {
-          parentMatcher = realParent.navigable.url;
+          parentMatcher = realParent.url || realParent.navigable.url;
         } else if (parentName === "") {
           parentMatcher = $urlMatcherFactory.compile("");
         } else {
