@@ -66,6 +66,21 @@ function objectKeys(object) {
   return result;
 }
 
+/**
+ * like objectKeys, but includes keys from prototype chain.
+ * @param object the object whose prototypal keys will be returned
+ * @param ignoreKeys an array of keys to ignore
+ */
+// Duplicates code in UI-Router common.js
+function protoKeys(object, ignoreKeys) {
+  var result = [];
+  for (var key in object) {
+    if (!ignoreKeys || ignoreKeys.indexOf(key) === -1)
+      result.push(key);
+  }
+  return result;
+}
+
 // Duplicates code in UI-Router common.js
 function arraySearch(array, value) {
   if (Array.prototype.indexOf) {

@@ -89,6 +89,9 @@ function $StickyStateProvider($stateProvider) {
 
       // Duplicates logic in $state.transitionTo, primarily to find the pivot state (i.e., the "keep" value)
       function equalForKeys(a, b, keys) {
+        if (angular.isObject(keys)) {
+          keys = protoKeys(keys, ["$$keys", "$$values", "$$equals", "$$validates"]);
+        }
         if (!keys) {
           keys = [];
           for (var n in a) keys.push(n); // Used instead of Object.keys() for IE8 compatibility
