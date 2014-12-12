@@ -29,11 +29,11 @@
     "*.iws"
   ],
   "dependencies": {
-    "angular": "~1.2.0",
+    "angular": "^1.2.0",
     "angular-ui-router": "~0.2.8"
   },
   "devDependencies": {
-    "angular-mocks": "~1.2.0",
+    "angular-mocks": "^1.2.0",
     "lodash": "latest",
     "jquery": "~1.11"
   }
