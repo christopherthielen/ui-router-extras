@@ -15,7 +15,9 @@ function getDSRStates () {
     { name: 'p1', url: '/p1/:param1/:param2', deepStateRedirect: { params: ['param1'] } },
     { name: 'p1.child' },
     { name: 'p2', url: '/p2/:param1/:param2', deepStateRedirect: { params: true } },
-    { name: 'p2.child' }
+    { name: 'p2.child' },
+    { name: 'p3', url: '/p3/:param1', deepStateRedirect: { params: true } },
+    { name: 'p3.child'}
   ];
 }
 
@@ -85,6 +87,21 @@ describe('deepStateRedirect', function () {
 
       $state.go("p1", { param1: "foo", param2: "somethingelse" } ); $q.flush();
       expect($state.current.name).toEqual("p1.child"); // DSR
+    }));
+
+    it("should not redirect if a param is resetted", inject(function($state, $q) {
+      $state.go("p3", { param1: "foo" } );$q.flush();
+      $state.go(".child");$q.flush();
+      $state.go("p3", { param1: "bar" } );$q.flush();
+      $state.go(".child");$q.flush();
+
+      $deepStateRedirect.reset("p3", { param1 : 'foo' });
+
+      $state.go("p3", { param1: "foo" }); $q.flush();
+      expect($state.current.name).toEqual("p3"); // DSR
+
+      $state.go("p3", { param1: "bar" }); $q.flush();
+      expect($state.current.name).toEqual("p3.child"); // DSR
     }));
 
     it("should redirect only when all params match if 'params: true'", inject(function($state, $q) {
