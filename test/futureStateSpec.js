@@ -78,9 +78,6 @@ describe('futureState', function () {
     it("should work by changing url", function() {
       expect($location.path()).toBe("");
       $location.path("/foo/");
-
-      $rootScope.$broadcast("$locationChangeSuccess");
-      $rootScope.$apply();
       $q.flush();
       expect($location.path()).toBe("/foo/");
       expect($state.current.name).toBe("top.foo");
@@ -90,9 +87,6 @@ describe('futureState', function () {
       expect($location.path()).toBe("");
       _urlRouterProvider.otherwise("/foo/");
       $location.path("/badpath");
-
-      $rootScope.$broadcast("$locationChangeSuccess");
-      $rootScope.$apply();
       $q.flush();
       expect($location.path()).toBe("/foo/");
       expect($state.current.name).toBe("top.foo");
@@ -101,7 +95,6 @@ describe('futureState', function () {
     // Test for issue #129
     it("should allow future states as children of abstract states (url)", function() {
       $location.path("/boom");
-      $rootScope.$broadcast("$locationChangeSuccess");
       $q.flush();
       expect($location.path()).toBe("/boom");
       expect($state.current.name).toBe("top.abstract.boom");
@@ -118,9 +111,6 @@ describe('futureState', function () {
       expect($location.path()).toBe("");
       _urlRouterProvider.otherwise("/foo/");
       $location.path("/bar/");
-
-      $rootScope.$broadcast("$locationChangeSuccess");
-      $rootScope.$apply();
       $q.flush();
       expect($location.path()).toBe("/foo/");
       expect($state.current.name).toBe("top.foo");
@@ -129,9 +119,6 @@ describe('futureState', function () {
     it("should match futurestates urls using regexp", function() {
       expect($location.path()).toBe("");
       $location.path("/baz/123");
-
-      $rootScope.$broadcast("$locationChangeSuccess");
-      $rootScope.$apply();
       $q.flush();
       expect($location.path()).toBe("/baz/123");
       expect($state.current.name).toBe("top.baz");
@@ -140,9 +127,6 @@ describe('futureState', function () {
     it("should lazy load futurestates that have parent futurestates", function() {
       expect($location.path()).toBe("");
       $location.path("/other/123/hey");
-
-      $rootScope.$broadcast("$locationChangeSuccess");
-      $rootScope.$apply();
       $q.flush();
       expect($location.path()).toBe("/other/123/hey");
       expect($state.current.name).toBe("other.hey");
@@ -151,9 +135,6 @@ describe('futureState', function () {
     it("should lazy load futurestates that have parent futurestates2", function() {
       expect($location.path()).toBe("");
       $location.path("/other/123/hey/hwat");
-
-      $rootScope.$broadcast("$locationChangeSuccess");
-      $rootScope.$apply();
       $q.flush();
       expect($location.path()).toBe("/other/123/hey/hwat");
       expect($state.current.name).toBe("hwat");
@@ -162,9 +143,6 @@ describe('futureState', function () {
     it("should build futurestates urls using parent reference", function() {
       expect($location.path()).toBe("");
       $location.path("/other/123/qux");
-
-      $rootScope.$broadcast("$locationChangeSuccess");
-      $rootScope.$apply();
       $q.flush();
       expect($location.path()).toBe("/other/123/qux");
       expect($state.current.name).toBe("qux");

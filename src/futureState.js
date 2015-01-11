@@ -147,13 +147,12 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         var lazyLoadMissingState =
           ['$rootScope', '$urlRouter', '$state',
             function lazyLoadMissingState($rootScope, $urlRouter, $state) {
+              function resync() {
+                resyncing = true; $urlRouter.sync(); resynching = false;
+              }
               if (!initDone) {
                 // Asynchronously load state definitions, then resync URL
-                initPromise().then(function initialResync() {
-                  resyncing = true;
-                  $urlRouter.sync();
-                  resyncing = false;
-                });
+                initPromise().then(resync);
                 initDone = true;
                 return;
               }
@@ -170,12 +169,10 @@ angular.module('ct.ui.router.extras').provider('$futureState',
                     $stateProvider.state(state);
                 });
                 lazyloadInProgress = false;
-                resyncing = true;
-                $urlRouter.sync();
-                resyncing = false;
+                resync();
               }, function lazyLoadStateAborted() {
                 lazyloadInProgress = false;
-                return $injector.invoke(otherwiseFunc);
+                resync();
               });
             }];
         if (lazyloadInProgress) return;
