@@ -285,13 +285,15 @@ describe('stickyState', function () {
 
 
     describe("to an inactive state with inactive children", function() {
-      it("should exit inactive child states", function() {
+      it("should exit inactive child states", function () {
         testGo('A._3.__1', { entered: pathFrom('A', 'A._3.__1') });
         testGo('A._2', { inactivated: pathFrom('A._3.__1', 'A._3'), entered: "A._2" });
         testGo('A._3', { reactivated: "A._3", inactivated: "A._2", exited: "A._3.__1" });
       });
+    });
 
-      it("should exit inactive child states", function() {
+    describe("to an exited substate of an inactive state with inactive children", function() {
+      it("should not exit inactive child states", function() {
         testGo('A._3.__1', { entered: pathFrom('A', 'A._3.__1') });
         testGo('A._2', { inactivated: pathFrom('A._3.__1', 'A._3'), entered: "A._2" });
         testGo('A._3.__2', { reactivated: "A._3", inactivated: "A._2", entered: "A._3.__2" });
