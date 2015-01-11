@@ -128,6 +128,30 @@ function pathFrom(start, end) {
   return path;
 }
 
+/**
+ * This test function does the following:
+ * - Go to a state `state`.
+ * - Flush transition
+ * - Expect the current state to be the target state, or the expected redirect state
+ * - analyse the transition log and expect
+ *   - The entered states to match tAdditional.entered
+ *   - The exited states to match tAdditional.exited
+ *   - The inactivated states to match tAdditional.inactivated
+ *   - The reactivated states to match tAdditional.reactivated
+ * - Expect the active+inactive states to match the active+inactive views
+ *
+ * @param state: The target state
+ * @param tAdditional: An object with the expected transitions
+ *    {
+ *      entered:      statename or [ statenamearray ],
+ *      exited:       statename or [ statenamearray ],
+ *      inactivated:  statename or [ statenamearray ],
+ *      reactivated:  statename or [ statenamearray ]
+ *    }
+ *    note: statenamearray may be built using the pathFrom helper function
+ * @param options: options which modify the expected transition behavior
+ *    { redirect: redirectstatename }
+ */
 function testGo(state, tAdditional, options) {
   $state.go(state);
   $q.flush();

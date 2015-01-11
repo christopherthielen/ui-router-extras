@@ -252,10 +252,12 @@ describe('stickyState', function () {
 
       newStates['A._1'] = {sticky: true, deepStateRedirect: true, views: { '_1@A': {} }};
       newStates['A._2'] = {sticky: true, deepStateRedirect: true, views: { '_2@A': {} }};
-      newStates['A._3'] = {sticky: true, deepStateRedirect: true, views: { '_3@A': {} }};
+      newStates['A._3'] = {sticky: true, views: { '_3@A': {} }};
 
       newStates['A._1.__1'] = {};
       newStates['A._2.__2'] = {};
+      newStates['A._3.__1'] = {};
+      newStates['A._3.__2'] = {};
 
       newStates['A._1.__1.B'] = {};
       newStates['A._1.__1.B.___1'] = {sticky: true, views: { '___1@A._1.__1.B': {} }};
@@ -280,6 +282,21 @@ describe('stickyState', function () {
       resetTransitionLog();
       testGo('A._1', { inactivated: pathFrom('A._2.__2', 'A._2'), reactivated: pathFrom('A._1', 'A._1.__1') }, { redirect: 'A._1.__1' });
     });
+
+
+    describe("to an inactive state with inactive children", function() {
+      it("should exit inactive child states", function() {
+        testGo('A._3.__1', { entered: pathFrom('A', 'A._3.__1') });
+        testGo('A._2', { inactivated: pathFrom('A._3.__1', 'A._3'), entered: "A._2" });
+        testGo('A._3', { reactivated: "A._3", inactivated: "A._2", exited: "A._3.__1" });
+      });
+
+      it("should exit inactive child states", function() {
+        testGo('A._3.__1', { entered: pathFrom('A', 'A._3.__1') });
+        testGo('A._2', { inactivated: pathFrom('A._3.__1', 'A._3'), entered: "A._2" });
+        testGo('A._3.__2', { reactivated: "A._3", inactivated: "A._2", entered: "A._3.__2" });
+      });
+    })
   });
 
   describe('nested .go() transitions with parent attributes', function () {
