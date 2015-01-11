@@ -20,6 +20,7 @@ describe('futureState', function () {
     _urlRouterProvider = $urlRouterProvider;
     _stateProvider.state("top", { url: '/' });
     _stateProvider.state("other", { url: '/other/:param' });
+    _stateProvider.state("top.abstract", { abstract: true });
 
     $futureStateProvider.futureState(futureState("top.foo", "/foo/", null, "iframe"));
     $futureStateProvider.futureState(futureState("top.bar", "/bar/", null, "doesntwork"));
@@ -27,6 +28,7 @@ describe('futureState', function () {
     $futureStateProvider.futureState(futureState("qux", null, "/qux", "iframe", "other")); // has a parent 'other'
     $futureStateProvider.futureState(futureState("other.hey", null, "/hey", "iframe"));
     $futureStateProvider.futureState(futureState("hwat", null, "/hwat", "iframe", "other.hey")); // has a parent 'other.hey'
+    $futureStateProvider.futureState(futureState("top.abstract.boom", null, "boom", "iframe")); // future state as child of abstract state
     $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
     $futureStateProvider.stateFactory('iframe', iframeStateFactory);
     $futureStateProvider.stateFactory('iframeWithParam', function(futureState) {
@@ -93,6 +95,22 @@ describe('futureState', function () {
       $q.flush();
       expect($location.path()).toBe("/foo/");
       expect($state.current.name).toBe("top.foo");
+    });
+
+    // Test for issue #129
+    it("should allow future states as children of abstract states (url)", function() {
+      $location.path("/boom");
+      $rootScope.$broadcast("$locationChangeSuccess");
+      $q.flush();
+      expect($location.path()).toBe("/boom");
+      expect($state.current.name).toBe("top.abstract.boom");
+    });
+
+    it("should allow future states as children of abstract states (go)", function() {
+      $state.go("top.abstract.boom");
+      $q.flush();
+      expect($location.path()).toBe("/boom");
+      expect($state.current.name).toBe("top.abstract.boom");
     });
 
     it("should respect $urp.otherwise() if a futurestate was found, but could not be loaded", function() {
