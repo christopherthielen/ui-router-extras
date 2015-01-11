@@ -29,6 +29,7 @@ describe('futureState', function () {
     $futureStateProvider.futureState(futureState("other.hey", null, "/hey", "iframe"));
     $futureStateProvider.futureState(futureState("hwat", null, "/hwat", "iframe", "other.hey")); // has a parent 'other.hey'
     $futureStateProvider.futureState(futureState("top.abstract.boom", null, "boom", "iframe")); // future state as child of abstract state
+    $futureStateProvider.futureState(futureState("issue124", null, "/issue124", "iframe")); // url is '/issue124'
     $futureStateProvider.stateFactory('ngload', ngloadStateFactory);
     $futureStateProvider.stateFactory('iframe', iframeStateFactory);
     $futureStateProvider.stateFactory('iframeWithParam', function(futureState) {
@@ -174,12 +175,20 @@ describe('futureState', function () {
       expect($location.path()).toBe("");
       $location.path("/baz/This+is+the+title");
 
-      $rootScope.$broadcast("$locationChangeSuccess");
       $rootScope.$apply();
       $q.flush();
       expect($location.path()).toBe("/baz/This+is+the+title");
       expect($state.current.name).toBe("top.baz");
     });
 
+    // Failing test for issue #124
+    it("should execute .otherwise() if the unfound url matches a futurestate's prefix but not the full url", function() {
+      expect($location.path()).toBe("");
+      _urlRouterProvider.otherwise("/");
+      $location.path("/issue124/404notfound");
+      $q.flush();
+      expect($location.path()).toBe("/");
+      expect($state.current.name).toBe("top");
+    });
   });
 });

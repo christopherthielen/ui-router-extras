@@ -2,7 +2,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
   [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider',
     function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory) {
       var stateFactories = {}, futureStates = {};
-      var transitionPending = false, resolveFunctions = [], initPromise, initDone = false;
+      var lazyloadInProgress = false, resolveFunctions = [], initPromise, initDone = false;
       var provider = this;
 
       // This function registers a promiseFn, to be resolved before the url/state matching code
@@ -107,6 +107,7 @@ angular.module('ct.ui.router.extras').provider('$futureState',
       }
 
       function lazyLoadState($injector, futureState) {
+        lazyloadInProgress = true;
         var $q = $injector.get("$q");
         if (!futureState) {
           var deferred = $q.defer();
@@ -162,23 +163,22 @@ angular.module('ct.ui.router.extras').provider('$futureState',
                 return $injector.invoke(otherwiseFunc);
               }
 
-              transitionPending = true;
               // Config loaded.  Asynchronously lazy-load state definition from URL fragment, if mapped.
               lazyLoadState($injector, futureState).then(function lazyLoadedStateCallback(states) {
                 states.forEach(function (state) {
                   if (state && (!$state.get(state) || (state.name && !$state.get(state.name))))
                     $stateProvider.state(state);
                 });
+                lazyloadInProgress = false;
                 resyncing = true;
                 $urlRouter.sync();
                 resyncing = false;
-                transitionPending = false;
               }, function lazyLoadStateAborted() {
-                transitionPending = false;
+                lazyloadInProgress = false;
                 return $injector.invoke(otherwiseFunc);
               });
             }];
-        if (transitionPending) return;
+        if (lazyloadInProgress) return;
 
         var nextFn = resyncing ? otherwiseFunc : lazyLoadMissingState;
         return $injector.invoke(nextFn);
@@ -207,15 +207,13 @@ angular.module('ct.ui.router.extras').provider('$futureState',
         function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $timeout, $log) {
           function init() {
             $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
-              if (transitionPending) return;
+              if (lazyloadInProgress) return;
               $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
 
               var futureState = findFutureState($state, { name: unfoundState.to });
               if (!futureState) return;
 
               event.preventDefault();
-              transitionPending = true;
-
               var promise = lazyLoadState($injector, futureState);
               promise.then(function (states) {
                 states.forEach(function (state) {
@@ -223,11 +221,11 @@ angular.module('ct.ui.router.extras').provider('$futureState',
                     $stateProvider.state(state);
                 });
                 $state.go(unfoundState.to, unfoundState.toParams);
-                transitionPending = false;
+                lazyloadInProgress = false;
               }, function (error) {
                 console.log("failed to lazy load state ", error);
                 $state.go(fromState, fromParams);
-                transitionPending = false;
+                lazyloadInProgress = false;
               });
             });
 
