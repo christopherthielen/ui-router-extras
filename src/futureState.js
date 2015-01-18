@@ -236,12 +236,6 @@
             initPromise = function () {
               return $q.all(promises);
             };
-//          initPromise = _.once(function flattenFutureStates() {
-//            var allPromises = $q.all(promises);
-//            return allPromises.then(function(data) {
-//              return _.flatten(data);
-//            });
-//          });
           }
 
           // TODO: analyze this. I'm calling $urlRouter.sync() in two places for retry-initial-transition.
@@ -270,6 +264,32 @@
 
   app.provider('$futureState', [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', _futureStateProvider]);
 
+  var statesAddedQueue = {
+    state: function(state) {
+      if (statesAddedQueue.$rootScope)
+        statesAddedQueue.$rootScope.$broadcast("$stateAdded", state);
+    },
+    itsNowRuntimeOhWhatAHappyDay: function($rootScope) {
+      statesAddedQueue.$rootScope = $rootScope;
+    },
+    $rootScope: undefined
+  };
+
+  app.config([ '$stateProvider', function($stateProvider) {
+    // decorate $stateProvider.state so we can broadcast when a real state was added
+    var realStateFn = $stateProvider.state;
+    $stateProvider.state = function state_announce() {
+      var val = realStateFn.apply($stateProvider, arguments);
+
+      var state = angular.isObject(arguments[0]) ? arguments[0] : arguments[1];
+      statesAddedQueue.state(state);
+      return val;
+    };
+  }]);
+
   // inject $futureState so the service gets initialized via $get();
-  app.run(['$futureState', function ($futureState) { } ]);
+  app.run(['$futureState', function ($futureState, $rootScope) {
+    statesAddedQueue.itsNowRuntimeOhWhatAHappyDay($rootScope);
+  } ]);
+
 })(angular);
