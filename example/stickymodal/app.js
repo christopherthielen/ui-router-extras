@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.examples.dsr", [ 'ui.bootstrap.modal', 'ui.bootstrap.tpls', 'ct.ui.router.extras.examples', 'ct.ui.router.extras.examples.statevis' ]);
+  var app = angular.module("ct.ui.router.extras.examples.dsr", [ 'ui.bootstrap.modal', 'ui.bootstrap.tpls', 'ct.ui.router.extras.examples', 'ct.ui.router.extras.statevis' ]);
   
   app.config(function ($stateProvider, $stickyStateProvider, $urlRouterProvider) {
     $stickyStateProvider.enableDebug(true);

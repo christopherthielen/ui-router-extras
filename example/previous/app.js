@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.examples.dsr", [ 'ct.ui.router.extras.examples', 'ct.ui.router.extras.examples.statevis' ]);
+  var app = angular.module("ct.ui.router.extras.examples.dsr", [ 'ct.ui.router.extras.examples', 'ct.ui.router.extras.statevis' ]);
 
   app.controller("previousStateCtrl", ['$scope', '$previousState', 'timerService', function($scope, $previousState, timerService) {
     timerService.instrument($scope);

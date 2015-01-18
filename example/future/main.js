@@ -5,16 +5,14 @@ require.config({
     "ngload": "../../lib/ngload",
     "angular": "../../lib/angular",
     "angular-ui-router": "../../lib/angular-ui-router",
-    "ui-router-extras": "../../lib/ct-ui-router-extras",
-    "ui-router-extras-statevis": "../statevis"
+    "ui-router-extras": "../../lib/ct-ui-router-extras"
   },
   shim: {
     "angular": { exports: "angular" },
     "angularAMD": ["angular"],
     "ngload": ["angularAMD"],
     "angular-ui-router": ["angular"],
-    "ui-router-extras": ["angular"],
-    "ui-router-extras-statevis": ["angular"]
+    "ui-router-extras": ["angular"]
   },
   deps: ["app"]
 });
