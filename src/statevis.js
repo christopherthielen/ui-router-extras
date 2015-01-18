@@ -1,4 +1,4 @@
-// statevis requires d3 and either lodash or underscorejs.
+// statevis requires d3.
 (function () {
   "use strict";
   var app = angular.module("ct.ui.router.extras.statevis", ['ct.ui.router.extras']);
@@ -29,12 +29,9 @@
             .size([width - 20, height - 20])
             .separation(function (a, b) {
               return a.parent == b.parent ? 10 : 25;
-            })
-          ;
+            });
 
-        var root = angular.copy(_.find($state.get(), function (state) {
-          return state.name === "";
-        }));
+        var root = $state.get().filter(function (state) { return state.name === ""; })[0];
         var nodes = tree(root);
 
         root.parent = root;
@@ -67,7 +64,7 @@
           data = data.map(function (node) {
             return node.name === "" ? root : angular.copy(node);
           });
-          _.extend(stateMap, data.reduce(function (map, node) {
+          angular.extend(stateMap, data.reduce(function (map, node) {
             map[node.name] = node;
             return map;
           }, {}));
@@ -87,7 +84,7 @@
 
         $interval(function () {
           _scope.states = $state.get();
-          _.each(nodes, function (n) {
+          angular.forEach(nodes, function (n) {
             var s = $state.get(n.name);
             if (s) {
               n.status = s.status || 'exited';
@@ -97,8 +94,9 @@
         }, 250);
 
         _scope.$watchCollection("states", function (newval, oldval) {
-          var oldstates = _.map(oldval, function (s) { return s.name; });
-          addStates(_.reject(newval, function (state) { return _.contains(oldstates, state.name); }));
+          var oldstates = (oldval || []).map(function (s) { return s.name; });
+          addStates((newval || []).filter(function(state) { return oldstates.indexOf(state.name) == -1; } ));
+//          addStates(_.reject(newval, function (state) { return _.contains(oldstates, state.name); }));
         });
 
 //        addStates($state.get());

@@ -15,6 +15,7 @@ var files = {
     'src/futureState.js',
     'src/previousState.js',
     'src/transition.js',
+    'src/statevis.js',
     'src/noop.js'
   ],
   test: [
