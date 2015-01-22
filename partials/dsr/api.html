@@ -15,6 +15,51 @@
     controller: 'barCtrl',
     deepStateRedirect: true
 }</pre>
+
+            <div>If using states with parameters, mark a state with <code>deepStateRedirect: { params : []}</code> if the stored states are parameter dependent.</div>
+<pre>var myState = {
+    name: 'foo.bar.baz',
+    url: '/bar/:barID/:bazID',
+    template: '&lt;div&gt;{{templatestuff}}&lt;/div&gt;,
+    controller: 'barEditCtrl',
+    deepStateRedirect: {params: ["barID"]}
+}</pre>
+        </div>
+    </section>
+
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong><code>$deepStateRedirect</code></strong></div>
+        <div class="panel-body">
+            <div>
+                This is the main API entry point. Inject <code>$deepStateRedirect</code> into your code for using it.<code>$deepStateRedirect</code> has the following methods:
+            </div>
+            <br>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><code>$deepStateRedirect.reset</code></strong> (<code>stateName, [stateParams]</code>)
+                </div>
+                <div class="panel-body">
+                    This method resets stored <code>$deepStateRedirect</code> data so following transitions will behave like there have
+                    no previous transitions been.
+                    If calling <code>$deepStateRedirect.reset(stateName)</code> without <code>stateParams</code>, all data for this state will be deleted. If using
+                    <code>deepStateRedirect</code> with object notation and parameters, <code>stateParams</code> can be passed in to select specific states to reset.
+                    For the example above <code>stateParams</code> could look like this:
+<pre>
+{
+    barID: [
+        "id1",
+        "id3"
+    ]
+}
+</pre>
+                </div>
+            </div>
+
+            <div>
+                <p>Alternatively a stored <code>deepStateRedirect</code> can be ignored using the <code>ignoreDsr</code>-option:</code></p>
+                <pre>$state.go("foo.bar.baz", {}, { ignoreDsr: true });</pre>
+            </div>
         </div>
     </section>
 </div>
