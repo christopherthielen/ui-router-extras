@@ -1,11 +1,5 @@
 "use strict";
 var $get, $state, $stickyState, $compile, $rootScope, $q, _stickyStateProvider, _stateProvider;
-var tLog, tExpected;
-
-function resetTransitionLog() {
-  tLog = new TransitionAudit();
-  tExpected = new TransitionAudit();
-}
 
 function ssReset(newStates, $stateProvider) {
   resetTransitionLog();
@@ -36,7 +30,7 @@ describe('stickyState', function () {
     return newStates;
   }
 
-  beforeEach(module('ct.ui.router.extras', function ($stateProvider, $stickyStateProvider) {
+  beforeEach(module('ct.ui.router.extras.sticky', function ($stateProvider, $stickyStateProvider) {
     _stateProvider = $stateProvider;
     _stickyStateProvider = $stickyStateProvider;
   }));
@@ -273,14 +267,14 @@ describe('stickyState', function () {
       testGo('A._1.__1.B.___2', { inactivated: ['A._1.__1.B.___1'], entered:     ['A._1.__1.B.___2'] });
     });
 
-    it ('should reactivate child-of-sticky state ___1 when transitioning back to A', function () {
+    it ('should reactivate child-of-sticky state ___1 when transitioning back to A._1.__1', function () {
       testGo('aside', { entered: ['aside']});
       testGo('A._1.__1', { exited: ['aside'],                         entered: pathFrom('A', 'A._1.__1') });
       testGo('A._2.__2', { inactivated: pathFrom('A._1.__1', 'A._1'), entered: pathFrom('A._2', 'A._2.__2') });
       testGo('aside',    { inactivated: pathFrom('A._2.__2', 'A') ,   entered: ['aside'] });
-      testGo('A._2', { exited: ['aside'],                             reactivated: pathFrom('A', 'A._2.__2') }, { redirect: 'A._2.__2' });
+      testGo('A._2.__2', { exited: ['aside'],                         reactivated: pathFrom('A', 'A._2.__2') }, { redirect: 'A._2.__2' });
       resetTransitionLog();
-      testGo('A._1', { inactivated: pathFrom('A._2.__2', 'A._2'), reactivated: pathFrom('A._1', 'A._1.__1') }, { redirect: 'A._1.__1' });
+      testGo('A._1.__1', { inactivated: pathFrom('A._2.__2', 'A._2'), reactivated: pathFrom('A._1', 'A._1.__1') }, { redirect: 'A._1.__1' });
     });
 
 
@@ -371,7 +365,7 @@ describe('stickyState', function () {
 describe('stickyState+ui-sref-active', function () {
   var document;
 
-  beforeEach(module('ct.ui.router.extras', function($stickyStateProvider, $stateProvider) {
+  beforeEach(module('ct.ui.router.extras.sticky', function($stickyStateProvider, $stateProvider) {
     // Load and capture $stickyStateProvider and $stateProvider
     _stickyStateProvider = $stickyStateProvider;
     _stateProvider = $stateProvider;

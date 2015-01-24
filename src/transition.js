@@ -1,5 +1,5 @@
 
-angular.module("ct.ui.router.extras").config( [ "$provide",  function ($provide) {
+angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ]).config( [ "$provide",  function ($provide) {
       // Decorate the $state service, so we can replace $state.transitionTo()
       $provide.decorator("$state", ['$delegate', '$rootScope', '$q', '$injector',
         function ($state, $rootScope, $q, $injector) {

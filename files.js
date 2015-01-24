@@ -1,89 +1,52 @@
 var _ = require('lodash');
-var files = {
-  dist: [
-    'build/ct-ui-router-extras.js'
-  ],
-  min: [
-    'build/ct-ui-router-extras.min.js'
-  ],
-  src: [
-    'src/module.js',
-    'src/util.js',
-    'src/deepStateRedirect.js',
-    'src/stickyStateProvider.js',
-    'src/stickyState.js',
-    'src/futureState.js',
-    'src/previousState.js',
-    'src/transition.js',
-    'src/statevis.js',
-    'src/noop.js'
-  ],
-  test: [
-    'test/temp.js',
-    'test/deepStateRedirectSpec.js',
-    'test/futureStateSpec.js',
-    'test/stickyStateSpec.js',
-    'test/previousStateSpec.js',
-    'test/transitionSpec.js',
-    'src/fsfactories/ngload.js',
-    'src/fsfactories/iframe.js',
-    'src/noop.js'
-  ],
+
+// List of independent ui-router-extras modules
+var moduleNames = [ 'core', 'dsr', 'sticky', 'future', 'previous', 'transition', 'statevis' ];
+
+// convert them to module definitions, by convention
+var modules = _(moduleNames)
+  .map(function(module) {
+    return {
+      module: module,
+      src : [ "src/" + module + ".js" ],
+      test: [ "test/" + module + "Spec.js" ],
+      dist: 'ct-ui-router-extras.' + module + '.js',
+      min: 'ct-ui-router-extras.' + module + '.min.js',
+      dest: 'build/modular'
+    };
+  })
+  .indexBy('module').value();
+
+// sticky states has two src files
+modules.sticky.src = ['src/stickyProvider.js'].concat(modules.sticky.src);
+modules.core.src.push('src/util.js');
+modules.future.test.push('src/fsfactories/ngload.js');
+modules.future.test.push('src/fsfactories/iframe.js');
+
+// Build the monolithic module 'all' which sucks in all the others
+modules.all = {
+  module: 'all',
+  src: _.pluck(modules, 'src')
+    .reduce(function(memo, ary) { return memo.concat(ary); }, [])
+    .concat('src/all.js'),
+  test: _.pluck(modules, 'test')
+    .reduce(function(memo, ary) { return memo.concat(ary); }, []),
+  dist: 'ct-ui-router-extras.js',
+  min: 'ct-ui-router-extras.min.js',
+  dest: 'build'
+};
+
+
+var otherFiles = {
   testUtil: [ 'test/testUtil.js', 'bower_components/lodash/dist/lodash.js'],
   jquery: [  'bower_components/jquery/dist/jquery.js' ],
   angular: [ 'bower_components/angular/angular.js' ],
-  angular_mocks: [ 'bower_components/angular-mocks/angular-mocks.js' ],
-  ui_router: [ 'bower_components/angular-ui-router/release/angular-ui-router.js' ],
-  ui_router_0_2_8: [ 'ui-router-versions/0.2.8/angular-ui-router.js' ],
-  ui_router_0_2_10: [ 'ui-router-versions/0.2.10/angular-ui-router.js' ],
-  ui_router_0_2_11: [ 'ui-router-versions/0.2.11/angular-ui-router.js' ],
-  ui_router_0_2_13: [ 'ui-router-versions/0.2.13/angular-ui-router.js' ],
-  ui_router_HEAD: [ 'ui-router-versions/2014-11-03/angular-ui-router.js' ]
+  angular_mocks: [ 'bower_components/angular-mocks/angular-mocks.js' ]
 };
 
-var devfiles = {
-  src: files.src,
-  test: files.test,
-  testUtil: files.testUtil,
-  angular: files.angular,
-  angular_mocks: files.angular_mocks,
-  ui_router: files.ui_router
-};
+_.each(modules, function (module) {
+  // add other required files to module definition
+  _.extend(module, otherFiles);
+});
 
-var buildfiles = {
-  src: files.dist,
-  test: files.test,
-  testUtil: files.testUtil,
-  angular: files.angular,
-  angular_mocks: files.angular_mocks,
-  ui_router: files.ui_router
-};
-
-var minfiles = {
-  src: files.min,
-  test: files.test,
-  testUtil: files.testUtil,
-  angular: files.angular,
-  angular_mocks: files.angular_mocks
-};
-
-var min0_2_5files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_5 });
-var min0_2_7files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_7 });
-var min0_2_8files =   _.extend(minfiles, { ui_router: files.ui_router_0_2_8 });
-var min0_2_10files =  _.extend(minfiles, { ui_router: files.ui_router_0_2_10 });
-var min0_2_11files =  _.extend(minfiles, { ui_router: files.ui_router_0_2_11 });
-var minHEADfiles =    _.extend(minfiles, { ui_router: files.ui_router_HEAD });
-
-if (exports) {
-  exports.files = files;
-  exports.devfiles = devfiles;
-  exports.buildfiles = buildfiles;
-  exports.minfiles = minfiles;
-  exports.min0_2_5files = min0_2_5files;
-  exports.min0_2_7files = min0_2_7files;
-  exports.min0_2_8files = min0_2_8files;
-  exports.min0_2_10files = min0_2_10files;
-  exports.min0_2_11files = min0_2_11files;
-  exports.minHEADfiles = minHEADfiles;
-}
-
+module.exports = modules;

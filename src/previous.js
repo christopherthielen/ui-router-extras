@@ -1,4 +1,4 @@
-angular.module('ct.ui.router.extras').service("$previousState",
+angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core' ]).service("$previousState",
   [ '$rootScope', '$state',
     function ($rootScope, $state) {
       var previous = null;
@@ -43,6 +43,6 @@ angular.module('ct.ui.router.extras').service("$previousState",
   ]
 );
 
-angular.module('ct.ui.router.extras').run(['$previousState', function ($previousState) {
+angular.module('ct.ui.router.extras.previous').run(['$previousState', function ($previousState) {
   // Inject $previousState so it can register $rootScope events
 }]);

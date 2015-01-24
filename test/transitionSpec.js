@@ -4,7 +4,7 @@ var $get, $state, $rootScope, $q, $compile,
   el;
 
 describe('$transition$', function () {
-  beforeEach(module('ct.ui.router.extras', function ($stateProvider) {
+  beforeEach(module('ct.ui.router.extras.transition', function ($stateProvider) {
     // Load and capture $stickyStateProvider and $stateProvider
     _stateProvider = $stateProvider;
     _stateProvider.state("A", { url: '/A' , template: '<ui-view/>' });

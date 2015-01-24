@@ -1,9 +1,9 @@
 // statevis requires d3.
 (function () {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.statevis", ['ct.ui.router.extras']);
+  var app = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core' ]);
 
-  app.directive('stateVis', [ '$state', '$timeout', '$interval',stateVisDirective ]);
+  app.directive('stateVis', [ '$state', '$timeout', '$interval', stateVisDirective ]);
 
   /**
    * This directive gets all the current states using $state.get() and displays them in a tree using D3 lib.

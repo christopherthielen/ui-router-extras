@@ -44,6 +44,8 @@ angular.module('ngMock').config(function ($provide) {
   });
 });
 
+var tLog, tExpected;
+
 function testablePromise(promise) {
   if (!promise || !promise.then) throw new Error('Expected a promise, but got ' + jasmine.pp(promise) + '.');
   if (!angular.isDefined(promise.$$resolved)) throw new Error('Promise has not been augmented by ngMock');
@@ -163,13 +165,17 @@ function testGo(state, tAdditional, options) {
 
   var root = $state.$current.path[0].parent;
   var __inactives = root.parent;
-  var __inactiveViews = _.keys(__inactives.locals);
-  var extra = _.difference(__inactiveViews, tLog.views);
-  var missing = _.difference(tLog.views, __inactiveViews);
-  
-  expect("Extra Views: " + extra).toEqual("Extra Views: " + []);
-  expect("Missing Views: " + missing).toEqual("Missing Views: " + []);
-  
+
+  // If ct.ui.router.extras.sticky module is included, then root.parent holds the inactive states/views
+  if (__inactives) {
+    var __inactiveViews = _.keys(__inactives.locals);
+    var extra = _.difference(__inactiveViews, tLog.views);
+    var missing = _.difference(tLog.views, __inactiveViews);
+
+    expect("Extra Views: " + extra).toEqual("Extra Views: " + []);
+    expect("Missing Views: " + missing).toEqual("Missing Views: " + []);
+  }
+
   if (tExpected && tAdditional) {
     // append all arrays in tAdditional to arrays in tExpected
     angular.forEach(tAdditional, function (value, key) {
@@ -193,4 +199,9 @@ function uiRouterVersion() {
   if (!found) return undefined;
 
   return (parseInt(found[1]) * 1000) + (parseInt(found[2]) * 100) + parseInt(found[3]);
+}
+
+function resetTransitionLog() {
+  tLog = new TransitionAudit();
+  tExpected = new TransitionAudit();
 }

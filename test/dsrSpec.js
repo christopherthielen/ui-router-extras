@@ -1,6 +1,5 @@
 "use strict";
 var $get, $state, $q, $deepStateRedirect;
-var tLog;
 
 function getDSRStates () {
   return [
@@ -28,7 +27,7 @@ function dsrReset(newStates) {
 
 
 describe('deepStateRedirect', function () {
-  beforeEach(module('ct.ui.router.extras', function ($stateProvider, $urlRouterProvider) {
+  beforeEach(module('ct.ui.router.extras.dsr', function ($stateProvider, $urlRouterProvider) {
     // Load and capture $stickyStateProvider and $stateProvider
     $urlRouterProvider.otherwise("/");
     var newStates = getDSRStates();

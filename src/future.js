@@ -1,5 +1,5 @@
 (function(angular, undefined) {
-  var app = angular.module('ct.ui.router.extras');
+  var app = angular.module('ct.ui.router.extras.future', [ 'ct.ui.router.extras.core' ]);
 
   function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory) {
     var stateFactories = {}, futureStates = {};
@@ -149,7 +149,7 @@
         ['$rootScope', '$urlRouter', '$state',
           function lazyLoadMissingState($rootScope, $urlRouter, $state) {
             function resync() {
-              resyncing = true; $urlRouter.sync(); resynching = false;
+              resyncing = true; $urlRouter.sync(); resyncing = false;
             }
             if (!initDone) {
               // Asynchronously load state definitions, then resync URL

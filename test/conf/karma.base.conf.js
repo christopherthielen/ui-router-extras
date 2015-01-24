@@ -13,12 +13,13 @@ var baseConfig = {
   // testing framework to use (jasmine/mocha/qunit/...)
   frameworks: ['jasmine'],
   // list of files / patterns to load in the browser
-  files: [].concat(
-      files.jquery,
-      files.angular,
-      files.angular_mocks,
-      files.testUtil,
-      files.test),
+  files: [],
+//    .concat(
+//      files.jquery,
+//      files.angular,
+//      files.angular_mocks,
+//      files.testUtil,
+//      files.test),
   // list of files / patterns to exclude
   exclude: [],
   // web server port

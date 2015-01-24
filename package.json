@@ -7,20 +7,27 @@
   "dependencies": {},
   "devDependencies": {
     "express": "~3.4.4",
-    "grunt": "~0.4.1",
-    "grunt-contrib-concat": "~0.3.0",
-    "grunt-contrib-uglify": "~0.2.5",
-    "grunt-contrib-jshint": "~0.7.0",
-    "grunt-karma": "^0.8.3",
-    "grunt-conventional-changelog": "~1.1",
     "karma-chrome-launcher": "latest",
     "karma-phantomjs-launcher": "latest",
-    "karma": "latest",
+    "karma": "^0.12.31",
     "karma-jasmine": "0.2.0",
-    "lodash": "latest"
+    "lodash": "latest",
+    "gulp": "latest",
+    "gulp-rename": "^1.2.0",
+    "gulp-concat": "^2.4.3",
+    "gulp-uglify": "^1.1.0",
+    "gulp-jshint": "^1.9.0",
+    "gulp-notify": "^2.1.0",
+    "del": "^1.1.1",
+    "gulp-wrap": "^0.10.1",
+    "gulp-karma": "0.0.4",
+    "q": "^1.1.2",
+    "run-sequence": "^1.0.2"
   },
   "main": "release/ct-ui-router-extras",
-  "files": [ "release" ],
+  "files": [
+    "release"
+  ],
   "repository": "",
   "engines": {
     "node": "0.10.10"

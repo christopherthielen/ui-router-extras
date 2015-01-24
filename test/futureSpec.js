@@ -13,7 +13,7 @@ function futureState(stateName, urlPrefix, url, type, parent) {
 }
 
 describe('futureState', function () {
-  beforeEach(module('ct.ui.router.extras', function ($futureStateProvider, $stateProvider, $urlRouterProvider) {
+  beforeEach(module('ct.ui.router.extras.future', function ($futureStateProvider, $stateProvider, $urlRouterProvider) {
     // Load and capture $stickyStateProvider and $stateProvider
     _futureStateProvider = $futureStateProvider;
     _stateProvider = $stateProvider;

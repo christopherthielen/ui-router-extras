@@ -83,13 +83,15 @@ function SurrogateState(type) {
 
 // ------------------------ Sticky State registration and initialization code ----------------------------------
 // Grab a copy of the $stickyState service for use by the transition management code
-angular.module("ct.ui.router.extras").run(["$stickyState", function ($stickyState) {
+angular.module("ct.ui.router.extras.sticky").run(["$stickyState", function ($stickyState) {
   _StickyState = $stickyState;
 }]);
 
-angular.module("ct.ui.router.extras").config(
-  [ "$provide", "$stateProvider", '$stickyStateProvider', '$urlMatcherFactoryProvider',
-    function ($provide, $stateProvider, $stickyStateProvider, $urlMatcherFactoryProvider) {
+angular.module("ct.ui.router.extras.sticky").config(
+  [ "$provide", "$stateProvider", '$stickyStateProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider',
+    function ($provide, $stateProvider, $stickyStateProvider, $urlMatcherFactoryProvider, uirextras_coreProvider) {
+      var internalStates = uirextras_coreProvider.internalStates;
+
       versionHeuristics.hasParamSet = !!$urlMatcherFactoryProvider.ParamSet;
       // inactivePseudoState (__inactives) holds all the inactive locals which includes resolved states data, i.e., views, scope, etc
       inactivePseudoState = angular.extend(new SurrogateState("__inactives"), { self: {  name: '__inactives'  } });
