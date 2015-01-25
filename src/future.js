@@ -190,7 +190,7 @@
         rule = function () { return redirect; };
       }
       else if (!angular.isFunction(rule)) throw new Error("'rule' must be a function");
-      otherwiseFunc = rule;
+      otherwiseFunc = ['$injector', '$location', rule];
       return $urlRouterProvider;
     };
 
