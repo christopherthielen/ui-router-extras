@@ -1,6 +1,6 @@
 var mod_core = angular.module("ct.ui.router.extras.core", [ "ui.router" ]);
 
-var internalStates = {};
+var internalStates = {}, stateRegisteredCallbacks = [];
 mod_core.config([ '$stateProvider', '$injector', function ($stateProvider, $injector) {
   // Decorate any state attribute in order to get access to the internal state representation.
   $stateProvider.decorator('parent', function (state, parentFn) {
@@ -12,17 +12,7 @@ mod_core.config([ '$stateProvider', '$injector', function ($stateProvider, $inje
       return internalStates[state.self.name];
     };
 
-    try {
-      var $stickyStateProvider = $injector.get('$stickyStateProvider');
-      // Register the ones marked as "sticky" if sticky module is included.
-      if ($stickyStateProvider && state.self.sticky === true) {
-        $stickyStateProvider.registerStickyState(state.self);
-        // console.log("ok, registered sticky state");
-      }
-    } catch (error) {
-      // ignore; sticky state module isn't available.
-    }
-
+    angular.forEach(stateRegisteredCallbacks, function(callback) { callback(state); });
     return parentFn(state);
   });
 }]);
@@ -150,9 +140,12 @@ function inherit(parent, extra) {
   return extend(new (extend(function () { }, {prototype: parent}))(), extra);
 }
 
+function onStateRegistered(callback) { stateRegisteredCallbacks.push(callback); }
+
 mod_core.provider("uirextras_core", function() {
   var core = {
     internalStates: internalStates,
+    onStateRegistered: onStateRegistered,
     forEach: forEach,
     extend: extend,
     isArray: isArray,

@@ -99,22 +99,11 @@ angular.module("ct.ui.router.extras.sticky").config(
       root = pendingRestore = undefined;
       pendingTransitions = [];
 
-      // Decorate any state attribute in order to get access to the internal state representation.
-      $stateProvider.decorator('parent', function (state, parentFn) {
-        // Capture each internal UI-Router state representations as opposed to the user-defined state object.
-        // The internal state is, e.g., the state returned by $state.$current as opposed to $state.current
-        internalStates[state.self.name] = state;
-        // Add an accessor for the internal state from the user defined state
-        state.self.$$state = function () {
-          return internalStates[state.self.name];
-        };
-
+      uirextras_coreProvider.onStateRegistered(function(state) {
         // Register the ones marked as "sticky"
         if (state.self.sticky === true) {
           $stickyStateProvider.registerStickyState(state.self);
         }
-
-        return parentFn(state);
       });
 
       var $state_transitionTo; // internal reference to the real $state.transitionTo function
