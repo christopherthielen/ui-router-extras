@@ -1,25 +1,15 @@
-angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core' ]).service("$previousState",
+angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.transition' ]).service("$previousState",
   [ '$rootScope', '$state',
     function ($rootScope, $state) {
-      var previous = null;
-      var memos = {};
+      var previous = null, lastPrevious = null, memos = {};
 
-      var lastPrevious = null;
-
-      $rootScope.$on("$stateChangeStart", function (evt, toState, toStateParams, fromState, fromStateParams) {
-        // State change is starting.  Keep track of the CURRENT previous state in case we have to restore it
+      $rootScope.$on("$transitionStart", function(evt, $transition$) {
         lastPrevious = previous;
-        previous = { state: fromState, params: fromStateParams };
-      });
+        previous = $transition$.from;
 
-      $rootScope.$on("$stateChangeError", function () {
-        // State change did not occur due to an error.  Restore the previous previous state.
-        previous = lastPrevious;
-        lastPrevious = null;
-      });
-
-      $rootScope.$on("$stateChangeSuccess", function () {
-        lastPrevious = null;
+        $transition$.promise.then(commit).catch(revert);
+        function commit() { lastPrevious = null; }
+        function revert() { previous = lastPrevious; }
       });
 
       var $previousState = {

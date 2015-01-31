@@ -61,6 +61,18 @@ describe("$previousState", function () {
       $q.flush();
       expect($state.current.name === "tabs.tabs2");
     });
+
+    // Test for #120
+    it("should go to previous state after another transition is cancelled", inject(function($rootScope) {
+      testGo("top", { entered: 'top' });
+      testGo("top.people.managerlist", { entered: ['top.people', 'top.people.managerlist'] });
+
+      var transitionNum = 0;
+      $rootScope.$on("$stateChangeStart", function(evt) { if (transitionNum++ === 0) { evt.preventDefault(); } });
+
+      testGo("top.inv.storelist", undefined, { redirect: 'top.people.managerlist'}); // Cancelled, so we're still at original state
+      expect($previousState.get().state.name).toBe("top");
+    }));
   });
   
   describe('.memo()', function () {
