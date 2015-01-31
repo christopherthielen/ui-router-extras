@@ -8,6 +8,7 @@ function $StickyStateProvider($stateProvider) {
   var inactiveStates = {}; // state.name -> (state)
   var stickyStates = {}; // state.name -> true
   var $state;
+  var DEBUG = false;
 
   // Called by $stateProvider.registerState();
   // registers a sticky state with $stickyStateProvider
@@ -16,8 +17,10 @@ function $StickyStateProvider($stateProvider) {
     // console.log("Registered sticky state: ", state);
   };
 
-  this.enableDebug = function (enabled) {
-    DEBUG = enabled;
+  this.enableDebug = this.debugMode = function (enabled) {
+    if (angular.isDefined(enabled))
+      DEBUG = enabled;
+    return DEBUG;
   };
 
   this.$get = [  '$rootScope', '$state', '$stateParams', '$injector', '$log',
@@ -72,10 +75,11 @@ function $StickyStateProvider($stateProvider) {
       // it as a Exit/Enter, thus the special "updateStateParams" transition.
       // If a parent inactivated state has "updateStateParams" transition type, then
       // all descendant states must also be exit/entered, thus the first line of this function.
-      function getEnterTransition(state, stateParams, ancestorParamsChanged) {
+      function getEnterTransition(state, stateParams, reloadStateTree, ancestorParamsChanged) {
         if (ancestorParamsChanged) return "updateStateParams";
         var inactiveState = inactiveStates[state.self.name];
         if (!inactiveState) return "enter";
+        if (state.self === reloadStateTree) return "updateStateParams";
 //      if (inactiveState.locals == null || inactiveState.locals.globals == null) debugger;
         var paramsMatch = equalForKeys(stateParams, inactiveState.locals.globals.$stateParams, state.ownParams);
 //      if (DEBUG) $log.debug("getEnterTransition: " + state.name + (paramsMatch ? ": reactivate" : ": updateStateParams"));
@@ -94,7 +98,7 @@ function $StickyStateProvider($stateProvider) {
       // Duplicates logic in $state.transitionTo, primarily to find the pivot state (i.e., the "keep" value)
       function equalForKeys(a, b, keys) {
         if (angular.isObject(keys)) {
-          keys = protoKeys(keys, ["$$keys", "$$values", "$$equals", "$$validates"]);
+          keys = protoKeys(keys, ["$$keys", "$$values", "$$equals", "$$validates", "$$new", "$$parent"]);
         }
         if (!keys) {
           keys = [];
@@ -133,6 +137,7 @@ function $StickyStateProvider($stateProvider) {
             fromParams = transition.fromParams,
             toPath = transition.toState.path,
             toParams = transition.toParams,
+            reloadStateTree = transition.reloadStateTree,
             options = transition.options;
           var keep = 0, state = toPath[keep];
 
@@ -141,13 +146,14 @@ function $StickyStateProvider($stateProvider) {
           }
 
           while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
+            // We're "keeping" this state. bump keep var and get the next state in toPath for the next iteration.
             state = toPath[++keep];
           }
 
           result.keep = keep;
 
-          var idx, deepestUpdatedParams, deepestReactivate, reactivatedStatesByName = {}, pType = getStickyTransitionType(fromPath, toPath, keep);
-          var ancestorUpdated = false; // When ancestor params change, treat reactivation as exit/enter
+          var idx, deepestUpdatedParams, deepestReactivate, noLongerInactiveStates = {}, pType = getStickyTransitionType(fromPath, toPath, keep);
+          var ancestorUpdated = !!options.reload; // When ancestor params change, treat reactivation as exit/enter
 
           // Calculate the "enter" transitions for new states in toPath
           // Enter transitions will be either "enter", "reactivate", or "updateStateParams" where
@@ -155,14 +161,14 @@ function $StickyStateProvider($stateProvider) {
           //   reactivate: use previous locals
           //   updateStateParams: like 'enter', except exit the inactive state before entering it.
           for (idx = keep; idx < toPath.length; idx++) {
-            var enterTrans = !pType.to ? "enter" : getEnterTransition(toPath[idx], transition.toParams, ancestorUpdated);
+            var enterTrans = !pType.to ? "enter" : getEnterTransition(toPath[idx], toParams, reloadStateTree, ancestorUpdated);
             ancestorUpdated = (ancestorUpdated || enterTrans == 'updateStateParams');
             result.enter[idx] = enterTrans;
             // If we're reactivating a state, make a note of it, so we can remove that state from the "inactive" list
             if (enterTrans == 'reactivate')
-              deepestReactivate = reactivatedStatesByName[toPath[idx].name] = toPath[idx];
+              deepestReactivate = noLongerInactiveStates[toPath[idx].name] = toPath[idx];
             if (enterTrans == 'updateStateParams')
-              deepestUpdatedParams = toPath[idx];
+              deepestUpdatedParams = noLongerInactiveStates[toPath[idx].name] = toPath[idx];
           }
           deepestReactivate = deepestReactivate ? deepestReactivate.self.name + "." : "";
           deepestUpdatedParams = deepestUpdatedParams ? deepestUpdatedParams.self.name + "." : "";
@@ -181,7 +187,7 @@ function $StickyStateProvider($stateProvider) {
             for (var i = 0; inactiveChildren && i < inactiveChildren.length; i++) {
               var child = inactiveChildren[i];
               // Don't organize state as inactive if we're about to reactivate it.
-              if (!reactivatedStatesByName[child.name] &&
+              if (!noLongerInactiveStates[child.name] &&
                 (!deepestReactivate || (child.self.name.indexOf(deepestReactivate) !== 0)) &&
                 (!deepestUpdatedParams || (child.self.name.indexOf(deepestUpdatedParams) !== 0)))
                 result.inactives.push(child);
@@ -260,9 +266,9 @@ function $StickyStateProvider($stateProvider) {
         },
 
         // Removes a previously inactivated state from the inactive sticky state registry
-        stateEntering: function (entering, params, onEnter) {
+        stateEntering: function (entering, params, onEnter, updateParams) {
           var inactivatedState = getInactivatedState(entering);
-          if (inactivatedState && !getInactivatedState(entering, params)) {
+          if (inactivatedState && (updateParams || !getInactivatedState(entering, params))) {
             var savedLocals = entering.locals;
             this.stateExiting(inactivatedState);
             entering.locals = savedLocals;

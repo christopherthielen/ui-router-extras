@@ -122,6 +122,7 @@ angular.module("ct.ui.router.extras.sticky").config(
 
         // ------------------------ Decorated transitionTo implementation begins here ---------------------------
         $state.transitionTo = function (to, toParams, options) {
+          var DEBUG = $stickyStateProvider.debugMode();
           // TODO: Move this to module.run?
           // TODO: I'd rather have root.locals prototypally inherit from inactivePseudoState.locals
           // Link root.locals and inactives.locals.  Do this at runtime, after root.locals has been set.
@@ -140,6 +141,8 @@ angular.module("ct.ui.router.extras.sticky").config(
           var toStateSelf = $state.get(to, rel); // exposes findState relative path functionality, returns state.self
           var savedToStatePath, savedFromStatePath, stickyTransitions;
           var reactivated = [], exited = [], terminalReactivatedState;
+          toParams = toParams || {};
+          arguments[1] = toParams;
 
           var noop = function () {
           };
@@ -234,6 +237,19 @@ angular.module("ct.ui.router.extras.sticky").config(
             return state;
           }
 
+          // TODO: This may be completely unnecessary now that we're using $$uirouterextrasreload temp param
+          function stateUpdateParamsSurrogate(state, toParams) {
+            var oldOnEnter = state.self.onEnter;
+            state.self.onEnter = function () {
+              _StickyState.stateEntering(state, toParams, oldOnEnter, true);
+            };
+            restore.addRestoreFunction(function () {
+              state.self.onEnter = oldOnEnter;
+            });
+
+            return state;
+          }
+
           function stateExitedSurrogate(state) {
             var oldOnExit = state.self.onExit;
             state.self.onExit = function () {
@@ -255,10 +271,42 @@ angular.module("ct.ui.router.extras.sticky").config(
               savedToStatePath = toState.path;
               savedFromStatePath = fromState.path;
 
-              var currentTransition = {toState: toState, toParams: toParams || {}, fromState: fromState, fromParams: fromParams || {}, options: options};
+              // Try to resolve options.reload to a state.  If so, we'll reload only up to the given state.
+              var reload = options && options.reload;
+              var reloadStateTree = (reload === true ? savedToStatePath[0].self : $state.get(reload, rel));
+              // If options.reload is a string or a state, we want to handle reload ourselves and not
+              // let ui-router reload the entire toPath.
+              if (options && reload && reload !== true)
+                delete options.reload;
+
+              var currentTransition = {
+                toState: toState,
+                toParams: toParams || {},
+                fromState: fromState,
+                fromParams: fromParams || {},
+                options: options,
+                reloadStateTree: reloadStateTree
+              };
 
               pendingTransitions.push(currentTransition); // TODO: See if a list of pending transitions is necessary.
               pendingRestore = restore;
+
+              // If we're reloading from a state and below, temporarily add a param to the top of the state tree
+              // being reloaded, and add a param value to the transition.  This will cause the "has params changed
+              // for state" check to return false, and the states will be reloaded.
+              if (reloadStateTree) {
+                var params = reloadStateTree.$$state().params;
+                var ownParams = reloadStateTree.$$state().ownParams;
+
+                var tempParam = new $urlMatcherFactoryProvider.Param('$$uirouterextrasreload');
+                params.$$uirouterextrasreload = ownParams.$$uirouterextrasreload = tempParam;
+                currentTransition.toParams.$$uirouterextrasreload = Math.random();
+
+                restore.restoreFunctions.push(function() {
+                  delete params.$$uirouterextrasreload;
+                  delete ownParams.$$uirouterextrasreload;
+                });
+              }
 
               // $StickyStateProvider.processTransition analyzes the states involved in the pending transition.  It
               // returns an object that tells us:
@@ -309,7 +357,7 @@ angular.module("ct.ui.router.extras.sticky").config(
                   terminalReactivatedState = surrogate;
                 } else if (value === "updateStateParams") {
                   // If the state params have been changed, we need to exit any inactive states and re-enter them.
-                  surrogate = stateEnteredSurrogate(toState.path[idx]);
+                  surrogate = stateUpdateParamsSurrogate(toState.path[idx]);
                   surrogateToPath.push(surrogate);
                   terminalReactivatedState = surrogate;
                 } else if (value === "enter") {

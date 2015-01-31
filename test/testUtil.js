@@ -155,7 +155,7 @@ function pathFrom(start, end) {
  *    { redirect: redirectstatename }
  */
 function testGo(state, tAdditional, options) {
-  $state.go(state);
+  $state.go(state, options && options.params, options);
   $q.flush();
   var expectRedirect = options && options.redirect;
   if (!expectRedirect)

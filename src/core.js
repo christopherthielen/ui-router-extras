@@ -161,7 +161,7 @@ mod_core.provider("uirextras_core", function() {
     inherit: inherit
   };
 
-  _.extend(this, core);
+  angular.extend(this, core);
 
   this.$get = function() {
     return core;

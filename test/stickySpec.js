@@ -20,6 +20,7 @@ describe('stickyState', function () {
     newStates['A'] = { template: '<div ui-view="_1"></div><div ui-view="_2"></div><div ui-view="_3"></div>'};
     newStates['A._1'] = {sticky: true, views: { '_1@A': {} } };
     newStates['A._2'] = {sticky: true, views: { '_2@A': {} } };
+    newStates['A._2.__1'] = { };
     newStates['A._3'] = {
       sticky: true,
       views: { '_3@A': { controller: function ($scope, X) {
@@ -234,6 +235,38 @@ describe('stickyState', function () {
     });
   });
 
+  function getParameterizedStates() {
+    return {
+      'main': {},
+      'main.other': { sticky: true, views: { 'other@main': {} } },
+      'main.product': { sticky: true, views: { 'product@main': {} }, params: { 'product_id': 15 } },
+      'main.product.something': {}
+    };
+  }
+
+  describe('with params in sticky state', function() {
+    beforeEach(function() {
+      ssReset(getParameterizedStates(), _stateProvider);
+    });
+
+    it("should reload when params change", function() {
+      testGo('main');
+      var options = { params: { 'product_id': 12345 } };
+      testGo('main.product.something', { entered: pathFrom('main', 'main.product.something') }, options);
+      testGo('main.other', { entered: 'main.other', inactivated: [ 'main.product.something', 'main.product'] });
+      testGo('main.product.something', { reactivated: ['main.product', 'main.product.something'], inactivated: 'main.other' }, options);
+      _stickyStateProvider.enableDebug(true);
+      testGo('main.other', { reactivated: 'main.other', inactivated: [ 'main.product.something', 'main.product'] });
+      options.params.product_id = 54321;
+      resetTransitionLog();
+      testGo('main.product.something', {
+        exited: ['main.product.something', 'main.product'],
+        entered: ['main.product', 'main.product.something'],
+        inactivated: 'main.other' }, options);
+      _stickyStateProvider.enableDebug(false);
+    });
+  });
+
   describe('nested sticky .go() transitions', function () {
     beforeEach(function() {
       ssReset(getNestedStickyStates(), _stateProvider);
@@ -358,6 +391,46 @@ describe('stickyState', function () {
       testGo('_2', { reactivated: ['_2'], inactivated: ['A._1.__1', 'A._1'] });
       testGo('A', { inactivated: ['_2'] });
       testGo('aside', { exited: ['__2', 'A._1.__1', 'A._1', '_2', 'A'], entered: ['aside'] });
+    });
+  });
+
+  // test cases for issue #139
+  describe('ui-router option reload: true', function() {
+    beforeEach(function() {
+      ssReset(getSimpleStates(), _stateProvider);
+    });
+
+    it('should be respected', function() {
+      testGo('A._1', { entered: ['A', 'A._1' ] });
+      testGo('A._2', { inactivated: [ 'A._1' ],  entered: 'A._2' });
+      testGo('A._1', { reactivated: 'A._1', inactivated: 'A._2' });
+      resetTransitionLog();
+      testGo('A._2', { exited: [ 'A._1', 'A._2', 'A' ], entered: [ 'A', 'A._2' ] }, { reload: true });
+    });
+  });
+
+  describe('ui-router option reload: [state ref]', function() {
+    beforeEach(function() {
+      ssReset(getSimpleStates(), _stateProvider);
+    });
+
+    it('should reload a partial tree of sticky states', function() {
+      testGo('A._1', { entered: ['A', 'A._1' ] });
+      testGo('A._2', { inactivated: [ 'A._1' ],  entered: 'A._2' });
+      testGo('A._1', { reactivated: 'A._1', inactivated: 'A._2' });
+      resetTransitionLog();
+      testGo('A._2', { inactivated: 'A._1', exited: 'A._2', entered: 'A._2' }, { reload: "A._2" });
+    });
+
+    it('should reload a partial tree of non-sticky states', function() {
+      testGo('A._1', { entered: ['A', 'A._1' ] });
+      testGo('A._2.__1', { inactivated: 'A._1', entered: [ 'A._2', 'A._2.__1' ] });
+      testGo('A._1', { reactivated: 'A._1', inactivated: [ 'A._2.__1', 'A._2' ] });
+      testGo('A._2.__1', {
+        inactivated: 'A._1', reactivated: 'A._2',
+        exited: [ 'A._2.__1' ], entered: [ 'A._2.__1' ]
+      }, { reload: "A._2.__1" });
+      testGo('A._2.__1', { exited: [ 'A._2.__1' ], entered: [ 'A._2.__1' ] }, { reload: "A._2.__1" });
     });
   });
 });
