@@ -343,26 +343,27 @@ angular.module("ct.ui.router.extras.sticky").config(
               // Depending on the entered-state transition type, place the proper surrogate state on the surrogate toPath.
               angular.forEach(stickyTransitions.enter, function (value, idx) {
                 var surrogate;
+                var enteringState = toState.path[idx];
                 if (value === "reactivate") {
                   // Reactivated states require TWO surrogates.  The "phase 1 reactivated surrogates" are added to both
                   // to.path and from.path, and as such, are considered to be "kept" by UI-Router.
                   // This is required to get UI-Router to add the surrogate locals to the protoypal locals object
-                  surrogate = stateReactivatedSurrogatePhase1(toState.path[idx]);
+                  surrogate = stateReactivatedSurrogatePhase1(enteringState);
                   surrogateToPath.push(surrogate);
                   surrogateFromPath.push(surrogate);  // so toPath[i] === fromPath[i]
 
                   // The "phase 2 reactivated surrogate" is added to the END of the .path, after all the phase 1
                   // surrogates have been added.
-                  reactivated.push(stateReactivatedSurrogatePhase2(toState.path[idx]));
-                  terminalReactivatedState = surrogate;
+                  reactivated.push(stateReactivatedSurrogatePhase2(enteringState));
+                  terminalReactivatedState = enteringState;
                 } else if (value === "updateStateParams") {
                   // If the state params have been changed, we need to exit any inactive states and re-enter them.
-                  surrogate = stateUpdateParamsSurrogate(toState.path[idx]);
+                  surrogate = stateUpdateParamsSurrogate(enteringState);
                   surrogateToPath.push(surrogate);
-                  terminalReactivatedState = surrogate;
+                  terminalReactivatedState = enteringState;
                 } else if (value === "enter") {
                   // Standard enter transition.  We still wrap it in a surrogate.
-                  surrogateToPath.push(stateEnteredSurrogate(toState.path[idx]));
+                  surrogateToPath.push(stateEnteredSurrogate(enteringState));
                 }
               });
 
@@ -387,9 +388,9 @@ angular.module("ct.ui.router.extras.sticky").config(
                 });
               }
 
-              // In some cases, we may be some state, but not its children states.  If that's the case, we have to
-              // exit all the children of the deepest reactivated state.
-              if (terminalReactivatedState) {
+              // We may transition directly to an inactivated state, reactivating it.  In this case, we should
+              // exit all of that state's inactivated children.
+              if (toState === terminalReactivatedState) {
                 var prefix = terminalReactivatedState.self.name + ".";
                 var inactiveStates = _StickyState.getInactiveStates();
                 var inactiveOrphans = [];
