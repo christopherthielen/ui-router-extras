@@ -4,8 +4,14 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
       var previous = null, lastPrevious = null, memos = {};
 
       $rootScope.$on("$transitionStart", function(evt, $transition$) {
-        lastPrevious = previous;
-        previous = $transition$.from;
+        var from = $transition$.from;
+        // Check if the fromState is navigable before tracking it.
+        // Root state doesn't get decorated with $$state().  Doh.
+        var fromState = from.state && from.state.$$state && from.state.$$state();
+        if (fromState && fromState.navigable) {
+          lastPrevious = previous;
+          previous = $transition$.from;
+        }
 
         $transition$.promise.then(commit).catch(revert);
         function commit() { lastPrevious = null; }

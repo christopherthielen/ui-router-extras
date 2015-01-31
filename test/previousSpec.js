@@ -53,17 +53,26 @@ describe("$previousState", function () {
     $previousState = $get('$previousState');
   }));
 
+  // Test for #123
+  it("should not capture root state (or non-navigable states)", inject(function($rootScope) {
+    testGo("top", { entered: 'top' });
+    expect($previousState.get()).toBeNull();
+  }));
+
+
   describe('.go()', function () {
     it("should transition back to the previous state", function () {
       testGo("top.people.managerlist", { entered: pathFrom('top', 'top.people.managerlist') });
-      testGo("top.inv.storelist", { entered: pathFrom('top.inv', 'top.inv.storelist') , exited: pathFrom('top.people.managerlist', 'top.people') });
+      testGo("top.inv.storelist", { entered: pathFrom('top.inv', 'top.inv.storelist'), exited: pathFrom('top.people.managerlist', 'top.people') });
       $previousState.go();
       $q.flush();
       expect($state.current.name === "tabs.tabs2");
     });
+  });
 
+  describe('.get()', function() {
     // Test for #120
-    it("should go to previous state after another transition is cancelled", inject(function($rootScope) {
+    it("should not return current state, after a transition is cancelled", inject(function($rootScope) {
       testGo("top", { entered: 'top' });
       testGo("top.people.managerlist", { entered: ['top.people', 'top.people.managerlist'] });
 
@@ -71,8 +80,9 @@ describe("$previousState", function () {
       $rootScope.$on("$stateChangeStart", function(evt) { if (transitionNum++ === 0) { evt.preventDefault(); } });
 
       testGo("top.inv.storelist", undefined, { redirect: 'top.people.managerlist'}); // Cancelled, so we're still at original state
+
       expect($previousState.get().state.name).toBe("top");
-    }));
+    }))
   });
   
   describe('.memo()', function () {
