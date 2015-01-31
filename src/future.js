@@ -59,9 +59,11 @@
         parentMatcher = $urlMatcherFactory.compile(pattern);
         futureState.parentFutureState = futureParent;
       }
-      futureState.urlMatcher = futureState.url.charAt(0) === "^" ?
-        $urlMatcherFactory.compile(futureState.url.substring(1) + "*rest") :
-        parentMatcher.concat(futureState.url + "*rest");
+      if (futureState.url) {
+        futureState.urlMatcher = futureState.url.charAt(0) === "^" ?
+          $urlMatcherFactory.compile(futureState.url.substring(1) + "*rest") :
+          parentMatcher.concat(futureState.url + "*rest");
+      }
     };
 
     this.get = function () {
@@ -92,7 +94,8 @@
       if (options.url) {
         var matches = [];
         for(var future in futureStates) {
-          if (futureStates[future].urlMatcher.exec(options.url)) {
+          var matcher = futureStates[future].urlMatcher;
+          if (matcher && matcher.exec(options.url)) {
             matches.push(futureStates[future]);
           }
         }

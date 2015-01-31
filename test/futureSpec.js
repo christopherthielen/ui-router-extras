@@ -168,5 +168,11 @@ describe('futureState', function () {
       expect($location.path()).toBe("/");
       expect($state.current.name).toBe("top");
     });
+
+    // Failing test case for issue #129
+    it ("should allow future states to be registered without either a url or name", function() {
+      _futureStateProvider.futureState(futureState("issue129", undefined, undefined, "iframe")); // no url
+      testGo("issue129");
+    })
   });
 });
