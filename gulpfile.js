@@ -51,11 +51,12 @@ gulp.task('default', ['clean' ], function() {
 });
 
 // used by the various "karma" tasks
-function testModule(module, option) {
+function testModule(moduleName, option) {
   var karma = require('karma').server;
   var Q = require('q');
   var dynamicconf = require("./test/conf/karma.dynamic.conf");
-  dynamicconf.extrasModule = module.module;
+  dynamicconf.extrasModule = moduleName;
+//  dynamicconf.uiRouter = "0.2.8";
 
   var d = Q.defer();
   var extraOptions, karmaConfig = { configFile: __dirname + '/test/conf/karma.any.conf.js' };
@@ -87,7 +88,7 @@ gulp.task('karma:modules', ['scripts'], function() {
   var Q = require('q');
   var promise = Q(true);
   _.each(uirExtrasModules, function(module) {
-    promise = promise.then(_.partial(testModule, module));
+    promise = promise.then(_.partial(testModule, module.module));
   });
 
   return promise;
@@ -103,7 +104,7 @@ gulp.task('karma:versions', ['scripts'], function() {
   _.each(versions, function(version) {
     promise = promise.then(function () {
       dynamicconf.uiRouter = version;
-      return testModule(uirExtrasModules.all);
+      return testModule("all");
     });
   });
 
@@ -111,12 +112,9 @@ gulp.task('karma:versions', ['scripts'], function() {
 });
 
 gulp.task('karma:watch', ['scripts'], function() {
-  return testModule(uirExtrasModules.all, "watch");
+  return testModule("all.watch", "watch");
 });
 
-// Watch
-gulp.task('watch', function() {
-  // Watch .scss, .js, image files
-  gulp.watch("src/**/*.js", ['scripts']);
-  return testModule(uirExtrasModules.all, "watch");
+gulp.task('karma:debug', ['scripts'], function() {
+  return testModule("all.watch", "debug");
 });
