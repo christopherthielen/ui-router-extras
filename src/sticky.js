@@ -272,8 +272,8 @@ angular.module("ct.ui.router.extras.sticky").config(
               savedFromStatePath = fromState.path;
 
               // Try to resolve options.reload to a state.  If so, we'll reload only up to the given state.
-              var reload = options && options.reload;
-              var reloadStateTree = (reload === true ? savedToStatePath[0].self : $state.get(reload, rel));
+              var reload = options && options.reload || false;
+              var reloadStateTree = reload && (reload === true ? savedToStatePath[0].self : $state.get(reload, rel));
               // If options.reload is a string or a state, we want to handle reload ourselves and not
               // let ui-router reload the entire toPath.
               if (options && reload && reload !== true)
@@ -295,17 +295,25 @@ angular.module("ct.ui.router.extras.sticky").config(
               // being reloaded, and add a param value to the transition.  This will cause the "has params changed
               // for state" check to return false, and the states will be reloaded.
               if (reloadStateTree) {
+                currentTransition.toParams.$$uirouterextrasreload = Math.random();
                 var params = reloadStateTree.$$state().params;
                 var ownParams = reloadStateTree.$$state().ownParams;
 
-                var tempParam = new $urlMatcherFactoryProvider.Param('$$uirouterextrasreload');
-                params.$$uirouterextrasreload = ownParams.$$uirouterextrasreload = tempParam;
-                currentTransition.toParams.$$uirouterextrasreload = Math.random();
-
-                restore.restoreFunctions.push(function() {
-                  delete params.$$uirouterextrasreload;
-                  delete ownParams.$$uirouterextrasreload;
-                });
+                if (versionHeuristics.hasParamSet) {
+                  var tempParam = new $urlMatcherFactoryProvider.Param('$$uirouterextrasreload');
+                  params.$$uirouterextrasreload = ownParams.$$uirouterextrasreload = tempParam;
+                  restore.restoreFunctions.push(function() {
+                    delete params.$$uirouterextrasreload;
+                    delete ownParams.$$uirouterextrasreload;
+                  });
+                } else {
+                  params.push('$$uirouterextrasreload');
+                  ownParams.push('$$uirouterextrasreload');
+                  restore.restoreFunctions.push(function() {
+                    params.length = params.length -1;
+                    ownParams.length = ownParams.length -1;
+                  });
+                }
               }
 
               // $StickyStateProvider.processTransition analyzes the states involved in the pending transition.  It

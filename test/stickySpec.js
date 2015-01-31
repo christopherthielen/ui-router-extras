@@ -239,7 +239,7 @@ describe('stickyState', function () {
     return {
       'main': {},
       'main.other': { sticky: true, views: { 'other@main': {} } },
-      'main.product': { sticky: true, views: { 'product@main': {} }, params: { 'product_id': 15 } },
+      'main.product': { sticky: true, views: { 'product@main': {} }, url: '/:product_id' },
       'main.product.something': {}
     };
   }
@@ -404,7 +404,7 @@ describe('stickyState', function () {
       testGo('A._1', { entered: ['A', 'A._1' ] });
       testGo('A._2', { inactivated: [ 'A._1' ],  entered: 'A._2' });
       testGo('A._1', { reactivated: 'A._1', inactivated: 'A._2' });
-      resetTransitionLog();
+//      resetTransitionLog();
       testGo('A._2', { exited: [ 'A._1', 'A._2', 'A' ], entered: [ 'A', 'A._2' ] }, { reload: true });
     });
   });
