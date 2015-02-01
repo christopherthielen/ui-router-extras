@@ -33,7 +33,9 @@
     <section class="panel panel-default">
         <div class="panel-heading"><strong><code>$previousState.forget([memoName])</code></strong></div>
         <div class="panel-body">
-            <p>Forget a previously remembered state.</p>
+            <p>Forget a previously remembered memo, or the previous state.</p>
+            <pre>$previousState.forget();</pre>
+            <p>The previous state is forgotten.</p>
             <pre>$previousState.forget('workflowEntrypoint');</pre>
             <p>The state remembered with a memoName of '<code>workflowEntrypoint</code>' is forgotten.</p>
         </div>

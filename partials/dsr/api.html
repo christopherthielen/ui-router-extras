@@ -7,7 +7,11 @@
     <section class="panel panel-default">
         <div class="panel-heading"><strong><code>deepStateRedirect</code></strong></div>
         <div class="panel-body">
-            <div>Mark a state with <code>deepStateRedirect: true</code></div>
+            <p>
+                Mark a state with <code>deepStateRedirect: true</code> (or <code>dsr: true</code> for short).
+                Transitions
+                directly to this DSR state will instead redirect to the most recently active substate+params.
+            </p>
 <pre>var myState = {
     name: 'foo.bar',
     url: '/bar',
@@ -16,23 +20,92 @@
     deepStateRedirect: true
 }</pre>
 
-            <div>If using states with parameters, mark a state with <code>deepStateRedirect: { params : []}</code> if the stored states are parameter dependent.</div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4>Optional Object-based Config</h4>
+
+                    <p>Deep state redirect can be customized, depending on your needs. Instead of a boolean, set
+                        <code>deepStateRedirect</code> to a configuration object.</p>
+                </div>
+                <div class="panel-body">
+
 <pre>var myState = {
-    name: 'foo.bar.baz',
-    url: '/bar/:barID/:bazID',
+    name: 'foo',
+    url: '/foo/:fooID/:barID',
     template: '&lt;div&gt;{{templatestuff}}&lt;/div&gt;,
-    controller: 'barEditCtrl',
-    deepStateRedirect: {params: ["barID"]}
+    controller: 'fooCtrl',
+    deepStateRedirect: {
+        default: { state: "foo.bar.baz.defaultSubState", params: { defaultStateParam1: "99" } },
+        params: true,
+        fn: function($dsr$) {
+            var shouldRedirect = // TODO finish docs;
+        }
+    }
 }</pre>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong><code>default</code></strong>
+                        </div>
+                        <div class="panel-body">
+                            If no deep state has been recorded, DSR will instead redirect to the default substate and
+                            params that you specify.  If <code>default</code> is a string it is interpreted as the substate.
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong><code>params</code></strong>
+                        </div>
+                        <div class="panel-body">
+                            <p> Specify <code>params: true</code> if your DSR state takes parameters, and you want
+                                separate deep
+                                states recorded for each combination of parameter values on the DSR state.</p>
+
+                            <p>This means if you do <code>$state.go("foo", { fooID: 1, barID: 1 })</code> and are
+                                redirected
+                                to some deep state, a subsequent <code>$state.go("foo", { fooID: 2, barID: 2 })</code>
+                                will
+                                potentially redirect you to a different deep state.</p>
+
+                            <p> If only a subset of the parameters should be included in the parameter grouping for
+                                recording
+                                deep states, specify an array of parameter names, e.g., <code>params: ["fooID"]</code>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="panel panel-default">
+                        <div class="panel-heading">
+                            <strong><code>fn</code></strong>
+                        </div>
+                        <div class="panel-body">
+                            <p>A callback function that determines whether or not the redirect should actually occur, or
+                                changes the redirect to some other state. </p>
+                            <p>The function is injected with a variable <code>$dsr$</code> which provides the current
+                                redirect information.  <code>to</code> is the state being transitioned to.
+                                <code>redirect</code> is the state that will redirected to.</p>
+<pre>var $dsr$ = {
+  redirect: { state: redirect.state, params: redirect.params },
+  to: { state: toState.name, params: toParams }
+}</pre>
+
+                            <p>Return falsey to cancel the redirect</p>
+
+                            <p>Return truthy to accept the redirect</p>
+
+                            <p>Return an object <code>{ state: redirectState, params: redirectParams }</code> to change
+                                the redirect</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </section>
 
     <section class="panel panel-default">
         <div class="panel-heading"><strong><code>$deepStateRedirect</code></strong></div>
         <div class="panel-body">
-            <div>
+            <p>
                 This is the main API entry point. Inject <code>$deepStateRedirect</code> into your code for using it.<code>$deepStateRedirect</code> has the following methods:
-            </div>
+            </p>
             <br>
 
             <div class="panel panel-default">
