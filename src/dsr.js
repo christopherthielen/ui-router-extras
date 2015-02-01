@@ -43,14 +43,19 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
   }
 
   function getConfig(state) {
-    var declaration = state.deepStateRedirect;
+    var declaration = state.deepStateRedirect || state.dsr;
     if (!declaration) return { dsr: false };
     var dsrCfg = { dsr: true };
 
-    if (angular.isFunction(declaration))
+    if (angular.isFunction(declaration)) {
       dsrCfg.fn = declaration;
-    else if (angular.isObject(declaration))
+    } else if (angular.isObject(declaration)) {
       dsrCfg = angular.extend(dsrCfg, declaration);
+    }
+
+    if (angular.isString(dsrCfg.default)) {
+      dsrCfg.default = { state: dsrCfg.default };
+    }
 
     if (!dsrCfg.fn) {
       dsrCfg.fn = [ '$dsr$', function($dsr$) {
@@ -80,23 +85,30 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
     return deepStateRedirectsByName[state.name] || false;
   }
 
-  function getParamsString(params, dsrParams) {
-    function safeString(input) { return !input ? input : input.toString(); }
+  function getMatchParams(params, dsrParams) {
     if (dsrParams === true) dsrParams = Object.keys(params);
     if (dsrParams === null || dsrParams === undefined) dsrParams = [];
 
+    var matchParams = {};
+    angular.forEach(dsrParams.sort(), function(name) { matchParams[name] = params[name]; });
+    return matchParams;
+  }
+
+  function getParamsString(params, dsrParams) {
+    var matchParams = getMatchParams(params, dsrParams);
+    function safeString(input) { return !input ? input : input.toString(); }
     var paramsToString = {};
-    angular.forEach(dsrParams.sort(), function(name) { paramsToString[name] = safeString(params[name]); });
+    angular.forEach(matchParams, function(val, name) { paramsToString[name] = safeString(val); });
     return angular.toJson(paramsToString);
   }
 
   $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
-    if (ignoreDsr || computeDeepStateStatus(toState) !== REDIRECT) return;
+    var cfg = getConfig(toState);
+    if (ignoreDsr || (computeDeepStateStatus(toState) !== REDIRECT) && !cfg.default) return;
     // We're changing directly to one of the redirect (tab) states.
     // Get the DSR key for this state by calculating the DSRParams option
-    var cfg = getConfig(toState);
     var key = getParamsString(toParams, cfg.params);
-    var redirect = lastSubstate[toState.name][key];
+    var redirect = lastSubstate[toState.name][key] || cfg.default;
     if (!redirect) return;
 
     // we have a last substate recorded
@@ -105,7 +117,8 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
     if (!result) return;
     if (result.state) redirect = result;
     event.preventDefault();
-    $state.go(redirect.state, redirect.params);
+    var redirectParams = getMatchParams(toParams, cfg.params);
+    $state.go(redirect.state, angular.extend(redirectParams, redirect.params));
   });
 
   $rootScope.$on("$stateChangeSuccess", function (event, toState, toParams, fromState, fromParams) {

@@ -16,7 +16,16 @@ function getDSRStates () {
     { name: 'p2', url: '/p2/:param1/:param2', deepStateRedirect: { params: true } },
     { name: 'p2.child' },
     { name: 'p3', url: '/p3/:param1', deepStateRedirect: { params: true } },
-    { name: 'p3.child'}
+    { name: 'p3.child'},
+    { name: 'p4', url: '/p4', dsr: { default: "p4.child" } },
+    { name: 'p4.child'},
+    { name: 'p4.child2'},
+    { name: 'p5', url: '/p5', dsr: { default: { state: "p5.child", params: { p5param: "1" } } } },
+    { name: 'p5.child', url: '/child/:p5param'},
+    { name: 'p6', url: '/p6/:param', dsr: { params: true, default: "p6.child1" } },
+    { name: 'p6.child1'},
+    { name: 'p6.child2'},
+    { name: 'p6.child3'}
   ];
 }
 
@@ -155,4 +164,24 @@ describe('deepStateRedirect', function () {
       expect($state.current.name).toBe("tabs.tabs1");
     });
   });
+
+  describe("default substates", function() {
+    it("should affect the first transition to the DSR state", function() {
+      testGo("p4", undefined, { redirect: 'p4.child'});
+      testGo("p4.child2");
+      testGo("p4", undefined, { redirect: 'p4.child2'});
+    });
+
+    it("should provide default parameters", function() {
+      testGo("p5", undefined, { redirect: 'p5.child'});
+      expect($state.params).toEqual({p5param: "1"});
+    });
+
+    it("should redirect to the default state when params: true and transition to DSR with un-seen param values", function() {
+      testGo("p6", undefined, { params: {param: "1"}, redirect: 'p6.child1'});
+      testGo("p6.child2");
+      testGo("p6", undefined, { params: {param: "1"}, redirect: 'p6.child2'});
+      testGo("p6", undefined, { params: {param: "2"}, redirect: 'p6.child1'});
+    });
+  })
 });
