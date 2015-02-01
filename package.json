@@ -1,7 +1,7 @@
 {
   "author": "Christopher Thielen",
   "name": "ui-router-extras",
-  "version": "0.0.12-pre1",
+  "version": "0.0.12",
   "description": "UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise",
   "homepage": "http://christopherthielen.github.io/ui-router-extras/",
   "dependencies": {},
@@ -18,9 +18,9 @@
     "gulp-uglify": "^1.1.0",
     "gulp-jshint": "^1.9.0",
     "gulp-notify": "^2.1.0",
-    "del": "^1.1.1",
     "gulp-wrap": "^0.10.1",
     "gulp-karma": "0.0.4",
+    "del": "^1.1.1",
     "q": "^1.1.2",
     "run-sequence": "^1.0.2"
   },

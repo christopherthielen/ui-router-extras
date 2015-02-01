@@ -97,7 +97,7 @@ gulp.task('karma:modules', ['scripts'], function() {
 gulp.task('karma:versions', ['scripts'], function() {
   var karma = require('karma').server;
   var Q = require('q');
-  var versions = [ '0.2.8', '0.2.10', '0.2.11', '0.2.13' ];
+  var versions = [ '0.2.8', '0.2.10', '0.2.12', '0.2.13' ];
   var dynamicconf = require("./test/conf/karma.dynamic.conf");
 
   var promise = Q(true);
