@@ -137,4 +137,22 @@ describe("$previousState", function () {
       expect($previousState.get('foo').params).toEqual({ id: 5 });
     });
   });
+
+  describe('.forget()', function () {
+    it("should forget previous state", function () {
+      testGo("top.people.managerlist", { entered: pathFrom('top', 'top.people.managerlist') });
+      testGo("top.inv.storelist", { entered: pathFrom('top.inv', 'top.inv.storelist'), exited: pathFrom('top.people.managerlist', 'top.people') });
+      $previousState.forget();
+      expect($previousState.get()).toBeFalsy();
+    });
+
+    it("should forget previous state for specific memo", function () {
+      testGo("top.people.managerlist", { entered: pathFrom('top', 'top.people.managerlist') });
+      testGo("top.inv.storelist", { entered: pathFrom('top.inv', 'top.inv.storelist'), exited: pathFrom('top.people.managerlist', 'top.people') });
+      $previousState.memo('foo');
+      expect($previousState.get('foo').state.name).toBe("top.people.managerlist");
+      $previousState.forget('foo');
+      expect($previousState.get('foo')).toBeFalsy();
+    });
+  });
 });

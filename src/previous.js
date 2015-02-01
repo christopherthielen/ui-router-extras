@@ -30,7 +30,11 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
           memos[memoName] = previous || { state: $state.get(defaultStateName), params: defaultStateParams };
         },
         forget: function (memoName) {
-          delete memos[memoName];
+          if (memoName) {
+            delete memos[memoName];
+          } else {
+            previous = undefined;
+          }
         }
       };
 
