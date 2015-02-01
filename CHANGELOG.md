@@ -1,3 +1,36 @@
+<a name="0.0.12"></a>
+### 0.0.12 (2015-01-31)
+
+<a href="https://github.com/christopherthielen/ui-router-extras/issues?q=milestone%3A0.0.12+">
+View issues tagged with 0.0.12
+</a>
+
+#### Bug Fixes
+
+* **$futureState:**
+  * Better logic for failed lazy load of future state chore($futureState): clean up  ([4f541906](https://github.com/christopherthielen/ui-router-extras/commit/4f541906a620c582ef33c5aab26d8259777ca70a))
+  * handle .otherwise() when the typed url matches a future state url + ".*" ([2bdf864e](https://github.com/christopherthielen/ui-router-extras/commit/2bdf864e7c9f8198614d8b24d327cd3599ce6711), closes [#124](https://github.com/christopherthielen/ui-router-extras/issues/124))
+  * Fixed url.concat to use parentState.url, or parentState.navigable.url. ([31ca73bd](https://github.com/christopherthielen/ui-router-extras/commit/31ca73bdc07ac80b53e9ec76f7f4eca268461fa2))
+* **$stickyState:** Made equalForKeys compatible with state.ownParams breaking change in UI-Router 0 ([5aba1345](https://github.com/christopherthielen/ui-router-extras/commit/5aba1345152f589d6cf913d26b5b00c6ee0f1884), closes [#112](https://github.com/christopherthielen/ui-router-extras/issues/112))
+* **dsr:** Allow default substates and parameters for deep state redirect. ([20fade74](https://github.com/christopherthielen/ui-router-extras/commit/20fade743e46bbb68158f251d0880905391ed806), closes [#150](https://github.com/christopherthielen/ui-router-extras/issues/150))
+* **previous:**
+  * Future states URL is now optional ([9233ea90](https://github.com/christopherthielen/ui-router-extras/commit/9233ea903bfeadfdd24039ea3ceb21359c1a9017), closes [#129](https://github.com/christopherthielen/ui-router-extras/issues/129))
+  * Previous state no longer tracks abstract from-states (e.g., root) ([b0431d68](https://github.com/christopherthielen/ui-router-extras/commit/b0431d6884d335208161be1e562d3682da168d9d), closes [#123](https://github.com/christopherthielen/ui-router-extras/issues/123))
+  * Previous state now tracked using $transition$ promise ([1127ef62](https://github.com/christopherthielen/ui-router-extras/commit/1127ef62274bc4561370bbc3da6a4d9b5ba1c6d4), closes [#120](https://github.com/christopherthielen/ui-router-extras/issues/120))
+* **sticky:**
+  * fixed reload: true for ui-router 0.2.8 ([82783374](https://github.com/christopherthielen/ui-router-extras/commit/82783374ae07b7b7f07b597a712fbc89a00ca457))
+  * Fixed unexpected exit/reload of inactive state. ([c8eff13d](https://github.com/christopherthielen/ui-router-extras/commit/c8eff13d32216070e743fe772325f8b81b959a17), closes [#131](https://github.com/christopherthielen/ui-router-extras/issues/131))
+  * fix sticky state registration ([d84311eb](https://github.com/christopherthielen/ui-router-extras/commit/d84311eb78d0da66911216b0250bc197619cd1d4))
+
+
+#### Features
+
+* **$futureState:** Added $stateAdded event ([b6da3998](https://github.com/christopherthielen/ui-router-extras/commit/b6da3998dc903eb54f4f74d6eabe776c63260a04))
+* **previous:** forget can now forget the previous state ([992b88bd](https://github.com/christopherthielen/ui-router-extras/commit/992b88bd2f716e4bd8637cc6429f7670bf0a5e88), closes [#145](https://github.com/christopherthielen/ui-router-extras/issues/145))
+* **sticky:** Allow reloading of partial state tree ([27d6c8c5](https://github.com/christopherthielen/ui-router-extras/commit/27d6c8c5adbf7ffff059d6e66b9ec1b0e4963408), closes [#139](https://github.com/christopherthielen/ui-router-extras/issues/139))
+* **uiRouterExtras:** modularize the code base and build system. switched to gulp ([aebf936d](https://github.com/christopherthielen/ui-router-extras/commit/aebf936db9cd4c7dc8f2b813f20572ba3b07bea6))
+
+
 <a name="0.0.11"></a>
 ### 0.0.11 (2014-11-21)
 

@@ -118,3 +118,13 @@ gulp.task('karma:watch', ['scripts'], function() {
 gulp.task('karma:debug', ['scripts'], function() {
   return testModule("all.watch", "debug");
 });
+
+gulp.task('changelog', function() {
+  require('conventional-changelog')({
+    repository: 'https://github.com/christopherthielen/ui-router-extras',
+    version: require('./package.json').version,
+    from: 'df4974edf0cc9191b71122fff0fdf7bbeaa911d8'
+  }, function(err, log) {
+    console.log('Here is your changelog!', log);
+  });
+});
