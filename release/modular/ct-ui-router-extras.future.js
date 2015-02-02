@@ -1,9 +1,20 @@
+/**
+
+ * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
+ * Module: future
+ * @version 0.0.13
+ * @link http://christopherthielen.github.io/ui-router-extras/
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
 (function(angular, undefined){
 "use strict";
 (function(angular, undefined) {
   var app = angular.module('ct.ui.router.extras.future', [ 'ct.ui.router.extras.core' ]);
 
-  function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory) {
+  _futureStateProvider.$inject = [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider' ];
+  function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory, uirextras_coreProvider) {
+    var core = uirextras_coreProvider;
+    var internalStates = core.internalStates;
     var stateFactories = {}, futureStates = {};
     var lazyloadInProgress = false, resolveFunctions = [], initPromise, initDone = false;
     var provider = this;
@@ -267,7 +278,7 @@
     ];
   }
 
-  app.provider('$futureState', [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', _futureStateProvider]);
+  app.provider('$futureState', _futureStateProvider);
 
   var statesAddedQueue = {
     state: function(state) {

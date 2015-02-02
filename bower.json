@@ -1,8 +1,8 @@
 {
   "name": "ui-router-extras",
-  "version": "0.0.12",
+  "version": "0.0.13",
   "authors": [
-    "Chris Thielen <ui-router-extras@sandgnat.com>"
+    "Chris Thielen <christopherthielen@ikkyikkyikkypikangzoopboing.com>"
   ],
   "description": "Extras for UI-Router including: Sticky States (a.k.a. parallel states), Deep State Redirect (for tab-like navigation), Future States (async state definition), Previous State ",
   "keywords": [

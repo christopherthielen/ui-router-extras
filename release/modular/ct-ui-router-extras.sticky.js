@@ -1,11 +1,24 @@
+/**
+
+ * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
+ * Module: sticky
+ * @version 0.0.13
+ * @link http://christopherthielen.github.io/ui-router-extras/
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
 (function(angular, undefined){
 "use strict";
 angular.module("ct.ui.router.extras.sticky", [ 'ct.ui.router.extras.core' ]);
 
 var mod_sticky = angular.module("ct.ui.router.extras.sticky");
 
-$StickyStateProvider.$inject = [ '$stateProvider' ];
-function $StickyStateProvider($stateProvider) {
+$StickyStateProvider.$inject = [ '$stateProvider', 'uirextras_coreProvider' ];
+function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
+  var core = uirextras_coreProvider;
+  var inheritParams = core.inheritParams;
+  var protoKeys = core.protoKeys;
+  var map = core.map;
+
   // Holds all the states which are inactivated.  Inactivated states can be either sticky states, or descendants of sticky states.
   var inactiveStates = {}; // state.name -> (state)
   var stickyStates = {}; // state.name -> true
@@ -388,7 +401,12 @@ angular.module("ct.ui.router.extras.sticky").run(["$stickyState", function ($sti
 angular.module("ct.ui.router.extras.sticky").config(
   [ "$provide", "$stateProvider", '$stickyStateProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider',
     function ($provide, $stateProvider, $stickyStateProvider, $urlMatcherFactoryProvider, uirextras_coreProvider) {
-      var internalStates = uirextras_coreProvider.internalStates;
+      var core = uirextras_coreProvider;
+      var internalStates = core.internalStates;
+      var inherit = core.inherit;
+      var inheritParams = core.inheritParams;
+      var map = core.map;
+      var filterObj = core.filterObj;
 
       versionHeuristics.hasParamSet = !!$urlMatcherFactoryProvider.ParamSet;
       // inactivePseudoState (__inactives) holds all the inactive locals which includes resolved states data, i.e., views, scope, etc
@@ -752,70 +770,74 @@ angular.module("ct.ui.router.extras.sticky").config(
         };
         return $state;
       }]);
+
+
+
+      function debugTransition($log, currentTransition, stickyTransition) {
+        function message(path, index, state) {
+          return (path[index] ? path[index].toUpperCase() + ": " + state.self.name : "(" + state.self.name + ")");
+        }
+
+        var inactiveLogVar = map(stickyTransition.inactives, function (state) {
+          return state.self.name;
+        });
+        var enterLogVar = map(currentTransition.toState.path, function (state, index) {
+          return message(stickyTransition.enter, index, state);
+        });
+        var exitLogVar = map(currentTransition.fromState.path, function (state, index) {
+          return message(stickyTransition.exit, index, state);
+        });
+
+        var transitionMessage = currentTransition.fromState.self.name + ": " +
+          angular.toJson(currentTransition.fromParams) + ": " +
+          " -> " +
+          currentTransition.toState.self.name + ": " +
+          angular.toJson(currentTransition.toParams);
+
+        $log.debug("   Current transition: ", transitionMessage);
+        $log.debug("Before transition, inactives are:   : ", map(_StickyState.getInactiveStates(), function (s) {
+          return s.self.name;
+        }));
+        $log.debug("After transition,  inactives will be: ", inactiveLogVar);
+        $log.debug("Transition will exit:  ", exitLogVar);
+        $log.debug("Transition will enter: ", enterLogVar);
+      }
+
+      function debugViewsAfterSuccess($log, currentState, $state) {
+        $log.debug("Current state: " + currentState.self.name + ", inactive states: ", map(_StickyState.getInactiveStates(), function (s) {
+          return s.self.name;
+        }));
+
+        var viewMsg = function (local, name) {
+          return "'" + name + "' (" + local.$$state.name + ")";
+        };
+        var statesOnly = function (local, name) {
+          return name != 'globals' && name != 'resolve';
+        };
+        var viewsForState = function (state) {
+          var views = map(filterObj(state.locals, statesOnly), viewMsg).join(", ");
+          return "(" + (state.self.name ? state.self.name : "root") + ".locals" + (views.length ? ": " + views : "") + ")";
+        };
+
+        var message = viewsForState(currentState);
+        var parent = currentState.parent;
+        while (parent && parent !== currentState) {
+          if (parent.self.name === "") {
+            // Show the __inactives before showing root state.
+            message = viewsForState($state.$current.path[0]) + " / " + message;
+          }
+          message = viewsForState(parent) + " / " + message;
+          currentState = parent;
+          parent = currentState.parent;
+        }
+
+        $log.debug("Views: " + message);
+      }
+
+
+
     }
   ]
 );
-
-function debugTransition($log, currentTransition, stickyTransition) {
-  function message(path, index, state) {
-    return (path[index] ? path[index].toUpperCase() + ": " + state.self.name : "(" + state.self.name + ")");
-  }
-
-  var inactiveLogVar = map(stickyTransition.inactives, function (state) {
-    return state.self.name;
-  });
-  var enterLogVar = map(currentTransition.toState.path, function (state, index) {
-    return message(stickyTransition.enter, index, state);
-  });
-  var exitLogVar = map(currentTransition.fromState.path, function (state, index) {
-    return message(stickyTransition.exit, index, state);
-  });
-
-  var transitionMessage = currentTransition.fromState.self.name + ": " +
-    angular.toJson(currentTransition.fromParams) + ": " +
-    " -> " +
-    currentTransition.toState.self.name + ": " +
-    angular.toJson(currentTransition.toParams);
-
-  $log.debug("   Current transition: ", transitionMessage);
-  $log.debug("Before transition, inactives are:   : ", map(_StickyState.getInactiveStates(), function (s) {
-    return s.self.name;
-  }));
-  $log.debug("After transition,  inactives will be: ", inactiveLogVar);
-  $log.debug("Transition will exit:  ", exitLogVar);
-  $log.debug("Transition will enter: ", enterLogVar);
-}
-
-function debugViewsAfterSuccess($log, currentState, $state) {
-  $log.debug("Current state: " + currentState.self.name + ", inactive states: ", map(_StickyState.getInactiveStates(), function (s) {
-    return s.self.name;
-  }));
-
-  var viewMsg = function (local, name) {
-    return "'" + name + "' (" + local.$$state.name + ")";
-  };
-  var statesOnly = function (local, name) {
-    return name != 'globals' && name != 'resolve';
-  };
-  var viewsForState = function (state) {
-    var views = map(filterObj(state.locals, statesOnly), viewMsg).join(", ");
-    return "(" + (state.self.name ? state.self.name : "root") + ".locals" + (views.length ? ": " + views : "") + ")";
-  };
-
-  var message = viewsForState(currentState);
-  var parent = currentState.parent;
-  while (parent && parent !== currentState) {
-    if (parent.self.name === "") {
-      // Show the __inactives before showing root state.
-      message = viewsForState($state.$current.path[0]) + " / " + message;
-    }
-    message = viewsForState(parent) + " / " + message;
-    currentState = parent;
-    parent = currentState.parent;
-  }
-
-  $log.debug("Views: " + message);
-}
-
 
 })(angular);

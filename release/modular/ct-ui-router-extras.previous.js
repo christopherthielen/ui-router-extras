@@ -1,3 +1,11 @@
+/**
+
+ * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
+ * Module: previous
+ * @version 0.0.13
+ * @link http://christopherthielen.github.io/ui-router-extras/
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
 (function(angular, undefined){
 "use strict";
 angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.transition' ]).service("$previousState",

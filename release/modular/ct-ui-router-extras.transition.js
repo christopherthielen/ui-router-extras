@@ -1,3 +1,11 @@
+/**
+
+ * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
+ * Module: transition
+ * @version 0.0.13
+ * @link http://christopherthielen.github.io/ui-router-extras/
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
 (function(angular, undefined){
 "use strict";
 
@@ -42,7 +50,8 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
             return function successFn(data) {
               popStack();
               $rootScope.$broadcast("$transitionSuccess", tSuccess);
-              return deferred.resolve(data);
+              deferred.resolve(data); // $transition$ deferred
+              return data;
             };
           }
 
@@ -52,7 +61,8 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
             return function failureFn(error) {
               popStack();
               $rootScope.$broadcast("$transitionError", tFail, error);
-              return deferred.reject(error);
+              deferred.reject(error);  // $transition$ deferred
+              return $q.reject(error);
             };
           }
 

@@ -1,9 +1,17 @@
+/**
+
+ * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
+ * Module: statevis
+ * @version 0.0.13
+ * @link http://christopherthielen.github.io/ui-router-extras/
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
 (function(angular, undefined){
 "use strict";
 // statevis requires d3.
 (function () {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core' ]);
+  var app = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.sticky'  ]);
 
   app.directive('stateVis', [ '$state', '$timeout', '$interval', stateVisDirective ]);
 

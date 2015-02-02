@@ -1,0 +1,14 @@
+{
+  "banner": [
+    "/**\n",
+    " * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise",
+    " * <%= module %>",
+    " * @version <%= pkg.version %>",
+    " * @link http://christopherthielen.github.io/ui-router-extras/",
+    " * @license MIT License, http://www.opensource.org/licenses/MIT",
+    " */"
+  ],
+  "minbanner": [
+    "/** UI-Router Extras v.<%= pkg.version %> <%= module %> http://christopherthielen.github.io/ui-router-extras/ - MIT License */"
+  ]
+}

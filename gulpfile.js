@@ -8,18 +8,9 @@ var gulp = require('gulp'),
   _ = require('lodash'),
   notify = require('gulp-notify'),
   uirExtrasModules = require('./files'),
+  banners = require('./banners.json'),
   pkg = require('./package.json');
 
-
-var banner = "" +
-  "/**\n" +
-  " * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise\n" +
-  " * <%= module %>\n" +
-  " * @version <%= pkg.version %>\n" +
-  " * @link http://christopherthielen.github.io/ui-router-extras/\n" +
-  " * @license MIT License, http://www.opensource.org/licenses/MIT\n" +
-  " */";
-var minbanner = "/** UI-Router Extras v.<%= pkg.version %> <%= module %> http://christopherthielen.github.io/ui-router-extras/ - MIT License */\n";
 // Scripts
 gulp.task('scripts', ['clean'], function() {
   var jshint = require('gulp-jshint'),
@@ -35,12 +26,12 @@ gulp.task('scripts', ['clean'], function() {
       .pipe(jshint.reporter('default'))
       .pipe(concat(module.dist))
       .pipe(wrap('(function(angular, undefined){\n"use strict";\n<%= contents %>\n})(angular);'))
-      .pipe(wrap(banner + '\n<%= contents %>\n', { pkg: pkg, module: description }))
+      .pipe(wrap(banners.banner.join("\n") + '\n<%= contents %>\n', { pkg: pkg, module: description }))
 //      .pipe(wrap('/* ' + module.dist + ' v.' + pkg.version + '*/\n<%= contents %>\n', { pkg: pkg, module: module }))
       .pipe(gulp.dest(module.dest))
       .pipe(rename({ suffix: '.min' }))
       .pipe(uglify())
-      .pipe(wrap(minbanner + '\n<%= contents %>\n', { pkg: pkg, module: description }))
+      .pipe(wrap(banners.minbanner.join("\n") + '\n<%= contents %>\n', { pkg: pkg, module: description }))
       .pipe(gulp.dest(module.dest))
       .pipe(notify({message: 'built ' + module.module}))
     ;

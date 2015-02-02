@@ -1,4 +1,17 @@
 <a name="0.0.12"></a>
+### 0.0.13 (2015-02-02)
+
+This release comes 2 days after 0.0.12 and fixes a couple of bugs
+
+#### Bug Fixes
+
+* **future:** fix modular build of futurestates ([abfdc34d](https://github.com/christopherthielen/ui-router-extras/commit/abfdc34d41afea34ca8cccd3db5f81bb3a856eb4), closes [#151](https://github.com/christopherthielen/ui-router-extras/issues/151))
+* **statevis:** add dep from statevis to sticky ([1a488d84](https://github.com/christopherthielen/ui-router-extras/commit/1a488d84257060868f3c70b6ef7305f4936212eb), closes [#153](https://github.com/christopherthielen/ui-router-extras/issues/153))
+* **sticky:** Fix modular sticky states build ([21d1d129](https://github.com/christopherthielen/ui-router-extras/commit/21d1d129963b8bfc724823f93ca0efc32868ec77), closes [#154](https://github.com/christopherthielen/ui-router-extras/issues/154))
+* **transition:** transition promise now resolved correctly ([598452ed](https://github.com/christopherthielen/ui-router-extras/commit/598452ed5bae76b8add8707794740993d3242011), closes [#152](https://github.com/christopherthielen/ui-router-extras/issues/152))
+
+
+<a name="0.0.12"></a>
 ### 0.0.12 (2015-01-31)
 
 <a href="https://github.com/christopherthielen/ui-router-extras/issues?q=milestone%3A0.0.12+">
