@@ -40,7 +40,8 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
             return function successFn(data) {
               popStack();
               $rootScope.$broadcast("$transitionSuccess", tSuccess);
-              return deferred.resolve(data);
+              deferred.resolve(data); // $transition$ deferred
+              return data;
             };
           }
 
@@ -50,7 +51,8 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
             return function failureFn(error) {
               popStack();
               $rootScope.$broadcast("$transitionError", tFail, error);
-              return deferred.reject(error);
+              deferred.reject(error);  // $transition$ deferred
+              return $q.reject(error);
             };
           }
 
