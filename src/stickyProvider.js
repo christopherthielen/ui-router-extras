@@ -2,8 +2,13 @@ angular.module("ct.ui.router.extras.sticky", [ 'ct.ui.router.extras.core' ]);
 
 var mod_sticky = angular.module("ct.ui.router.extras.sticky");
 
-$StickyStateProvider.$inject = [ '$stateProvider' ];
-function $StickyStateProvider($stateProvider) {
+$StickyStateProvider.$inject = [ '$stateProvider', 'uirextras_coreProvider' ];
+function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
+  var core = uirextras_coreProvider;
+  var inheritParams = core.inheritParams;
+  var protoKeys = core.protoKeys;
+  var map = core.map;
+
   // Holds all the states which are inactivated.  Inactivated states can be either sticky states, or descendants of sticky states.
   var inactiveStates = {}; // state.name -> (state)
   var stickyStates = {}; // state.name -> true
