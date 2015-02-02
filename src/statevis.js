@@ -1,7 +1,7 @@
 // statevis requires d3.
 (function () {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core' ]);
+  var app = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.sticky'  ]);
 
   app.directive('stateVis', [ '$state', '$timeout', '$interval', stateVisDirective ]);
 

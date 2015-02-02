@@ -22,6 +22,7 @@ modules.sticky.src = ['src/stickyProvider.js'].concat(modules.sticky.src);
 modules.core.src.push('src/util.js');
 modules.future.test.push('src/fsfactories/ngload.js');
 modules.future.test.push('src/fsfactories/iframe.js');
+modules.statevis.test.push('build/modular/ct-ui-router-extras.sticky.js');
 modules.previous.test.push('build/modular/ct-ui-router-extras.transition.js');
 
 // Build the monolithic module 'all' which sucks in all the others
