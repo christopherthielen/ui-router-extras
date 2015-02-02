@@ -15,10 +15,10 @@ UI-Router Extras adds additional features to help you write large modular applic
     - "angular": "~1.2.0" 
     - "angular-ui-router": "~0.2.8"
     
-*Note: ui-router-extras test suite runs against UI-Router versions 0.2.8, 0.2.10, 0.2.11, 0.2.13*
+*Note: ui-router-extras test suite runs against UI-Router versions 0.2.8, 0.2.10, 0.2.12, 0.2.13*
 *Support for older versions of ui-router is likely to disappear in the future.*
 
-## Install
+## Monolithic Install
 1. download the files
 	1. NPM
 		1. run `npm install ui-router-extras --save-dev`
