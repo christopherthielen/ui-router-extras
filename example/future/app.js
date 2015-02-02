@@ -1,7 +1,8 @@
 // Require angularAMD, ui-router, and ui-router-extras
-define([ 'angularAMD',  'angular-ui-router',  'ui-router-extras' ],
+define([ 'angularAMD',  'angular-ui-router',  'ui-router-extras-future', 'ui-router-extras-statevis' ],
 function (angularAMD) { // Only need to inject angularAMD for app config
-  var app = angular.module("futureStates", ['ct.ui.router.extras', 'ct.ui.router.extras.statevis']);
+  var app = angular.module("futureStates",
+    ['ct.ui.router.extras.future', 'ct.ui.router.extras.statevis']);
 
   app.config(['$futureStateProvider', '$controllerProvider', 
     function($futureStateProvider, $controllerProvider) {

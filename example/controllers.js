@@ -1,6 +1,6 @@
 (function() {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.examples.dsr");
+  var app = angular.module("ct.ui.router.extras.examples");
 
   app.controller("timerCtrl", function($scope, timerService) {
     timerService.instrument($scope);
