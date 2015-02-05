@@ -7,22 +7,29 @@
     <section class="panel panel-default">
         <div class="panel-heading"><strong><code>sticky</code></strong></div>
         <div class="panel-body">
+
             <ul>
-                <li>Mark a state with <code>sticky: true</code>.</li>
-                <li>Optionally, also mark the state with <code>deepStateRedirect: true</code> to get the tab to redirect.</li>
-                <li>Declare a <strong>named view</strong> on the state which will target a <strong>named ui-view</strong>
-                    in the parent state's template</li>
+                <li>Define the sticky state</li>
                 <ul>
-                    <li>Example: <code>views: { bar: { /* bar named-view definition */ } }</code></li>
-                    <li>Each sticky state <strong>must</strong> target its own named <code>ui-view</code>.</li>
+                    <li>Mark a state with <code>sticky: true</code>.</li>
+                    <li>Optionally, also mark the state with <code>deepStateRedirect: true</code> to get the tab to redirect.</li>
+                    <li>Declare a <strong>named view</strong> on the state which will target a <strong>named ui-view</strong>
+                        in the parent state's template</li>
+                    <ul>
+                        <li>Example: <code>views: { bar: { /* bar named-view definition */ } }</code></li>
+                        <li>Each sticky state <strong>must</strong> target its own unique named <code>ui-view</code>.</li>
+                    </ul>
                 </ul>
                 <li>Add the <strong>named ui-view</strong> to the parent state's template.
-                <ul><li>Example: <code>&lt;div ui-view="bar" /&gt;</code></li></ul>
+                    <ul>
+                        <li>Example: <code>&lt;div ui-view="bar" /&gt;</code></li>
+                        <li>Optionally, hide the named ui-view when the state is not activated: <code>&lt;div ui-view="bar" ng-show="$state.includes("foo.bar") /&gt;</code></li>
+                    </ul>
             </ul>
 <pre>var parentState = {
     name: 'foo',
     url: '/foo',
-    template: '&lt;div ui-view="bar" /&gt;'
+    template: '&lt;div ui-view="bar" ng-show="$state.includes("foo.bar") /&gt;'
 }
 
 var myStickyState = {
