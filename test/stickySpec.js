@@ -283,8 +283,8 @@ describe('stickyState', function () {
 
       newStates['A._1.__1'] = {};
       newStates['A._2.__2'] = {};
-      newStates['A._3.__1'] = {};
-      newStates['A._3.__2'] = {};
+      newStates['A._3.__1'] = { views: { '__1@A._3': {} } };
+      newStates['A._3.__2'] = { views: { '__2@A._3': {} } };
 
       newStates['A._1.__1.B'] = {};
       newStates['A._1.__1.B.___1'] = {sticky: true, views: { '___1@A._1.__1.B': {} }};
@@ -381,16 +381,15 @@ describe('stickyState', function () {
     });
 
     it ('should set transition attributes correctly', function() {
-      resetTransitionLog();
-
       // Test some transitions
       testGo('aside', { entered: ['aside'] });
       testGo('_2', { exited: ['aside'],  entered: ['A', '_2'] });
       testGo('__2', { entered: ['__2'] });
       testGo('A._1.__1', { inactivated: ['__2', '_2'], entered: ['A._1', 'A._1.__1'] });
-      testGo('_2', { reactivated: ['_2'], inactivated: ['A._1.__1', 'A._1'] });
+//      resetTransitionLog();
+      testGo('_2', { reactivated: ['_2'], inactivated: ['A._1.__1', 'A._1'], exited: '__2' });
       testGo('A', { inactivated: ['_2'] });
-      testGo('aside', { exited: ['__2', 'A._1.__1', 'A._1', '_2', 'A'], entered: ['aside'] });
+      testGo('aside', { exited: ['A._1.__1', 'A._1', '_2', 'A'], entered: ['aside'] });
     });
   });
 
@@ -418,7 +417,7 @@ describe('stickyState', function () {
       testGo('A._1', { entered: ['A', 'A._1' ] });
       testGo('A._2', { inactivated: [ 'A._1' ],  entered: 'A._2' });
       testGo('A._1', { reactivated: 'A._1', inactivated: 'A._2' });
-      resetTransitionLog();
+//      resetTransitionLog();
       testGo('A._2', { inactivated: 'A._1', exited: 'A._2', entered: 'A._2' }, { reload: "A._2" });
     });
 

@@ -99,11 +99,18 @@ function addCallbacks (basicStates) {
 //      console.log(cause  + ":  Registered Inactive view " + views + " for state " + state.name + ": ", tLog.views);
     }
 
-    state.onInactivate = function () { tLog.inactivated.push(state.name); registerView(state,  'Inactivate');};
-    state.onReactivate = function () { tLog.reactivated.push(state.name); deregisterView(state,'Reactivate');};
-    state.onEnter =      function () {
-      tLog.entered.push(state.name);     deregisterView(state,'Enter     ');};
-    state.onExit =       function () { tLog.exited.push(state.name);      deregisterView(state,'Exit      ');};
+    state.onInactivate = function () {
+      tLog.inactivated.push(state.name); registerView(state,  'Inactivate');
+    };
+    state.onReactivate = function () {
+      tLog.reactivated.push(state.name); deregisterView(state,'Reactivate');
+    };
+    state.onEnter = function () {
+      tLog.entered.push(state.name);     deregisterView(state,'Enter     ');
+    };
+    state.onExit = function () {
+      tLog.exited.push(state.name);      deregisterView(state,'Exit      ');
+    };
   });
 }
 
