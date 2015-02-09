@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="../../css/bootstrap.css" rel="stylesheet">
     <link href="../../css/statevis.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+    <link href="../style.css" rel="stylesheet">
     <script type="text/javascript" src="../../js/ga.js"></script>
     <script type="text/javascript" src="../../lib/underscore.js"></script>
     <script type="text/javascript" src="../../lib/d3.js"></script>
@@ -20,23 +20,29 @@
     <script type="text/javascript" src="../timerService.js"></script>
     <script type="text/javascript" src="../dataService.js"></script>
     
-    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="stickydemo.js"></script>
     <script type="text/javascript" src="../controllers.js"></script>
 </head>
 
-<body ng-app="ct.ui.router.extras.examples.sticky">
+<body ng-app="ct.ui.router.extras.examples.sticky" ng-class="{ 'highlight-ui-views': ui.highlightUiViews }">
 <div class="navbar navbar-default navbar-static-top" role="navigation">
     <ul class="nav navbar-nav">
         <li><a href="../../#/sticky">Back to UI-Router Extras</a></li>
-        <li ng-class="{active: $state.includes('top')}"><a ui-sref=".top">Top</a></li>
-        <li ng-class="{active: $state.includes('aside1')}"><a ui-sref=".aside1">Aside 1</a></li>
-        <li ng-class="{active: $state.includes('aside2')}"><a ui-sref=".aside2">Aside 2</a></li>
+        <li ui-sref-active="active"><a ui-sref=".top">Top</a></li>
+        <li ui-sref-active="active"><a ui-sref=".aside1">Aside 1</a></li>
+        <li ui-sref-active="active"><a ui-sref=".aside2">Aside 2</a></li>
     </ul>
     <div class="navbar-right">
         <ul class="nav navbar-nav"><li><a target="_blank" href="https://github.com/christopherthielen/ui-router-extras/tree/gh-pages/example/sticky">Source code</a></li></ul>
     </div>
 </div>
+
 <div ui-view="instructions"></div>
+
+<div class="container">
+    <input type="checkbox" ng-model="ui.highlightUiViews">Outline UI-Views
+</div>
+
 <div class="container">
     <div class="row">
         <div ui-view class="col-sm-6"></div>

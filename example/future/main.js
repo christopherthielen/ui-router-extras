@@ -20,5 +20,5 @@ require.config({
     "ui-router-extras-sticky": ["angular", "ui-router-extras-core"],
     "ui-router-extras-future": ["angular", "ui-router-extras-core"]
   },
-  deps: ["app"]
+  deps: ["futuredemo"]
 });

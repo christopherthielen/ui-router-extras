@@ -10,15 +10,15 @@
     states.push({ name: 'aside2',                     url: '/aside2',       controller: 'timerCtrl',  templateUrl: '../partials/aside.html' });
     states.push({ name: 'top',                        url: '/',             
                   views: {
-                    'instructions@': { controller: 'timerCtrl', templateUrl: 'instructions.html' },
+                    'instructions': { controller: 'timerCtrl', templateUrl: 'instructions.html' },
                     '@':             { controller: 'tabCtrl', templateUrl: 'top.html' }
                   }});
     
     // Personnel tab
     states.push({ name: 'top.people',                 url: 'people',        
-                  views: { 'peopletab@top': { controller: 'peopleCtrl', templateUrl: '../partials/people.html'} },
+                  views: { 'peopletab': { controller: 'peopleCtrl', templateUrl: '../partials/people.html'} },
                   resolve: { foo: function() { console.log("resolving 'foo' for top.people (issue #22)"); return "foo"; }},
-                  deepStateRedirect: true, sticky: true });
+                  deepStateRedirect: { default: "top.people.managerlist" }, sticky: true });
     states.push({ name: 'top.people.managerlist',     url: '/managers',     controller: 'managerCtrl',templateUrl: '../partials/managers.html' });
     states.push({ name: 'top.people.manager',         url: '/manager/:mid', controller: 'managerCtrl',templateUrl: '../partials/manager.html' });
     states.push({ name: 'top.people.manager.emplist', url: '/emps',         controller: 'empCtrl',    templateUrl: '../partials/emps.html' });
@@ -26,8 +26,8 @@
 
     // Inventory tab
     states.push({ name: 'top.inv',                    url: 'inv',           
-                  views: { 'invtab@top': { controller: 'invCtrl',    templateUrl: '../partials/inv.html' } },
-                  deepStateRedirect: true, sticky: true });
+                  views: { 'invtab': { controller: 'invCtrl',    templateUrl: '../partials/inv.html' } },
+                  deepStateRedirect: { default: "top.inv.storelist" }, sticky: true });
     states.push({ name: 'top.inv.storelist',          url: '/stores',       controller: 'storeCtrl',  templateUrl: '../partials/stores.html' });
     states.push({ name: 'top.inv.store',              url: '/store/:sid',   controller: 'storeCtrl',  templateUrl: '../partials/store.html' });
     states.push({ name: 'top.inv.store.productlist',  url: '/products',     controller: 'productCtrl',templateUrl: '../partials/products.html' });
@@ -35,8 +35,8 @@
 
     // Customer tab
     states.push({ name: 'top.cust',                   url: 'cust',
-                  views: { 'custtab@top': { controller: 'custCtrl',    templateUrl: '../partials/cust.html' } },
-                  deepStateRedirect: true, sticky: true });
+                  views: { 'custtab': { controller: 'custCtrl',    templateUrl: '../partials/cust.html' } },
+                  deepStateRedirect: { default: "top.cust.customerlist" }, sticky: true });
     states.push({ name: 'top.cust.customerlist',      url: '/customers',    controller: 'customerCtrl', templateUrl: '../partials/customers.html' });
     states.push({ name: 'top.cust.customer',          url: '/customer/:cid',controller: 'customerCtrl', templateUrl: '../partials/customer.html' });
     states.push({ name: 'top.cust.customer.orderlist',url: '/orders',       controller: 'orderCtrl',    templateUrl: '../partials/orders.html' });

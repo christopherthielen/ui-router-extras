@@ -1,0 +1,42 @@
+body {
+    margin-bottom: 30em;
+}
+.ng-cloak {
+    display:none;
+}
+div.hovercode {
+    display:none;
+}
+
+.hovertrigger .hovercode {
+    display: block;
+    position: absolute;
+    top: 10px;
+    left: 0;
+}
+
+div.tabcontent {
+    height: 400px;
+    overflow-y:  scroll;
+    border: 1px solid lightgrey;
+}
+
+.highlight-ui-views div[ui-view] {
+    margin: 0.5em;
+    border: 2px solid red;
+
+}
+.highlight-ui-views div[ui-view]:before {
+    content: "<div ui-view=\0022" attr(ui-view) "\0022>";
+    padding: 0 2em;
+    background-color: #DDD;
+    width: 100%;
+    display: block;
+}
+.highlight-ui-views div[ui-view]:after {
+    content: "</div>";
+    padding: 0 2em;
+    background-color: #DDD;
+    width: 100%;
+    display: block;
+}

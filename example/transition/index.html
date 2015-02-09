@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <link href="../../css/bootstrap.css" rel="stylesheet">
     <link href="../../css/statevis.css" rel="stylesheet">
-    <link href="style.css" rel="stylesheet">
+    <link href="../style.css" rel="stylesheet">
     <script type="text/javascript" src="../../js/ga.js"></script>
     <script type="text/javascript" src="../../lib/jquery.js"></script>
     <script type="text/javascript" src="../../lib/underscore.js"></script>
@@ -21,7 +21,7 @@
     <script type="text/javascript" src="../timerService.js"></script>
     <script type="text/javascript" src="../dataService.js"></script>
     
-    <script type="text/javascript" src="app.js"></script>
+    <script type="text/javascript" src="transitiondemo.js"></script>
     <script type="text/javascript" src="../controllers.js"></script>
 </head>
 
@@ -38,6 +38,7 @@
     </div>
 </div>
 <div ui-view="instructions"></div>
+<div ng-include="'../partials/toggles.html'"></div>
 <div class="container">
     <div class="row">
         <div ui-view class="col-sm-6"></div>
