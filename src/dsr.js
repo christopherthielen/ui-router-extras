@@ -59,7 +59,7 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
 
     if (!dsrCfg.fn) {
       dsrCfg.fn = [ '$dsr$', function($dsr$) {
-        return $dsr$.redirect.state != $dsr$.to.state;
+        return $dsr$.redirect.state != $dsr$.to.state && !$dsr$.from.$state.$$state().includes[$dsr$.to.state];
       } ];
     }
     return dsrCfg;
@@ -112,7 +112,11 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
     if (!redirect) return;
 
     // we have a last substate recorded
-    var $dsr$ = { redirect: { state: redirect.state, params: redirect.params}, to: { state: toState.name, params: toParams } };
+    var $dsr$ = {
+      redirect: { state: redirect.state, params: redirect.params },
+      from: { state: fromState.name, params: fromParams, $state: fromState },
+      to: { state: toState.name, params: toParams, $state: toState }
+    };
     var result = $injector.invoke(cfg.fn, toState, { $dsr$: $dsr$ });
     if (!result) return;
     if (result.state) redirect = result;
