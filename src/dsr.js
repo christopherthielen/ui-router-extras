@@ -53,16 +53,29 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
       dsrCfg = angular.extend(dsrCfg, declaration);
     }
 
-    if (angular.isString(dsrCfg.default)) {
-      dsrCfg.default = { state: dsrCfg.default };
-    }
-
     if (!dsrCfg.fn) {
       dsrCfg.fn = [ '$dsr$', function($dsr$) {
         return $dsr$.redirect.state != $dsr$.to.state;
       } ];
     }
     return dsrCfg;
+  }
+
+  function getDefaultSubstate(dsrCfg, toState, toParams, fromState, fromParams) {
+    var defaultSubstate = dsrCfg.default;
+    if (angular.isFunction(defaultSubstate)) {
+      defaultSubstate.$inject = ['$dsr$'];
+      defaultSubstate = $injector.invoke(defaultSubstate, toState, {
+        $dsr$: {
+          to: { state: toState, params: toParams },
+          from: { state: fromState, params: fromParams }
+        }
+      });
+    }
+    if (angular.isString(defaultSubstate)) {
+      defaultSubstate = { state: defaultSubstate };
+    }
+    return defaultSubstate;
   }
 
   function recordDeepStateRedirectStatus(stateName) {
@@ -103,12 +116,26 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
   }
 
   $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
+    if (ignoreDsr) return;
+
     var cfg = getConfig(toState);
-    if (ignoreDsr || (computeDeepStateStatus(toState) !== REDIRECT) && !cfg.default) return;
+
+    var defaultSubstate;
+    var defaultSubstateFetched;
+    if (computeDeepStateStatus(toState) !== REDIRECT) {
+      defaultSubstate = getDefaultSubstate(cfg, toState, toParams, fromState, fromParams);
+      defaultSubstateFetched = true;
+      if (!defaultSubstate) return;
+    }
+
     // We're changing directly to one of the redirect (tab) states.
     // Get the DSR key for this state by calculating the DSRParams option
     var key = getParamsString(toParams, cfg.params);
-    var redirect = lastSubstate[toState.name][key] || cfg.default;
+    var redirect = lastSubstate[toState.name][key] || defaultSubstate;
+    if (!redirect && !defaultSubstateFetched) {
+      redirect = defaultSubstate = getDefaultSubstate(cfg, toState, toParams, fromState, fromParams);
+      defaultSubstateFetched = true;
+    }
     if (!redirect) return;
 
     // we have a last substate recorded
