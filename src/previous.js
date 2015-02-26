@@ -11,11 +11,14 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
         if (fromState && fromState.navigable) {
           lastPrevious = previous;
           previous = $transition$.from;
-        }
-
-        $transition$.promise.then(commit).catch(revert);
-        function commit() { lastPrevious = null; }
-        function revert() { previous = lastPrevious; }
+        } else {
+					$transition$.promise
+						.then(function commit() {
+							lastPrevious = null;
+						}, function revert() {
+							previous = lastPrevious;
+					  });
+				}
       });
 
       var $previousState = {
