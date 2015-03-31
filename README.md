@@ -42,7 +42,7 @@ UI-Router Extras adds additional features to help you write large modular applic
    5. **previous** Previous state (depends on **transition**)
    6. **statevis** D3 based State visualization as seen on the demo site (undocumented)
    7. **transition** Injectible transition promise (undocumented)
-3. Include the files for the modules you wnat into your app
+3. Include the files for the modules you want into your app
 	1. `modular/ct-ui-router-extras.core.min.js`
 	2. `modular/ct-ui-router-extras.sticky.min.js`
 	3. `modular/ct-ui-router-extras.dsr.min.js`
