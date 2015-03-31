@@ -13,7 +13,7 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
           previous = $transition$.from;
         }
 
-        $transition$.promise.then(commit).catch(revert);
+        $transition$.promise.then(commit)['catch'](revert);
         function commit() { lastPrevious = null; }
         function revert() { previous = lastPrevious; }
       });
