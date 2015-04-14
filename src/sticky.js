@@ -317,8 +317,8 @@ angular.module("ct.ui.router.extras.sticky").config(
                     delete ownParams.$$uirouterextrasreload;
                   });
                 } else {
-                  params.push('$$uirouterextrasreload');
-                  ownParams.push('$$uirouterextrasreload');
+                  // params.push('$$uirouterextrasreload');
+                  // ownParams.push('$$uirouterextrasreload');
                   restore.restoreFunctions.push(function() {
                     params.length = params.length -1;
                     ownParams.length = ownParams.length -1;
