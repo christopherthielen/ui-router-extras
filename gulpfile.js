@@ -9,7 +9,10 @@ var gulp = require('gulp'),
   notify = require('gulp-notify'),
   uirExtrasModules = require('./files'),
   banners = require('./banners.json'),
-  pkg = require('./package.json');
+  pkg = require('./package.json'),
+  fs = require('fs'),
+  iife = '(function(angular, undefined){\n"use strict";\n<%= contents %>\n})(angular);',
+  umdTemplate = fs.readFileSync('./umd.js', 'utf-8');
 
 // Scripts
 gulp.task('scripts', ['clean'], function() {
@@ -25,9 +28,8 @@ gulp.task('scripts', ['clean'], function() {
     result = gulp.src(module.src)
       .pipe(jshint.reporter('default'))
       .pipe(concat(module.dist))
-      .pipe(wrap('(function(angular, undefined){\n"use strict";\n<%= contents %>\n})(angular);'))
+      .pipe(wrap(module.module == "all" ? umdTemplate : iife))
       .pipe(wrap(banners.banner.join("\n") + '\n<%= contents %>\n', { pkg: pkg, module: description }))
-//      .pipe(wrap('/* ' + module.dist + ' v.' + pkg.version + '*/\n<%= contents %>\n', { pkg: pkg, module: module }))
       .pipe(gulp.dest(module.dest))
       .pipe(rename({ suffix: '.min' }))
       .pipe(uglify())
