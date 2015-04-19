@@ -4,6 +4,7 @@
   "version": "0.0.13",
   "description": "UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise",
   "homepage": "http://christopherthielen.github.io/ui-router-extras/",
+  "license": "MIT",
   "dependencies": {},
   "devDependencies": {
     "express": "~3.4.4",
