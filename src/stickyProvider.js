@@ -321,6 +321,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         },
         reset: function reset(inactiveState, params) {
           var state = $state.get(inactiveState);
+          if(!state) return false;
           var exiting = getInactivatedState(state, params);
           if (!exiting) return false;
           stickySupport.stateExiting(exiting);
