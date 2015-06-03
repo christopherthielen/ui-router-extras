@@ -52,7 +52,7 @@
       var parentMatcher,  parentName = futureState.name.split(/\./).slice(0, -1).join("."),
         realParent = findState(futureState.parent || parentName);
       if (realParent) {
-        parentMatcher = realParent.url || realParent.navigable.url;
+        parentMatcher = realParent.url || realParent.navigable && realParent.navigable.url;
       } else if (parentName === "") {
         parentMatcher = $urlMatcherFactory.compile("");
       } else {

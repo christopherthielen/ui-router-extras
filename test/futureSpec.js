@@ -21,6 +21,7 @@ describe('futureState', function () {
     _stateProvider.state("top", { url: '/' });
     _stateProvider.state("other", { url: '/other/:param' });
     _stateProvider.state("top.abstract", { abstract: true });
+    _stateProvider.state("nourl", { abstract: true });
 
     $futureStateProvider.futureState(futureState("top.foo", "/foo/", null, "iframe"));
     $futureStateProvider.futureState(futureState("top.bar", "/bar/", null, "doesntwork"));
@@ -173,6 +174,12 @@ describe('futureState', function () {
     it ("should allow future states to be registered without either a url or name", function() {
       _futureStateProvider.futureState(futureState("issue129", undefined, undefined, "iframe")); // no url
       testGo("issue129");
-    })
+    });
+
+    // Failing test case for issue #167
+    fit ("should allow future states to be registered as a substate of an abstract state with no url ", function() {
+      _futureStateProvider.futureState(futureState("nourl.issue167", undefined, undefined, "iframe")); // no url
+      testGo("nourl.issue167");
+    });
   });
 });
