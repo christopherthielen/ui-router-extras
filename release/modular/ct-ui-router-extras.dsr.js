@@ -1,5 +1,4 @@
 /**
-
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: dsr
  * @version 0.0.13
@@ -63,8 +62,8 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
       dsrCfg = angular.extend(dsrCfg, declaration);
     }
 
-    if (angular.isString(dsrCfg.default)) {
-      dsrCfg.default = { state: dsrCfg.default };
+    if (angular.isString(dsrCfg['default'])) {
+      dsrCfg['default'] = { state: dsrCfg['default'] };
     }
 
     if (!dsrCfg.fn) {
@@ -114,11 +113,11 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
 
   $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
     var cfg = getConfig(toState);
-    if (ignoreDsr || (computeDeepStateStatus(toState) !== REDIRECT) && !cfg.default) return;
+    if (ignoreDsr || (computeDeepStateStatus(toState) !== REDIRECT) && !cfg['default']) return;
     // We're changing directly to one of the redirect (tab) states.
     // Get the DSR key for this state by calculating the DSRParams option
     var key = getParamsString(toParams, cfg.params);
-    var redirect = lastSubstate[toState.name][key] || cfg.default;
+    var redirect = lastSubstate[toState.name][key] || cfg['default'];
     if (!redirect) return;
 
     // we have a last substate recorded
