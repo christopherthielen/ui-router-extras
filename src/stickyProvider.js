@@ -106,6 +106,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
 
       // Given a state and (optional) stateParams, returns the inactivated state from the inactive sticky state registry.
       function getInactivatedState(state, stateParams) {
+        if(!state) return null;
         var inactiveState = inactiveStates[state.name];
         if (!inactiveState) return null;
         if (!stateParams) return inactiveState;
@@ -321,6 +322,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         },
         reset: function reset(inactiveState, params) {
           var state = $state.get(inactiveState);
+          if(!state) return false;
           var exiting = getInactivatedState(state, params);
           if (!exiting) return false;
           stickySupport.stateExiting(exiting);
