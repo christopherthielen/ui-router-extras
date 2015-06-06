@@ -439,26 +439,33 @@ describe('stickyState', function () {
       ssReset(getSimpleStates(), _stateProvider);
       testGo('A._1');
       testGo('A._2');
-      resetTransitionLog();
     });
 
-    it ("should exit the states being reset()", function() {
+    it("should exit the states being reset()", function() {
       $stickyState.reset("A._1");
       $q.flush();
       expect(tLog.exited).toEqual(['A._1']);
     });
 
-    it ("should remove the reset state from the inactive list", function() {
+    it("should remove the reset state from the inactive list", function() {
       expect($stickyState.getInactiveStates().length).toBe(1);
       $stickyState.reset("A._1");
       $q.flush();
       expect($stickyState.getInactiveStates().length).toBe(0);
     });
 
-    it ("should return false for an unknown state", function() {
+    it("should return false for an unknown state", function() {
       var result = $stickyState.reset("A.DOESNTEXIST");
       expect(result).toBe(false);
       expect($stickyState.getInactiveStates().length).toBe(1);
+    });
+
+    it("should reset all inactive states if passed '*'", function() {
+      expect($stickyState.getInactiveStates().length).toBe(1);
+      testGo('A._3');
+      expect($stickyState.getInactiveStates().length).toBe(2);
+      $stickyState.reset("*");
+      expect($stickyState.getInactiveStates().length).toBe(0);
     });
   });
 });
