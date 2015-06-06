@@ -2,6 +2,17 @@
 var $get, $state, $q, $deepStateRedirect;
 
 function getDSRStates () {
+  // This function effectively returns the default DSR state at runtime
+  function p7DSRFunction($dsr$) {
+    // allow standard DSR behavior by returning true if $dsr$.redirect has a state set
+    if ($dsr$.redirect.state) return true;
+    // Otherwise, return a redirect object {state: "foo", params: {} } for the default case
+    return {
+      state: ($dsr$.to.params.param == 2) ? "p7.child2" : "p7.child1",
+      params: {}
+    };
+  }
+
   return [
     { name: 'other' },
     { name: 'tabs' },
@@ -25,7 +36,10 @@ function getDSRStates () {
     { name: 'p6', url: '/p6/:param', dsr: { params: true, default: "p6.child1" } },
     { name: 'p6.child1'},
     { name: 'p6.child2'},
-    { name: 'p6.child3'}
+    { name: 'p6.child3'},
+    { name: 'p7', url: '/p7/:param', dsr: { default: {}, fn: p7DSRFunction } },
+    { name: 'p7.child1'},
+    { name: 'p7.child2'}
   ];
 }
 
@@ -183,5 +197,22 @@ describe('deepStateRedirect', function () {
       testGo("p6", undefined, { params: {param: "1"}, redirect: 'p6.child2'});
       testGo("p6", undefined, { params: {param: "2"}, redirect: 'p6.child1'});
     });
+
+    describe("in conjunction with a dsr fn", function() {
+      it("should still invoke the dsr fn and use the result", function() {
+        // This effectively allows a function to determine DSR default
+        testGo("p7", undefined, { params: {param: "2"}, redirect: 'p7.child2'});
+        testGo("p7.child1");
+        testGo("p7", undefined, { params: {param: "2"}, redirect: 'p7.child1'});
+      });
+
+      it("should still invoke the dsr fn and use the result", function() {
+        // This effectively allows the default DSR to be determined by a fn
+        testGo("p7", undefined, { redirect: 'p7.child1' });
+        testGo("p1");
+        testGo("p7", undefined, { params: {param: "2"}, redirect: 'p7.child1' });
+      });
+
+    })
   })
 });

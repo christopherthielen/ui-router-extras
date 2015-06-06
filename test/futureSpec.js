@@ -177,7 +177,7 @@ describe('futureState', function () {
     });
 
     // Failing test case for issue #167
-    fit ("should allow future states to be registered as a substate of an abstract state with no url ", function() {
+    it ("should allow future states to be registered as a substate of an abstract state with no url ", function() {
       _futureStateProvider.futureState(futureState("nourl.issue167", undefined, undefined, "iframe")); // no url
       testGo("nourl.issue167");
     });
