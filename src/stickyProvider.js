@@ -8,6 +8,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
   var inheritParams = core.inheritParams;
   var objectKeys = core.objectKeys;
   var protoKeys = core.protoKeys;
+  var forEach = core.forEach;
   var map = core.map;
 
   // Holds all the states which are inactivated.  Inactivated states can be either sticky states, or descendants of sticky states.

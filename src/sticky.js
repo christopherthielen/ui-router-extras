@@ -95,6 +95,7 @@ angular.module("ct.ui.router.extras.sticky").config(
       var internalStates = core.internalStates;
       var inherit = core.inherit;
       var inheritParams = core.inheritParams;
+      var forEach = core.forEach;
       var map = core.map;
       var filterObj = core.filterObj;
 
