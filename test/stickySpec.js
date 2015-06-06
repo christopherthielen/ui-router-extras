@@ -42,6 +42,7 @@ describe('stickyState', function () {
       $state = _state;
       $q = _q;
       $compile = _compile;
+      $stickyState = _stickyState;
   }]));
 
   describe('setup: ', function() {
@@ -430,6 +431,34 @@ describe('stickyState', function () {
         exited: [ 'A._2.__1' ], entered: [ 'A._2.__1' ]
       }, { reload: "A._2.__1" });
       testGo('A._2.__1', { exited: [ 'A._2.__1' ], entered: [ 'A._2.__1' ] }, { reload: "A._2.__1" });
+    });
+  });
+
+  describe("reset()", function() {
+    beforeEach(function() {
+      ssReset(getSimpleStates(), _stateProvider);
+      testGo('A._1');
+      testGo('A._2');
+      resetTransitionLog();
+    });
+
+    it ("should exit the states being reset()", function() {
+      $stickyState.reset("A._1");
+      $q.flush();
+      expect(tLog.exited).toEqual(['A._1']);
+    });
+
+    it ("should remove the reset state from the inactive list", function() {
+      expect($stickyState.getInactiveStates().length).toBe(1);
+      $stickyState.reset("A._1");
+      $q.flush();
+      expect($stickyState.getInactiveStates().length).toBe(0);
+    });
+
+    it ("should return false for an unknown state", function() {
+      var result = $stickyState.reset("A.DOESNTEXIST");
+      expect(result).toBe(false);
+      expect($stickyState.getInactiveStates().length).toBe(1);
     });
   });
 });
