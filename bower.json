@@ -1,8 +1,8 @@
 {
   "name": "ui-router-extras-pages",
   "dependencies": {
-    "angular": "~1.2.0",
-    "angular-ui-router": "~0.2.10",
+    "angular": "~1.4.0",
+    "angular-ui-router": "~0.2.15",
     "angular-bootstrap": "latest",
     "bootstrap": "latest",
     "lodash": "latest",
