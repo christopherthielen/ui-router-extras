@@ -249,7 +249,7 @@
           initPromise().then(function retryInitialState() {
             $timeout(function () {
               if ($state.transition) {
-                $state.transition.then($urlRouter.sync, $urlRouter.sync);
+                $state.transition.then(retryInitialState, retryInitialState);
               } else {
                 $urlRouter.sync();
               }
