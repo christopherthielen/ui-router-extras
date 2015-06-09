@@ -145,7 +145,7 @@
 
     var otherwiseFunc = [ '$log', '$location',
       function otherwiseFunc($log, $location) {
-        $log.debug("Unable to map " + $location.path());
+        //$log.debug("Unable to map " + $location.path());
       }];
 
     function futureState_otherwise($injector, $location) {
@@ -212,7 +212,7 @@
         function init() {
           $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
             if (lazyloadInProgress) return;
-            $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
+            //$log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
 
             var futureState = findFutureState($state, { name: unfoundState.to });
             if (!futureState) return;
