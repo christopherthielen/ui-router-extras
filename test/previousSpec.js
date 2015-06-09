@@ -8,7 +8,7 @@ function getPreviousMockStates() {
   states.push({ name: 'aside2', url: '/aside2'});
 
   // Root of main app states
-  states.push({ name: 'top', url: '/' });
+  states.push({ name: 'top' });
 
   // Personnel tab
   states.push({ name: 'top.people', url: 'people'  });
@@ -59,6 +59,15 @@ describe("$previousState", function () {
     expect($previousState.get()).toBeNull();
   }));
 
+  // Test for #175
+  it("should not capture root state (or non-navigable states)", inject(function($rootScope) {
+    testGo("top", { entered: 'top' });
+    testGo("top.cust", { entered: 'top.cust' });
+    var prev = $previousState.get();
+    expect(prev).toBeDefined();
+    expect(prev.state.name).toBe("top");
+  }));
+
 
   describe('.go()', function () {
     it("should transition back to the previous state", function () {
@@ -73,15 +82,15 @@ describe("$previousState", function () {
   describe('.get()', function() {
     // Test for #120
     it("should not return current state, after a transition is cancelled", inject(function($rootScope) {
-      testGo("top", { entered: 'top' });
-      testGo("top.people.managerlist", { entered: ['top.people', 'top.people.managerlist'] });
+      testGo("top.people", { entered: [ 'top', 'top.people' ] });
+      testGo("top.people.managerlist", { entered: ['top.people.managerlist'] });
 
       var transitionNum = 0;
       $rootScope.$on("$stateChangeStart", function(evt) { if (transitionNum++ === 0) { evt.preventDefault(); } });
 
       testGo("top.inv.storelist", undefined, { redirect: 'top.people.managerlist'}); // Cancelled, so we're still at original state
 
-      expect($previousState.get().state.name).toBe("top");
+      expect($previousState.get().state.name).toBe("top.people");
     }))
   });
   
