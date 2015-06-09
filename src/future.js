@@ -122,25 +122,31 @@
         return deferred.promise;
       }
 
-      var promise = $q.when([]), parentFuture = futureState.parentFutureState;
+      var parentPromises = $q.when([]), parentFuture = futureState.parentFutureState;
       if (parentFuture && futureStates[parentFuture.name]) {
-        promise = lazyLoadState($injector, futureStates[parentFuture.name]);
+        parentPromises = lazyLoadState($injector, futureStates[parentFuture.name]);
       }
 
       var type = futureState.type;
       var factory = stateFactories[type];
       if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
-      return promise
-        .then(function(array) {
-          var injectorPromise = $injector.invoke(factory, factory, { futureState: futureState });
-          return injectorPromise.then(function(fullState) {
-            if (fullState) { array.push(fullState); } // Pass a chain of realized states back
-            return array;
-          });
-        })
-        ["finally"](function() { // IE8 hack
-        delete(futureStates[futureState.name]);
-      });
+
+      var failedLoadPolicy = factory.$options && factory.$options.failedLazyLoadPolicy || "remove";
+      function deregisterFutureState() { delete(futureStates[futureState.name]); }
+      function errorHandler(err) {
+        if (failedLoadPolicy === "remove") deregisterFutureState();
+        return $q.reject(err);
+      }
+
+      return parentPromises.then(function(array) {
+        var factoryPromise = $injector.invoke(factory, factory, { futureState: futureState });
+
+        return factoryPromise.then(function(fullState) {
+          deregisterFutureState(); // Success; remove future state
+          if (fullState) { array.push(fullState); } // Pass a chain of realized states back
+          return array;
+        });
+      }).catch(errorHandler)
     }
 
     var otherwiseFunc = [ '$log', '$location',
@@ -228,7 +234,7 @@
               lazyloadInProgress = false;
             }, function (error) {
               console.log("failed to lazy load state ", error);
-              $state.go(fromState, fromParams);
+              if (fromState.name) $state.go(fromState, fromParams);
               lazyloadInProgress = false;
             });
           });

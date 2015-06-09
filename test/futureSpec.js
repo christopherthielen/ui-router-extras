@@ -181,5 +181,48 @@ describe('futureState', function () {
       _futureStateProvider.futureState(futureState("nourl.issue167", undefined, undefined, "iframe")); // no url
       testGo("nourl.issue167");
     });
+
+    // Test 1 for enhancement issue #196
+    it("should remove future states that properly load", function() {
+      var name = "top.foo";
+
+      expect($futureState.get()[name]).toBeDefined();
+
+      $state.go(name);
+      $q.flush();
+
+      expect($state.current.name).toBe(name);
+      expect($futureState.get()[name]).toBeUndefined();
+    });
+
+    // Test 2 for enhancement issue #196
+    it("should remove future states that failed to load, if no policy is set", function() {
+      var name = "top.bar";
+
+      expect($futureState.get()[name]).toBeDefined();
+
+      $state.go(name);
+      $q.flush();
+
+      expect($state.current.name).toBe("");
+      expect($futureState.get()[name]).toBeUndefined();
+    });
+
+    // Test 3 for enhancement issue #196
+    it("should remove future states that failed to load, if no policy is set", function() {
+      var name = "top.bar";
+
+      var factory = function (futureState) { return $q.reject("doesntwork"); };
+      factory.$options = { failedLazyLoadPolicy: "retain" };
+      _futureStateProvider.stateFactory('doesntwork', factory);
+
+      expect($futureState.get()[name]).toBeDefined();
+
+      $state.go(name);
+      $q.flush();
+
+      expect($state.current.name).toBe("");
+      expect($futureState.get()[name]).toBeDefined();
+    })
   });
 });
