@@ -137,6 +137,14 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
   });
 
   return {
+    getRedirect: function(dsrState, params) {
+      var state = $state.get(dsrState);
+      computeDeepStateStatus(state)
+      var cfg = getConfig(state);
+      var key = getParamsString(params, cfg.params);
+      var redirect = lastSubstate[state.name][key] || cfg['default'];
+      return redirect;
+    },
     reset: function(stateOrName, params) {
       if (!stateOrName) {
         angular.forEach(lastSubstate, function(redirect, dsrState) { lastSubstate[dsrState] = {}; });

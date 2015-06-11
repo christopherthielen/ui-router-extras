@@ -111,6 +111,14 @@ describe('deepStateRedirect', function () {
       expect($state.current.name).toEqual("p1.child"); // DSR
     }));
 
+    // Test for issue #184 getRedirect()
+    it("should be returned from getRedirect() for matching DSR params", inject(function($state, $q) {
+      $state.go("p1", { param1: "foo", param2: "foo2" } ); $q.flush();
+      $state.go(".child"); $q.flush();
+      expect($deepStateRedirect.getRedirect("p1", { param1: "foo"}).state).toBe("p1.child");
+      expect($deepStateRedirect.getRedirect("p1", { param1: "bar"})).toBeUndefined();
+    }));
+
     it("should not redirect if a param is resetted", inject(function($state, $q) {
       $state.go("p3", { param1: "foo" } );$q.flush();
       $state.go(".child");$q.flush();
@@ -180,6 +188,11 @@ describe('deepStateRedirect', function () {
   });
 
   describe("default substates", function() {
+    // Test for issue #184 getRedirect()
+    it("should be returned by getRedirect", function() {
+      expect($deepStateRedirect.getRedirect("p4").state).toBe("p4.child");
+    });
+
     it("should affect the first transition to the DSR state", function() {
       testGo("p4", undefined, { redirect: 'p4.child'});
       testGo("p4.child2");
