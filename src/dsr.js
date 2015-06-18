@@ -129,7 +129,7 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
         // update Last-SubState&params for each DSR that this transition matches.
         var cfg = getConfig($state.get(dsrState));
         var key = getParamsString(toParams, cfg.params);
-        if (name == dsrState || name.indexOf(dsrState + ".") != -1) {
+        if (toState.$$state().includes[dsrState]) {
           lastSubstate[dsrState][key] = { state: name, params: angular.copy(toParams) };
         }
       });

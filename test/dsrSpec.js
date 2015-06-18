@@ -39,7 +39,10 @@ function getDSRStates () {
     { name: 'p6.child3'},
     { name: 'p7', url: '/p7/:param', dsr: { default: {}, fn: p7DSRFunction } },
     { name: 'p7.child1'},
-    { name: 'p7.child2'}
+    { name: 'p7.child2'},
+    { name: 'p8', dsr: true },
+    { name: 'p8child1', parent: 'p8' },
+    { name: 'p8child2', parent: 'p8' }
   ];
 }
 
@@ -93,6 +96,14 @@ describe('deepStateRedirect', function () {
       testGo("tabs.tabs2", { entered: 'tabs.tabs2', exited: [ 'tabs.tabs1.deep.nest', 'tabs.tabs1.deep', 'tabs.tabs1' ]});
       testGo("tabs.tabs1", { entered: 'tabs.tabs1', exited: [ 'tabs.tabs2' ]});
     }));
+  });
+
+  describe("with child substates configured using {parent: parentState}", function() {
+    it("should remember and redirect to the last deepest state", function() {
+      testGo("p8child1");
+      testGo("other");
+      testGo("p8", undefined, { redirect: 'p8child1'} );
+    });
   });
 
   describe('with configured params', function () {
