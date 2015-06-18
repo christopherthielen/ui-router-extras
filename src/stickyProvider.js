@@ -321,8 +321,8 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
             $injector.invoke(onEnter, entering.self, entering.locals.globals);
         },
         reset: function reset(inactiveState, params) {
+          function resetOne(state) { stickySupport.reset(state); }
           if (inactiveState === "*") {
-            function resetOne(state) { stickySupport.reset(state); }
             angular.forEach(stickySupport.getInactiveStates(), resetOne);
             return true;
           }

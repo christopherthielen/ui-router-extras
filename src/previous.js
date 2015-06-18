@@ -8,13 +8,13 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
         // Check if the fromState is navigable before tracking it.
         // Root state doesn't get decorated with $$state().  Doh.
         var fromState = from.state && from.state.$$state && from.state.$$state();
+        function commit() { lastPrevious = null; }
+        function revert() { previous = lastPrevious; }
         if (fromState) {
           lastPrevious = previous;
           previous = $transition$.from;
 
           $transition$.promise.then(commit)['catch'](revert);
-          function commit() { lastPrevious = null; }
-          function revert() { previous = lastPrevious; }
         }
       });
 
