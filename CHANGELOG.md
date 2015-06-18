@@ -1,4 +1,29 @@
-<a name="0.0.12"></a>
+<a name="0.0.14"></a>
+### 0.0.14 (2015-06-18)
+
+#### Bug Fixes
+
+* **dsr:** Use state.includes instead of state.name.indexOf to determine if a dsr state is  ([89565f4d](https://github.com/christopherthielen/ui-router-extras/commit/89565f4d0dfdca1b8e75d586fa8f85adcda0f880), closes [#208](https://github.com/christopherthielen/ui-router-extras/issues/208))
+* **future:**
+  * commented out debug code ([b53c1ef7](https://github.com/christopherthielen/ui-router-extras/commit/b53c1ef73cad583df705fa65d82d2be2d4b1d9c5), closes [#156](https://github.com/christopherthielen/ui-router-extras/issues/156))
+  * Fixed double-urlRouter.sync() because of future state retry ([f22c5439](https://github.com/christopherthielen/ui-router-extras/commit/f22c543968750a97346e3938e7c75b02422d69c9), closes [#138](https://github.com/christopherthielen/ui-router-extras/issues/138))
+  * Allow future state to be child of url-less abstract state Manually merged in pul ([3a2419a7](https://github.com/christopherthielen/ui-router-extras/commit/3a2419a7a55715661bf38135b041928bc655f804))
+* **previous:** Allow previous state to track states without URLs. ([9c4be9f3](https://github.com/christopherthielen/ui-router-extras/commit/9c4be9f3e73c9229dc371af70a3a2ade3980a75a), closes [#175](https://github.com/christopherthielen/ui-router-extras/issues/175))
+* **sticky:**
+  * Fixed non-strict references to 'forEach' ([710e1d77](https://github.com/christopherthielen/ui-router-extras/commit/710e1d776b9a85ead2b6262e3b37eb4971c74f65))
+  * prevent error on reseting missing state PR #206 ([44edae43](https://github.com/christopherthielen/ui-router-extras/commit/44edae43d680550af030d3404d6ee730da03d43d))
+  * Refactored logic to better calculate exit/enter/(in|re)activations ([43be5d9d](https://github.com/christopherthielen/ui-router-extras/commit/43be5d9d064cfda547dc50f65c28ae045badeb19), closes [#131](https://github.com/christopherthielen/ui-router-extras/issues/131))
+* **extras:** restore ie8 compatibility due to reserved words ([c25346d1](https://github.com/christopherthielen/ui-router-extras/commit/c25346d172fccadebcbf88abb3b7cf5153ab5efd))
+* **karma:** fixes "lodash" reference ([4cfc3bbd](https://github.com/christopherthielen/ui-router-extras/commit/4cfc3bbdcc0e53a350858b78089fc375335c74ec))
+
+
+#### Features
+
+* **dsr:** Added getRedirect() to $deepStateRedirect ([45c535af](https://github.com/christopherthielen/ui-router-extras/commit/45c535af59b4344fda854dd1c88cd155f8ad241a), closes [#184](https://github.com/christopherthielen/ui-router-extras/issues/184))
+* **future:** Allow future states to be retried after a failed lazy load attempt ([6e6f3ece](https://github.com/christopherthielen/ui-router-extras/commit/6e6f3ece5034dfcb1c5c23cf8e47405c12c55595), closes [#196](https://github.com/christopherthielen/ui-router-extras/issues/196))
+* **sticky:** added $stickyState.reset("*") ([3656835d](https://github.com/christopherthielen/ui-router-extras/commit/3656835ddb949c53b6b99ca69237be917dc1ea85), closes [#162](https://github.com/christopherthielen/ui-router-extras/issues/162))
+
+<a name="0.0.13"></a>
 ### 0.0.13 (2015-02-02)
 
 This release comes 2 days after 0.0.12 and fixes a couple of bugs
