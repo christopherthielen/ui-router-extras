@@ -1,8 +1,7 @@
 /**
-
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: future
- * @version 0.0.13
+ * @version 0.0.14
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -62,7 +61,7 @@
       var parentMatcher,  parentName = futureState.name.split(/\./).slice(0, -1).join("."),
         realParent = findState(futureState.parent || parentName);
       if (realParent) {
-        parentMatcher = realParent.url || realParent.navigable.url;
+        parentMatcher = realParent.url || realParent.navigable && realParent.navigable.url;
       } else if (parentName === "") {
         parentMatcher = $urlMatcherFactory.compile("");
       } else {
@@ -132,30 +131,36 @@
         return deferred.promise;
       }
 
-      var promise = $q.when([]), parentFuture = futureState.parentFutureState;
+      var parentPromises = $q.when([]), parentFuture = futureState.parentFutureState;
       if (parentFuture && futureStates[parentFuture.name]) {
-        promise = lazyLoadState($injector, futureStates[parentFuture.name]);
+        parentPromises = lazyLoadState($injector, futureStates[parentFuture.name]);
       }
 
       var type = futureState.type;
       var factory = stateFactories[type];
       if (!factory) throw Error("No state factory for futureState.type: " + (futureState && futureState.type));
-      return promise
-        .then(function(array) {
-          var injectorPromise = $injector.invoke(factory, factory, { futureState: futureState });
-          return injectorPromise.then(function(fullState) {
-            if (fullState) { array.push(fullState); } // Pass a chain of realized states back
-            return array;
-          });
-        })
-        ["finally"](function() { // IE8 hack
-        delete(futureStates[futureState.name]);
-      });
+
+      var failedLoadPolicy = factory.$options && factory.$options.failedLazyLoadPolicy || "remove";
+      function deregisterFutureState() { delete(futureStates[futureState.name]); }
+      function errorHandler(err) {
+        if (failedLoadPolicy === "remove") deregisterFutureState();
+        return $q.reject(err);
+      }
+
+      return parentPromises.then(function(array) {
+        var factoryPromise = $injector.invoke(factory, factory, { futureState: futureState });
+
+        return factoryPromise.then(function(fullState) {
+          deregisterFutureState(); // Success; remove future state
+          if (fullState) { array.push(fullState); } // Pass a chain of realized states back
+          return array;
+        });
+      }).catch(errorHandler)
     }
 
     var otherwiseFunc = [ '$log', '$location',
       function otherwiseFunc($log, $location) {
-        $log.debug("Unable to map " + $location.path());
+        //$log.debug("Unable to map " + $location.path());
       }];
 
     function futureState_otherwise($injector, $location) {
@@ -222,7 +227,7 @@
         function init() {
           $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
             if (lazyloadInProgress) return;
-            $log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
+            //$log.debug("event, unfoundState, fromState, fromParams", event, unfoundState, fromState, fromParams);
 
             var futureState = findFutureState($state, { name: unfoundState.to });
             if (!futureState) return;
@@ -238,7 +243,7 @@
               lazyloadInProgress = false;
             }, function (error) {
               console.log("failed to lazy load state ", error);
-              $state.go(fromState, fromParams);
+              if (fromState.name) $state.go(fromState, fromParams);
               lazyloadInProgress = false;
             });
           });
@@ -259,7 +264,7 @@
           initPromise().then(function retryInitialState() {
             $timeout(function () {
               if ($state.transition) {
-                $state.transition.then($urlRouter.sync, $urlRouter.sync);
+                $state.transition.then(retryInitialState, retryInitialState);
               } else {
                 $urlRouter.sync();
               }

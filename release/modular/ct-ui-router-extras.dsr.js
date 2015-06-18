@@ -1,8 +1,7 @@
 /**
-
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: dsr
- * @version 0.0.13
+ * @version 0.0.14
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -63,8 +62,8 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
       dsrCfg = angular.extend(dsrCfg, declaration);
     }
 
-    if (angular.isString(dsrCfg.default)) {
-      dsrCfg.default = { state: dsrCfg.default };
+    if (angular.isString(dsrCfg['default'])) {
+      dsrCfg['default'] = { state: dsrCfg['default'] };
     }
 
     if (!dsrCfg.fn) {
@@ -114,11 +113,11 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
 
   $rootScope.$on("$stateChangeStart", function (event, toState, toParams, fromState, fromParams) {
     var cfg = getConfig(toState);
-    if (ignoreDsr || (computeDeepStateStatus(toState) !== REDIRECT) && !cfg.default) return;
+    if (ignoreDsr || (computeDeepStateStatus(toState) !== REDIRECT) && !cfg['default']) return;
     // We're changing directly to one of the redirect (tab) states.
     // Get the DSR key for this state by calculating the DSRParams option
     var key = getParamsString(toParams, cfg.params);
-    var redirect = lastSubstate[toState.name][key] || cfg.default;
+    var redirect = lastSubstate[toState.name][key] || cfg['default'];
     if (!redirect) return;
 
     // we have a last substate recorded
@@ -139,7 +138,7 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
         // update Last-SubState&params for each DSR that this transition matches.
         var cfg = getConfig($state.get(dsrState));
         var key = getParamsString(toParams, cfg.params);
-        if (name == dsrState || name.indexOf(dsrState + ".") != -1) {
+        if (toState.$$state().includes[dsrState]) {
           lastSubstate[dsrState][key] = { state: name, params: angular.copy(toParams) };
         }
       });
@@ -147,6 +146,14 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
   });
 
   return {
+    getRedirect: function(dsrState, params) {
+      var state = $state.get(dsrState);
+      computeDeepStateStatus(state)
+      var cfg = getConfig(state);
+      var key = getParamsString(params, cfg.params);
+      var redirect = lastSubstate[state.name][key] || cfg['default'];
+      return redirect;
+    },
     reset: function(stateOrName, params) {
       if (!stateOrName) {
         angular.forEach(lastSubstate, function(redirect, dsrState) { lastSubstate[dsrState] = {}; });

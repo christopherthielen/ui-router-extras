@@ -1,8 +1,7 @@
 /**
-
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: transition
- * @version 0.0.13
+ * @version 0.0.14
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */

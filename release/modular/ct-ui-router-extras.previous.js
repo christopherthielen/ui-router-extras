@@ -1,8 +1,7 @@
 /**
-
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: previous
- * @version 0.0.13
+ * @version 0.0.14
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -18,14 +17,14 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
         // Check if the fromState is navigable before tracking it.
         // Root state doesn't get decorated with $$state().  Doh.
         var fromState = from.state && from.state.$$state && from.state.$$state();
-        if (fromState && fromState.navigable) {
-          lastPrevious = previous;
-          previous = $transition$.from;
-        }
-
-        $transition$.promise.then(commit).catch(revert);
         function commit() { lastPrevious = null; }
         function revert() { previous = lastPrevious; }
+        if (fromState) {
+          lastPrevious = previous;
+          previous = $transition$.from;
+
+          $transition$.promise.then(commit)['catch'](revert);
+        }
       });
 
       var $previousState = {
