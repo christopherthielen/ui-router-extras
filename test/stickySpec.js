@@ -468,6 +468,36 @@ describe('stickyState', function () {
       expect($stickyState.getInactiveStates().length).toBe(0);
     });
   });
+
+  function getPreemptiveStates() {
+    return {
+      'main': { },
+      'main.modal': { },
+      'main.tab1': { sticky: true, views: { 'tab@main': {} } },
+      'main.tab2': { sticky: true, views: { 'tab@main': {} } }
+    };
+  }
+
+  describe('preemptive sticky states', function() {
+    beforeEach(function() {
+      ssReset(getPreemptiveStates(), _stateProvider);
+    });
+
+    it("should force sticky state out when same view is reused", function() {
+      testGo('main.tab1');
+      resetTransitionLog();
+      testGo('main.tab2', { entered: ['main.tab2' ], exited: ['main.tab1'] } );
+    });
+
+    it("should be sticky after forcing out another sticky state", function() {
+      testGo('main.tab1');
+      testGo('main.tab2');
+      resetTransitionLog();
+      testGo('main.modal', { entered: ['main.modal' ], inactivated: ['main.tab2'] });
+      resetTransitionLog();
+      testGo('main.tab2', { reactivated: ['main.tab2' ], exited: ['main.modal'] });
+    });
+  });
 });
 
 describe('stickyState+ui-sref-active', function () {
