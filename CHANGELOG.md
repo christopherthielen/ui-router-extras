@@ -1,3 +1,12 @@
+<a name="0.0.14a"></a>
+### 0.0.14a (2015-06-23)
+
+#### Features
+
+* **sticky:**
+  * added preemptive sticky states support
+
+
 <a name="0.0.14"></a>
 ### 0.0.14 (2015-06-18)
 

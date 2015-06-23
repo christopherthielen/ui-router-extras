@@ -1,10 +1,11 @@
 {
-  "name": "ui-router-extras",
-  "version": "0.0.14",
+  "name": "grety-ui-router-extras",
+  "version": "0.0.14a",
   "authors": [
-    "Chris Thielen <christopherthielen@ikkyikkyikkypikangzoopboing.com>"
+    "Chris Thielen <christopherthielen@ikkyikkyikkypikangzoopboing.com>",
+    "Kyrylo Slatin <kirill.slatin@gmail.com>"
   ],
-  "description": "Extras for UI-Router including: Sticky States (a.k.a. parallel states), Deep State Redirect (for tab-like navigation), Future States (async state definition), Previous State ",
+  "description": "Extras for UI-Router including: Sticky States (has preemptive states support), Deep State Redirect (for tab-like navigation), Future States (async state definition), Previous State ",
   "keywords": [
     "angular", "angularjs", "ui-router", "ui-router-extras", "tab", "tabs", "state", "states", "parallel", "sticky", "lazy", "future"
   ],
