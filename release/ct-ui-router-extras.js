@@ -1,7 +1,7 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Monolithic build (all modules)
- * @version 0.0.14
+ * @version 0.0.15-alpha
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -439,11 +439,32 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         return stack;
       }
 
+      //determines if one sticky state would like to force another sticky out of its view
+      function arePreemptive(fromState, toState){
+        //if transition is changing level (parent->child or child->parent) these states can't be preemptive
+        if(!fromState || !toState) { return false; }
+        //if one of the states in transition are targeting only unnamed (default) ui-view
+        //it means 'to' and 'from' are definitely not sticky preemptive
+        if(!fromState.self.views || !toState.self.views) { return false; }
+
+        //the most complicated scenario to detect sticky preemptive is when 'to' and 'from' define templates
+        //for a list of different named ui-views. Currently if any ui-view name coincide then 'to' forces out 'from'
+        //Example: 'from' has named views 'view_a' and 'view_b'; 'from' has views 'view_c', 'view_d' and 'view_a'
+        //Int this case 'from' will exit being forced out by 'to' through 'view_a'
+        var preemptive = false;
+        map(toState.self.views, function(value, key){
+          if(fromState.self.views.hasOwnProperty(key)){
+            preemptive = true;
+          }
+        });
+        return preemptive;
+      }
+
       // Used by processTransition to determine if what kind of sticky state transition this is.
       // returns { from: (bool), to: (bool) }
       function getStickyTransitionType(fromPath, toPath, keep) {
         if (fromPath[keep] === toPath[keep]) return { from: false, to: false };
-        var stickyFromState = keep < fromPath.length && fromPath[keep].self.sticky;
+        var stickyFromState = keep < fromPath.length && fromPath[keep].self.sticky && !arePreemptive(fromPath[keep], toPath[keep]);
         var stickyToState = keep < toPath.length && toPath[keep].self.sticky;
         return { from: stickyFromState, to: stickyToState };
       }

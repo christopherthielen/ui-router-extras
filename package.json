@@ -1,7 +1,7 @@
 {
   "author": "Christopher Thielen",
-  "name": "ui-router-extras",
-  "version": "0.0.14",
+  "name": "grety-ui-router-extras",
+  "version": "0.0.15-alpha",
   "description": "UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise",
   "homepage": "http://christopherthielen.github.io/ui-router-extras/",
   "license": "MIT",
