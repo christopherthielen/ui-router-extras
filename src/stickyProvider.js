@@ -4,7 +4,7 @@ var mod_sticky = angular.module("ct.ui.router.extras.sticky");
 
 $StickyStateProvider.$inject = [ '$stateProvider', 'uirextras_coreProvider' ];
 function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
-  var core = uirextras_coreProvider;
+    var core = uirextras_coreProvider.$get();
   var inheritParams = core.inheritParams;
   var objectKeys = core.objectKeys;
   var protoKeys = core.protoKeys;
@@ -292,7 +292,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
               if (inactiveExiting.self.onExit)
                 $injector.invoke(inactiveExiting.self.onExit, inactiveExiting.self, inactiveExiting.locals.globals);
               angular.forEach(inactiveExiting.locals, function(localval, key) {
-                delete inactivePseudoState.locals[key];
+                delete core.inactivePseudoState.locals[key];
               });
               inactiveExiting.locals = null;
               inactiveExiting.self.status = 'exited';

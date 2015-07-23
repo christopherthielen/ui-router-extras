@@ -56,42 +56,33 @@
 
 
 // ------------------------ Sticky State module-level variables -----------------------------------------------
-var _StickyState; // internal reference to $stickyStateProvider
-var internalStates = {}; // Map { statename -> InternalStateObj } holds internal representation of all states
-var root, // Root state, internal representation
-  pendingTransitions = [], // One transition may supersede another.  This holds references to all pending transitions
-  pendingRestore, // The restore function from the superseded transition
-  inactivePseudoState, // This pseudo state holds all the inactive states' locals (resolved state data, such as views etc)
-  reactivatingLocals = { }, // This is a prent locals to the inactivePseudoState locals, used to hold locals for states being reactivated
-  versionHeuristics = { // Heuristics used to guess the current UI-Router Version
-    hasParamSet: false
-  };
 
 // Creates a blank surrogate state
-function SurrogateState(type) {
+function SurrogateState(core, type) {
   return {
     resolve: { },
     locals: {
-      globals: root && root.locals && root.locals.globals
+      globals: core.root && core.root.locals && core.root.locals.globals
     },
     views: { },
     self: { },
     params: { },
-    ownParams: ( versionHeuristics.hasParamSet ? { $$equals: function() { return true; } } : []),
+    ownParams: ( core.versionHeuristics.hasParamSet ? { $$equals: function() { return true; } } : []),
     surrogateType: type
   };
 }
 
 // ------------------------ Sticky State registration and initialization code ----------------------------------
 // Grab a copy of the $stickyState service for use by the transition management code
-angular.module("ct.ui.router.extras.sticky").run(["$stickyState", function ($stickyState) {
-  _StickyState = $stickyState;
+    angular.module("ct.ui.router.extras.sticky").run(["$stickyState", "uirextras_core", function ($stickyState, uirextras_core) {
+	var core = uirextras_core;
+	core._StickyState = $stickyState;
 }]);
 
 angular.module("ct.ui.router.extras.sticky").config(
   [ "$provide", "$stateProvider", '$stickyStateProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider',
     function ($provide, $stateProvider, $stickyStateProvider, $urlMatcherFactoryProvider, uirextras_coreProvider) {
-      var core = uirextras_coreProvider;
+      var core = uirextras_coreProvider.$get();
       var internalStates = core.internalStates;
       var inherit = core.inherit;
       var inheritParams = core.inheritParams;
@@ -99,14 +90,15 @@ angular.module("ct.ui.router.extras.sticky").config(
       var map = core.map;
       var filterObj = core.filterObj;
 
-      versionHeuristics.hasParamSet = !!$urlMatcherFactoryProvider.ParamSet;
+      core.versionHeuristics.hasParamSet = !!$urlMatcherFactoryProvider.ParamSet;
       // inactivePseudoState (__inactives) holds all the inactive locals which includes resolved states data, i.e., views, scope, etc
-      inactivePseudoState = angular.extend(new SurrogateState("__inactives"), { self: {  name: '__inactives'  } });
+      core.inactivePseudoState = angular.extend(new SurrogateState(core, "__inactives"), { self: {  name: '__inactives'  } });
       // Reset other module scoped variables.  This is to primarily to flush any previous state during karma runs.
-      root = pendingRestore = undefined;
-      pendingTransitions = [];
+	//FIXME
+	core.root = core.pendingRestore = undefined;
+      core.pendingTransitions = [];
 
-      uirextras_coreProvider.onStateRegistered(function(state) {
+      core.onStateRegistered(function(state) {
         // Register the ones marked as "sticky"
         if (state.self.sticky === true) {
           $stickyStateProvider.registerStickyState(state.self);
@@ -117,16 +109,16 @@ angular.module("ct.ui.router.extras.sticky").config(
       // Decorate the $state service, so we can decorate the $state.transitionTo() function with sticky state stuff.
       $provide.decorator("$state", ['$delegate', '$log', '$q', function ($state, $log, $q) {
         // Note: this code gets run only on the first state that is decorated
-        root = $state.$current;
-        internalStates[""] = root;
-        root.parent = inactivePseudoState; // Make inactivePsuedoState the parent of root.  "wat"
-        inactivePseudoState.parent = undefined; // Make inactivePsuedoState the real root.
+        core.root = $state.$current;
+        internalStates[""] = core.root;
+        core.root.parent = core.inactivePseudoState; // Make inactivePsuedoState the parent of root.  "wat"
+        core.inactivePseudoState.parent = undefined; // Make inactivePsuedoState the real root.
         // Add another locals bucket, as a parent to inactivatePseudoState locals.
         // This is for temporary storage of locals of states being reactivated while a transition is pending
         // This is necessary in some cases where $viewContentLoading is triggered before the $state.$current is updated to the toState.
-        inactivePseudoState.locals = inherit(reactivatingLocals, inactivePseudoState.locals);
-        root.locals = inherit(inactivePseudoState.locals, root.locals); // make root locals extend the __inactives locals.
-        delete inactivePseudoState.locals.globals;
+        core.inactivePseudoState.locals = inherit(core.reactivatingLocals, core.inactivePseudoState.locals);
+        core.root.locals = inherit(core.inactivePseudoState.locals, core.root.locals); // make root locals extend the __inactives locals.
+        delete core.inactivePseudoState.locals.globals;
 
         // Hold on to the real $state.transitionTo in a module-scope variable.
         $state_transitionTo = $state.transitionTo;
@@ -137,11 +129,11 @@ angular.module("ct.ui.router.extras.sticky").config(
           // TODO: Move this to module.run?
           // TODO: I'd rather have root.locals prototypally inherit from inactivePseudoState.locals
           // Link root.locals and inactives.locals.  Do this at runtime, after root.locals has been set.
-          if (!inactivePseudoState.locals)
-            inactivePseudoState.locals = root.locals;
-          var idx = pendingTransitions.length;
-          if (pendingRestore) {
-            pendingRestore();
+          if (!core.inactivePseudoState.locals)
+            core.inactivePseudoState.locals = core.root.locals;
+          var idx = core.pendingTransitions.length;
+          if (core.pendingRestore) {
+            core.pendingRestore();
             if (DEBUG) {
               $log.debug("Restored paths from pending transition");
             }
@@ -179,8 +171,8 @@ angular.module("ct.ui.router.extras.sticky").config(
             // method to be re-entrant (for example, when superceding a transition, i.e., redirect).  The decorated
             // transitionTo checks right away if there is a pending transition in progress and restores the paths
             // if so using pendingRestore.
-            pendingRestore = null;
-            pendingTransitions.splice(idx, 1); // Remove this transition from the list
+            core.pendingRestore = null;
+            core.pendingTransitions.splice(idx, 1); // Remove this transition from the list
           };
 
           // All decorated transitions have their toState.path and fromState.path replaced.  Surrogate states also make
@@ -200,13 +192,13 @@ angular.module("ct.ui.router.extras.sticky").config(
 
 
           function stateReactivatedSurrogatePhase1(state) {
-            var surrogate = angular.extend(new SurrogateState("reactivate_phase1"), { locals: state.locals });
+            var surrogate = angular.extend(new SurrogateState(core, "reactivate_phase1"), { locals: state.locals });
             surrogate.self = angular.extend({}, state.self);
             return surrogate;
           }
 
           function stateReactivatedSurrogatePhase2(state) {
-            var surrogate = angular.extend(new SurrogateState("reactivate_phase2"), state);
+            var surrogate = angular.extend(new SurrogateState(core, "reactivate_phase2"), state);
             var oldOnEnter = surrogate.self.onEnter;
             surrogate.resolve = {}; // Don't re-resolve when reactivating states (fixes issue #22)
             // TODO: Not 100% sure if this is necessary.  I think resolveState will load the views if I don't do this.
@@ -215,7 +207,7 @@ angular.module("ct.ui.router.extras.sticky").config(
               // ui-router sets locals on the surrogate to a blank locals (because we gave it nothing to resolve)
               // Re-set it back to the already loaded state.locals here.
               surrogate.locals = state.locals;
-              _StickyState.stateReactivated(state);
+	      core._StickyState.stateReactivated(state);
             };
             restore.addRestoreFunction(function () {
               state.self.onEnter = oldOnEnter;
@@ -224,11 +216,11 @@ angular.module("ct.ui.router.extras.sticky").config(
           }
 
           function stateInactivatedSurrogate(state) {
-            var surrogate = new SurrogateState("inactivate");
+            var surrogate = new SurrogateState(core, "inactivate");
             surrogate.self = state.self;
             var oldOnExit = state.self.onExit;
             surrogate.self.onExit = function () {
-              _StickyState.stateInactivated(state);
+              core._StickyState.stateInactivated(state);
             };
             restore.addRestoreFunction(function () {
               state.self.onExit = oldOnExit;
@@ -239,7 +231,7 @@ angular.module("ct.ui.router.extras.sticky").config(
           function stateEnteredSurrogate(state, toParams) {
             var oldOnEnter = state.self.onEnter;
             state.self.onEnter = function () {
-              _StickyState.stateEntering(state, toParams, oldOnEnter);
+              core._StickyState.stateEntering(state, toParams, oldOnEnter);
             };
             restore.addRestoreFunction(function () {
               state.self.onEnter = oldOnEnter;
@@ -252,7 +244,7 @@ angular.module("ct.ui.router.extras.sticky").config(
           function stateUpdateParamsSurrogate(state, toParams) {
             var oldOnEnter = state.self.onEnter;
             state.self.onEnter = function () {
-              _StickyState.stateEntering(state, toParams, oldOnEnter, true);
+              core._StickyState.stateEntering(state, toParams, oldOnEnter, true);
             };
             restore.addRestoreFunction(function () {
               state.self.onEnter = oldOnEnter;
@@ -264,7 +256,7 @@ angular.module("ct.ui.router.extras.sticky").config(
           function stateExitedSurrogate(state) {
             var oldOnExit = state.self.onExit;
             state.self.onExit = function () {
-              _StickyState.stateExiting(state, exited, oldOnExit);
+	      core._StickyState.stateExiting(state, exited, oldOnExit);
             };
             restore.addRestoreFunction(function () {
               state.self.onExit = oldOnExit;
@@ -299,8 +291,8 @@ angular.module("ct.ui.router.extras.sticky").config(
                 reloadStateTree: reloadStateTree
               };
 
-              pendingTransitions.push(currentTransition); // TODO: See if a list of pending transitions is necessary.
-              pendingRestore = restore;
+              core.pendingTransitions.push(currentTransition); // TODO: See if a list of pending transitions is necessary.
+              core.pendingRestore = restore;
 
               // If we're reloading from a state and below, temporarily add a param to the top of the state tree
               // being reloaded, and add a param value to the transition.  This will cause the "has params changed
@@ -310,7 +302,7 @@ angular.module("ct.ui.router.extras.sticky").config(
                 var params = reloadStateTree.$$state().params;
                 var ownParams = reloadStateTree.$$state().ownParams;
 
-                if (versionHeuristics.hasParamSet) {
+                if (core.versionHeuristics.hasParamSet) {
                   var tempParam = new $urlMatcherFactoryProvider.Param('$$uirouterextrasreload');
                   params.$$uirouterextrasreload = ownParams.$$uirouterextrasreload = tempParam;
                   restore.restoreFunctions.push(function() {
@@ -333,7 +325,7 @@ angular.module("ct.ui.router.extras.sticky").config(
               // 2) what types of exit transitions will occur for each "exited" path element
               // 3) what types of enter transitions will occur for each "entered" path element
               // 4) which states will be inactive if the transition succeeds.
-              stickyTransitions = _StickyState.processTransition(currentTransition);
+	      stickyTransitions = core._StickyState.processTransition(currentTransition);
 
               if (DEBUG) debugTransition($log, currentTransition, stickyTransitions);
 
@@ -342,8 +334,8 @@ angular.module("ct.ui.router.extras.sticky").config(
               var surrogateFromPath = fromState.path.slice(0, stickyTransitions.keep);
 
               // Clear out and reload inactivePseudoState.locals each time transitionTo is called
-              angular.forEach(inactivePseudoState.locals, function (local, name) {
-                if (name.indexOf("@") != -1) delete inactivePseudoState.locals[name];
+              angular.forEach(core.inactivePseudoState.locals, function (local, name) {
+                if (name.indexOf("@") != -1) delete core.inactivePseudoState.locals[name];
               });
 
               var saveViewsToLocals = function (targetObj) {
@@ -358,7 +350,7 @@ angular.module("ct.ui.router.extras.sticky").config(
               // __inactives pseudostate's .locals.  This allows the ui-view directive to access them and
               // render the inactive views.
               forEach(stickyTransitions.inactives, function(state) {
-                forEach(state.locals, saveViewsToLocals(inactivePseudoState.locals))
+                forEach(state.locals, saveViewsToLocals(core.inactivePseudoState.locals))
               });
 
               // For each state that will be reactivated during the transition, place its view-locals on a separate
@@ -373,13 +365,13 @@ angular.module("ct.ui.router.extras.sticky").config(
               //   - Because the transition is not completed, $state.$current is set to the from state, and
               //     the ui-view for a reactivated state cannot find its previous locals.
               forEach(stickyTransitions.reactivatingStates, function(state) {
-                forEach(state.locals, saveViewsToLocals(reactivatingLocals));
+                forEach(state.locals, saveViewsToLocals(core.reactivatingLocals));
               });
 
               // When the transition is complete, remove the copies of the view locals from reactivatingLocals.
               restore.addRestoreFunction(function clearReactivatingLocals() {
-                forEach(reactivatingLocals, function (val, viewname) {
-                  delete reactivatingLocals[viewname];
+                forEach(core.reactivatingLocals, function (val, viewname) {
+                  delete core.reactivatingLocals[viewname];
                 })
               });
 
@@ -503,7 +495,7 @@ angular.module("ct.ui.router.extras.sticky").config(
           angular.toJson(currentTransition.toParams);
 
         $log.debug("   Current transition: ", transitionMessage);
-        $log.debug("Before transition, inactives are:   : ", map(_StickyState.getInactiveStates(), function (s) {
+        $log.debug("Before transition, inactives are:   : ", map(core._StickyState.getInactiveStates(), function (s) {
           return s.self.name;
         }));
         $log.debug("After transition,  inactives will be: ", inactiveLogVar);
@@ -512,7 +504,7 @@ angular.module("ct.ui.router.extras.sticky").config(
       }
 
       function debugViewsAfterSuccess($log, currentState, $state) {
-        $log.debug("Current state: " + currentState.self.name + ", inactive states: ", map(_StickyState.getInactiveStates(), function (s) {
+        $log.debug("Current state: " + currentState.self.name + ", inactive states: ", map(core._StickyState.getInactiveStates(), function (s) {
           return s.self.name;
         }));
 
