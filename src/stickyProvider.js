@@ -217,7 +217,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
 
           // Get the currently inactive states (before the transition is processed), mapped by parent state
           var inactivesByAllParents = mapInactivesByImmediateParent();
-          
+
           // If we are transitioning directly to an inactive state, and that state also has inactive children,
           // then find those children so that they can be exited.
           var deepestReactivateChildren = [];
@@ -240,7 +240,23 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           // Now calculate the states that will be inactive if this transition succeeds.
           // We have already pushed the transitionType == "inactivate" states to 'inactives'.
           // Second, add all the existing inactive states
-          inactives = inactives.concat(map(inactiveStates, angular.identity));
+          /**
+           * inactives = inactivesmap.concat(inactiveStates, angular.identity);
+           *
+           * Above code breaks the order of inactive states.
+           *
+           * <an example from debug log>
+           * "Before transition, inactives are:   : " Array [ "mybuckets.product", "mybuckets" ]
+           * "After transition,  inactives will be: " Array [ "main", "mybuckets.product", "mybuckets" ]
+           *
+           * <what it should be>
+           * "Before transition, inactives are:   : " Array [ "mybuckets.product", "mybuckets" ]
+           * "After transition,  inactives will be: " Array [ "mybuckets.product", "mybuckets", "main" ]
+           *
+           * To prevent this, the existing inactive states should come former than the state pushed before.
+           */
+          inactives = map(inactiveStates, angular.identity).concat(inactives);
+
           // Finally, remove any states that are scheduled for "exit" or "enter", "reactivate", or "updateStateParams"
           inactives = inactives.filter(function(state) {
             return exitingStates.indexOf(state) === -1 && enteringStates.indexOf(state) === -1;
