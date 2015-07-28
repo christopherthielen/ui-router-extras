@@ -77,6 +77,16 @@ describe("$previousState", function () {
       $q.flush();
       expect($state.current.name === "tabs.tabs2");
     });
+
+    it("should return a rejected promise if memo is undefined", function (done) {
+      testGo("top.people.managerlist", { entered: pathFrom('top', 'top.people.managerlist') });
+      testGo("top.inv.storelist", { entered: pathFrom('top.inv', 'top.inv.storelist'), exited: pathFrom('top.people.managerlist', 'top.people') });
+      $previousState.go('undefined_memo').catch(function (err) {
+        expect(err.message).toBe('undefined memo');
+        done();
+      });
+      $q.flush();
+    });
   });
 
   describe('.get()', function() {
