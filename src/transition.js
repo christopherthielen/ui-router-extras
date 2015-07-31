@@ -77,7 +77,7 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
           $rootScope.$on("$stateChangeStart", function (evt, toState, toParams, fromState, fromParams) {
               var depth = transitionDepth;
               // To/From is now normalized by ui-router.  Add this information to the transition data object.
-              var tData = angular.extend(tDataStack[depth], {
+              var tData = angular.extend(tDataStack[depth] || (tDataStack[depth]={promise:$q.resolve()}), {
                 to: { state: toState, params: toParams },
                 from: { state: fromState, params: fromParams }
               });
