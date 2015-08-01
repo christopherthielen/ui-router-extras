@@ -1,6 +1,6 @@
 angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.transition' ]).service("$previousState",
-  [ '$rootScope', '$state',
-    function ($rootScope, $state) {
+  [ '$rootScope', '$state', '$q',
+    function ($rootScope, $state, $q) {
       var previous = null, lastPrevious = null, memos = {};
 
       $rootScope.$on("$transitionStart", function(evt, $transition$) {
@@ -24,6 +24,9 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
         },
         go: function (memoName, options) {
           var to = $previousState.get(memoName);
+          if (memoName && !to) {
+            return $q.reject(new Error('undefined memo'));
+          }
           return $state.go(to.state, to.params, options);
         },
         memo: function (memoName, defaultStateName, defaultStateParams) {
