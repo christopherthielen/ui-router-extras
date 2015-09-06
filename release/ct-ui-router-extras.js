@@ -17,7 +17,7 @@
     } else {
         factory(root.angular);
     }
-}(this, function (angular, undefined) {
+}(window, function (angular, undefined) {
     var mod_core = angular.module("ct.ui.router.extras.core", [ "ui.router" ]);
 
 var internalStates = {}, stateRegisteredCallbacks = [];
