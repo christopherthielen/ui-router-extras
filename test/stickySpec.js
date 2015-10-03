@@ -31,6 +31,30 @@ describe('stickyState', function () {
     return newStates;
   }
 
+  function getNestedStickyStates() {
+    var newStates = {};
+    newStates['aside'] = {};
+    newStates['A'] =    {sticky: true, deepStateRedirect: true, views: { 'A@': {} }};
+
+    newStates['A._1'] = {sticky: true, deepStateRedirect: true, views: { '_1@A': {} }};
+    newStates['A._2'] = {sticky: true, deepStateRedirect: true, views: { '_2@A': {} }};
+    newStates['A._3'] = {sticky: true, views: { '_3@A': {} }};
+
+    newStates['A._1.__1'] = {};
+    newStates['A._1.__2'] = {};
+    newStates['A._2.__1'] = {};
+    newStates['A._2.__2'] = {};
+    newStates['A._3.__1'] = { views: { '__1@A._3': {} } };
+    newStates['A._3.__2'] = { views: { '__2@A._3': {} } };
+
+    newStates['A._1.__1.B'] = {};
+    newStates['A._1.__1.B.___1'] = {sticky: true, views: { '___1@A._1.__1.B': {} }};
+    newStates['A._1.__1.B.___2'] = {sticky: true, views: { '___2@A._1.__1.B': {} }};
+    newStates['A._1.__1.B.___3'] = {sticky: true, views: { '___3@A._1.__1.B': {} }};
+
+    return newStates;
+  }
+
   beforeEach(module('ct.ui.router.extras.sticky', function ($stateProvider, $stickyStateProvider) {
     _stateProvider = $stateProvider;
     _stickyStateProvider = $stickyStateProvider;
@@ -273,28 +297,6 @@ describe('stickyState', function () {
       ssReset(getNestedStickyStates(), _stateProvider);
     });
 
-    function getNestedStickyStates() {
-      var newStates = {};
-      newStates['aside'] = {};
-      newStates['A'] =    {sticky: true, deepStateRedirect: true, views: { 'A@': {} }};
-
-      newStates['A._1'] = {sticky: true, deepStateRedirect: true, views: { '_1@A': {} }};
-      newStates['A._2'] = {sticky: true, deepStateRedirect: true, views: { '_2@A': {} }};
-      newStates['A._3'] = {sticky: true, views: { '_3@A': {} }};
-
-      newStates['A._1.__1'] = {};
-      newStates['A._2.__2'] = {};
-      newStates['A._3.__1'] = { views: { '__1@A._3': {} } };
-      newStates['A._3.__2'] = { views: { '__2@A._3': {} } };
-
-      newStates['A._1.__1.B'] = {};
-      newStates['A._1.__1.B.___1'] = {sticky: true, views: { '___1@A._1.__1.B': {} }};
-      newStates['A._1.__1.B.___2'] = {sticky: true, views: { '___2@A._1.__1.B': {} }};
-      newStates['A._1.__1.B.___3'] = {sticky: true, views: { '___3@A._1.__1.B': {} }};
-
-      return newStates;
-    }
-
     it ('should inactivate sticky state tabs_tab1 when transitioning back to A', function () {
       testGo('aside', { entered: ['aside'] });
       testGo('A._1.__1.B.___1', { exited: ['aside'],                entered: pathFrom('A', 'A._1.__1.B.___1') });
@@ -325,7 +327,7 @@ describe('stickyState', function () {
       it("should not exit inactive child states", function() {
         testGo('A._3.__1', { entered: pathFrom('A', 'A._3.__1') });
         testGo('A._2', { inactivated: pathFrom('A._3.__1', 'A._3'), entered: "A._2" });
-        testGo('A._3.__2', { reactivated: "A._3", inactivated: "A._2", entered: "A._3.__2" });
+        testGo('A._3.__2', { reactivated: "A._3", inactivated: "A._2", entered: "A._3.__2", exited: "A._3.__1" });
       });
     })
   });
@@ -468,6 +470,36 @@ describe('stickyState', function () {
       expect($stickyState.getInactiveStates().length).toBe(0);
     });
   });
+
+  describe("transitions to sibling of inactive state", function() {
+    // Tests for issue #217
+
+    beforeEach(function() {
+      ssReset(getNestedStickyStates(), _stateProvider);
+    });
+
+    it("should exit the inactive state", function() {
+      testGo('A._1.__1', { entered: ['A', 'A._1', 'A._1.__1']});
+      testGo('A._2.__1', { entered: ['A._2', 'A._2.__1'], inactivated: ['A._1.__1', 'A._1']});
+      testGo('A._1.__2', {
+        entered: ['A._1.__2'],
+        exited: ['A._1.__1'],
+        reactivated: ['A._1'],
+        inactivated: ['A._2.__1', 'A._2']
+      });
+    });
+
+    it("should exit the inactive state tree", function() {
+      testGo('A._1.__1.B', { entered: ['A', 'A._1', 'A._1.__1', 'A._1.__1.B']});
+      testGo('A._2.__1', { entered: ['A._2', 'A._2.__1'], inactivated: ['A._1.__1.B', 'A._1.__1', 'A._1']});
+      testGo('A._1.__2', {
+        entered: ['A._1.__2'],
+        exited: ['A._1.__1.B', 'A._1.__1'],
+        reactivated: ['A._1'],
+        inactivated: ['A._2.__1', 'A._2']
+      });
+    });
+  })
 });
 
 describe('stickyState+ui-sref-active', function () {
