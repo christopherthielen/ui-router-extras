@@ -148,7 +148,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         //    keep: The number of states being "kept"
         //    inactives: Array of all states which will be inactive if the transition is completed.
         //    reactivatingStates: Array of all states which will be reactivated if the transition is completed.
-        //    deepestReactivateChildren: Array of inactive children states of the toState, if the toState is being reactivated.
+        //    inactiveOrphans: Array of inactive states being orphaned by the transition
         //        Note: Transitioning directly to an inactive state with inactive children will reactivate the state, but exit all the inactive children.
         //    enter: Enter transition type for all added states.  This is a sticky array to "toStates" array in $state.transitionTo.
         //    exit: Exit transition type for all removed states.  This is a sticky array to "fromStates" array in $state.transitionTo.
@@ -217,25 +217,47 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
 
           // Get the currently inactive states (before the transition is processed), mapped by parent state
           var inactivesByAllParents = mapInactivesByImmediateParent();
-          
-          // If we are transitioning directly to an inactive state, and that state also has inactive children,
-          // then find those children so that they can be exited.
-          var deepestReactivateChildren = [];
-          if (deepestReactivate === transition.toState) {
-            deepestReactivateChildren = inactivesByAllParents[deepestReactivate.name] || [];
-          }
+          var allInactives = Object.keys(inactiveStates).map(function(name) { return inactiveStates[name]; });
+
+          function flattenReduce(memo, list) { return memo.concat(list); }
+          function uniqReduce(memo, orphan) { if (memo.indexOf(orphan) === -1) memo.push(orphan); return memo; }
+
+          function isChildOf(parent) { return function(child) { return child.parent === parent; }; }
+          function isDefined(obj) { return obj != null; }
+          function notEntered(state) { return enteringStates.indexOf(state) === -1; }
+          function notSticky(state) { return !state.sticky; }
+          function inactiveDescendents(state) { return inactivesByAllParents[state.name] || []; }
+
+          // Find all the "orphaned" states: those states that are currently inactive, but should now be exited.
+          //
+          // Given:
+          //   - states A (sticky: true), B, A.foo, A.bar
+          //   - A.foo is currently inactive
+          //   - B is currently active
+          // Orphan case 1)
+          //   - Transition to A.bar orphans the inactive state A.foo; it should be exited
+          // Orphan case 2)
+          //   - Transition directly to A orphans the inactive state A.foo; it should be exited
+          var orphanedParents = enteringStates
+              // For each entering state in the path, find any immediate children states which are currently inactive
+              .map(function (entering) { return allInactives.filter(isChildOf(entering)); })
+              // Flatten nested arrays. Now we have an array of inactive states that are children of the ones being entered.
+              .reduce(flattenReduce, [])
+              // Consider "orphaned": only those children that are themselves not currently being entered
+              .filter(notEntered)
+              // Consider "orphaned": only those children that are not themselves sticky states.
+              .filter(notSticky);
+
+          // orphanedParents may be root nodes of larger inactive state trees; the whole tree is orphaned.
+          // For each parent, find any orphaned children
+          var orphanedDescendents = orphanedParents.map(inactiveDescendents)
+              .reduce(flattenReduce, [])
+              .reduce(uniqReduce, []); // remove any dupes (necessary? not necessary? dunno)
+
+          var orphans = orphanedParents.concat(orphanedDescendents).reduce(uniqReduce, []);
+
           // Add them to the list of states being exited.
-          exitingStates = exitingStates.concat(deepestReactivateChildren);
-
-          // Find any other inactive children of any of the states being "exited"
-          var exitingChildren = map(exitingStates, function (state) {
-            return inactivesByAllParents[state.name] || [];
-          });
-
-          // append each array of children-of-exiting states to "exitingStates" because they will be exited too.
-          forEach(exitingChildren, function(children) {
-            exitingStates = exitingStates.concat(children);
-          });
+          exitingStates = exitingStates.concat(orphans);
 
           // Now calculate the states that will be inactive if this transition succeeds.
           // We have already pushed the transitionType == "inactivate" states to 'inactives'.
@@ -248,7 +270,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
 
           result.inactives = inactives;
           result.reactivatingStates = reactivatingStates;
-          result.deepestReactivateChildren = deepestReactivateChildren;
+          result.inactiveOrphans = orphans;
 
           return result;
         },
