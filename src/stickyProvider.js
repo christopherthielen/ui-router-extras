@@ -175,7 +175,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
 
           result.keep = keep;
 
-          var idx, deepestUpdatedParams, deepestReactivate, noLongerInactiveStates = {}, pType = getStickyTransitionType(fromPath, toPath, keep);
+          var idx, deepestUpdatedParams, noLongerInactiveStates = {}, pType = getStickyTransitionType(fromPath, toPath, keep);
           var ancestorUpdated = !!options.reload; // When ancestor params change, treat reactivation as exit/enter
 
           var inactives = [], reactivatingStates = [], enteringStates = [], exitingStates = [];
@@ -208,7 +208,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
             // If we're reactivating a state, make a note of it, so we can remove that state from the "inactive" list
             if (enterTrans == 'reactivate') {
               reactivatingStates.push(toPath[idx]);
-              deepestReactivate = noLongerInactiveStates[toPath[idx].name] = toPath[idx];
+              noLongerInactiveStates[toPath[idx].name] = toPath[idx];
             } else if (enterTrans == 'updateStateParams') {
               deepestUpdatedParams = noLongerInactiveStates[toPath[idx].name] = toPath[idx];
             }
@@ -217,12 +217,15 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
 
           // Get the currently inactive states (before the transition is processed), mapped by parent state
           var inactivesByAllParents = mapInactivesByImmediateParent();
-          var allInactives = Object.keys(inactiveStates).map(function(name) { return inactiveStates[name]; });
+          var allInactives = map(inactiveStates, angular.identity);
 
           function flattenReduce(memo, list) { return memo.concat(list); }
           function uniqReduce(memo, orphan) { if (memo.indexOf(orphan) === -1) memo.push(orphan); return memo; }
 
-          function isChildOf(parent) { return function(child) { return child.parent === parent; }; }
+          function isChildOrSiblingOf(state) {
+            return function(other) { return other.parent === state || other.parent === state.parent; };
+          }
+
           function isDefined(obj) { return obj != null; }
           function notEntered(state) { return enteringStates.indexOf(state) === -1; }
           function notSticky(state) { return !state.sticky; }
@@ -239,10 +242,11 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           // Orphan case 2)
           //   - Transition directly to A orphans the inactive state A.foo; it should be exited
           var orphanedParents = enteringStates
-              // For each entering state in the path, find any immediate children states which are currently inactive
-              .map(function (entering) { return allInactives.filter(isChildOf(entering)); })
+              // For each entering state in the path, find any child or sibling states which are currently inactive
+              .map(function (entering) { return allInactives.filter(isChildOrSiblingOf(entering)); })
               // Flatten nested arrays. Now we have an array of inactive states that are children of the ones being entered.
               .reduce(flattenReduce, [])
+              .reduce(uniqReduce, [])
               // Consider "orphaned": only those children that are themselves not currently being entered
               .filter(notEntered)
               // Consider "orphaned": only those children that are not themselves sticky states.
