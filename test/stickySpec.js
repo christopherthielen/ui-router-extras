@@ -1,6 +1,8 @@
 "use strict";
 var $get, $state, $stickyState, $compile, $rootScope, $q, _stickyStateProvider, _stateProvider;
 
+var version = uiRouterVersion();
+
 function ssReset(newStates, $stateProvider) {
   resetTransitionLog();
   addCallbacks(newStates);
@@ -51,6 +53,9 @@ describe('stickyState', function () {
     newStates['A._1.__1.B.___1'] = {sticky: true, views: { '___1@A._1.__1.B': {} }};
     newStates['A._1.__1.B.___2'] = {sticky: true, views: { '___2@A._1.__1.B': {} }};
     newStates['A._1.__1.B.___3'] = {sticky: true, views: { '___3@A._1.__1.B': {} }};
+
+    newStates['typedparam'] = { sticky: true, url: '/typedparam/{boolparam:bool}' };
+    newStates['typedparam2'] = { sticky: true, url: '/typedparam2/{jsonparam:json}' };
 
     return newStates;
   }
@@ -258,6 +263,39 @@ describe('stickyState', function () {
       testGo('main.product.something.tab2', { entered: 'main.product.something.tab2', inactivated: 'main.product.something.tab1' });
       testGo('main.product.something.tab1', { reactivated: 'main.product.something.tab1', inactivated: 'main.product.something.tab2' });
     });
+  });
+
+  describe('with typed params', function() {
+    beforeEach(function() {
+      ssReset(getNestedStickyStates(), _stateProvider);
+    });
+
+    // Test for issue #239
+    if (!version || version >= 212) {
+      it('should reactivate properly', inject(function ($location) {
+        testGo('typedparam', undefined, { params: { boolparam: true } });
+        testGo('A');
+        expect($location.url()).toBe("/typedparam/1");
+        resetTransitionLog();
+        testGo('typedparam', {inactivated: 'A', reactivated: 'typedparam'}, { params: { boolparam: true } });
+      }));
+    } else {
+      console.log("Skipping 'should reactivate properly' because UI-Router version " + version + " < 212");
+    }
+
+    // Test 2 for issue #239
+    if (!version || version >= 213) {
+      it('should reactivate properly with equivalent json', inject(function ($location) {
+        var objparam = { foo: "bar" };
+        testGo('typedparam2', undefined, { params: { jsonparam: objparam } });
+        testGo('A');
+        expect($location.url()).toBe("/typedparam2/%7B%22foo%22:%22bar%22%7D");
+        resetTransitionLog();
+        testGo('typedparam2', {inactivated: 'A', reactivated: 'typedparam2'}, { params: { jsonparam: { foo: "bar" } } });
+      }));
+    } else {
+      console.log("Skipping 'should reactivate properly with equivalent json' because UI-Router version " + version + " < 213");
+    }
   });
 
   function getParameterizedStates() {
@@ -524,57 +562,53 @@ describe('stickyState+ui-sref-active', function () {
   }));
   var el, template;
 
-  var version = uiRouterVersion();
-  console.log("UI-Router version " + version);
-  if (!version || version >= 208) {
-    describe('ui-sref-active', function () {
-      beforeEach(function () {
-        ssReset(getStatesForUiSref(), _stateProvider);
-      });
-
-      // Set up base state heirarchy
-      function getStatesForUiSref() {
-        var newStates = {};
-        newStates['main'] = { };
-        newStates['A'] = { };
-        newStates['A._1'] = {sticky: true, views: { '_1@A': {} } };
-
-        return newStates;
-      }
-
-      it('should transition normally between non-sticky states', function () {
-        testGo('main');
-        testGo('A');
-      });
-
-      it('should have "active" class on div when state A._1 is active', inject(function ($rootScope, $q, $compile, $state) {
-        el = angular.element('' +
-            '<div>' +
-            '  <a class="" id="foo" ui-sref="A._1" ui-sref-active="active">Go to A._1</a>' +
-            '  <a class="" id="bar" ui-sref="main" ui-sref-active="active">Go to main</a>' +
-            '</div>');
-        template = $compile(el)($rootScope);
-        $rootScope.$digest();
-
-        expect(el.find("#foo").length).toBe(1);
-        expect(el.find("#bar").length).toBe(1);
-        expect(el.find("#baz").length).toBe(0);
-
-        expect(el.find("#bar").attr('class')).toBe('');
-        expect(el.find("#foo").attr('class')).toBe('');
-
-        testGo('main');
-        expect(el.find("#bar").attr('class')).toBe('active');
-        expect(el.find("#foo").attr('class')).toBe('');
-
-        testGo('A');
-        expect(el.find("#bar").attr('class')).toBe('');
-        expect(el.find("#foo").attr('class')).toBe('');
-
-        testGo('A._1');
-        expect(el.find("#bar").attr('class')).toBe('');
-        expect(el.find("#foo").attr('class')).toBe('active');
-      }));
+  describe('ui-sref-active', function () {
+    beforeEach(function () {
+      ssReset(getStatesForUiSref(), _stateProvider);
     });
-  }
+
+    // Set up base state heirarchy
+    function getStatesForUiSref() {
+      var newStates = {};
+      newStates['main'] = { };
+      newStates['A'] = { };
+      newStates['A._1'] = {sticky: true, views: { '_1@A': {} } };
+
+      return newStates;
+    }
+
+    it('should transition normally between non-sticky states', function () {
+      testGo('main');
+      testGo('A');
+    });
+
+    it('should have "active" class on div when state A._1 is active', inject(function ($rootScope, $q, $compile, $state) {
+      el = angular.element('' +
+          '<div>' +
+          '  <a class="" id="foo" ui-sref="A._1" ui-sref-active="active">Go to A._1</a>' +
+          '  <a class="" id="bar" ui-sref="main" ui-sref-active="active">Go to main</a>' +
+          '</div>');
+      template = $compile(el)($rootScope);
+      $rootScope.$digest();
+
+      expect(el.find("#foo").length).toBe(1);
+      expect(el.find("#bar").length).toBe(1);
+      expect(el.find("#baz").length).toBe(0);
+
+      expect(el.find("#bar").attr('class')).toBe('');
+      expect(el.find("#foo").attr('class')).toBe('');
+
+      testGo('main');
+      expect(el.find("#bar").attr('class')).toBe('active');
+      expect(el.find("#foo").attr('class')).toBe('');
+
+      testGo('A');
+      expect(el.find("#bar").attr('class')).toBe('');
+      expect(el.find("#foo").attr('class')).toBe('');
+
+      testGo('A._1');
+      expect(el.find("#bar").attr('class')).toBe('');
+      expect(el.find("#foo").attr('class')).toBe('active');
+    }));
+  });
 });
