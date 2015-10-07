@@ -100,7 +100,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         if (!inactiveState) return "enter";
         if (state.self === reloadStateTree) return "updateStateParams";
 //      if (inactiveState.locals == null || inactiveState.locals.globals == null) debugger;
-        var paramsMatch = equalForKeys(stateParams, inactiveState.locals.globals.$stateParams, state.ownParams);
+        var paramsMatch = paramsEqualForState(state.ownParams, stateParams, inactiveState.locals.globals.$stateParams);
 //      if (DEBUG) $log.debug("getEnterTransition: " + state.name + (paramsMatch ? ": reactivate" : ": updateStateParams"));
         return paramsMatch ? "reactivate" : "updateStateParams";
       }
@@ -110,8 +110,14 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         var inactiveState = inactiveStates[state.name];
         if (!inactiveState) return null;
         if (!stateParams) return inactiveState;
-        var paramsMatch = equalForKeys(stateParams, inactiveState.locals.globals.$stateParams, state.ownParams);
+        var paramsMatch = paramsEqualForState(state.ownParams, stateParams, inactiveState.locals.globals.$stateParams);
         return paramsMatch ? inactiveState : null;
+      }
+
+      function paramsEqualForState(ownParams, stateParams, stateParams2) {
+        if (typeof ownParams.$$equals === 'function')
+          return paramsMatch = ownParams.$$equals(stateParams, stateParams2);
+        return equalForKeys(stateParams, stateParams2, ownParams);
       }
 
       // Duplicates logic in $state.transitionTo, primarily to find the pivot state (i.e., the "keep" value)
@@ -168,7 +174,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
             toParams = inheritParams($stateParams, toParams || {}, $state.$current, transition.toState);
           }
 
-          while (state && state === fromPath[keep] && equalForKeys(toParams, fromParams, state.ownParams)) {
+          while (state && state === fromPath[keep] && paramsEqualForState(state.ownParams, toParams, fromParams)) {
             // We're "keeping" this state. bump keep var and get the next state in toPath for the next iteration.
             state = toPath[++keep];
           }
