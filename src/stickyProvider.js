@@ -150,10 +150,11 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         //    keep: The number of states being "kept"
         //    inactives: Array of all states which will be inactive if the transition is completed.
         //    reactivatingStates: Array of all states which will be reactivated if the transition is completed.
-        //    inactiveOrphans: Array of inactive states being orphaned by the transition
+        //    inactiveOrphans: Array of previously inactive states, which are being orphaned by the transition
         //        Note: Transitioning directly to an inactive state with inactive children will reactivate the state, but exit all the inactive children.
-        //    enter: Enter transition type for all added states.  This is a sticky array to "toStates" array in $state.transitionTo.
-        //    exit: Exit transition type for all removed states.  This is a sticky array to "fromStates" array in $state.transitionTo.
+        //        Note: Each inactiveOrphans is potentially the root of an orphaned subtree.  The substates of the orphaned node are not in the list.
+        //    enter: Enter transition type for all added states.  This is a parallel array to "toStates" array in $state.transitionTo.
+        //    exit: Exit transition type for all removed states.  This is a parallel array to "fromStates" array in $state.transitionTo.
         // }
         processTransition: function (transition) {
           // This object is returned
@@ -188,8 +189,6 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           //   inactivate: register state as an inactive state
           for (idx = keep; idx < fromPath.length; idx++) {
             if (pType.from) {
-              // State is being inactivated, note this in result.inactives array
-              result.inactives.push(fromPath[idx]);
               inactives.push(fromPath[idx]);
               result.exit[idx] = "inactivate";
             } else {
@@ -217,8 +216,6 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
             enteringStates.push(toPath[idx]);
           }
 
-          // Get the currently inactive states (before the transition is processed), mapped by parent state
-          var inactivesByAllParents = mapInactivesByImmediateParent();
           var allInactives = map(inactiveStates, angular.identity);
 
           function flattenReduce(memo, list) { return memo.concat(list); }
@@ -231,9 +228,13 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           function isDefined(obj) { return obj != null; }
           function notEntered(state) { return enteringStates.indexOf(state) === -1; }
           function notSticky(state) { return !state.sticky; }
-          function inactiveDescendents(state) { return inactivesByAllParents[state.name] || []; }
 
-          // Find all the "orphaned" states: those states that are currently inactive, but should now be exited.
+          // Find all the "orphaned" states.  those states that are :
+          //  - previously inactive
+          //  - are children or siblings of the entering states
+          //  - are not being reactivated
+          //  - are not sticky
+          // These states should now be exited because of the sticky rules
           //
           // Given:
           //   - states A (sticky: true), B, A.foo, A.bar
@@ -243,6 +244,14 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           //   - Transition to A.bar orphans the inactive state A.foo; it should be exited
           // Orphan case 2)
           //   - Transition directly to A orphans the inactive state A.foo; it should be exited
+          //
+          // Given:
+          //   - states A (sticky: true), B, A.foo (sticky), A.bar
+          //   - A.foo is currently inactive
+          //   - B is currently active
+          // Orphan case 3)
+          //   - Transition directly to A orphans the inactive sticky state A.foo; it should be exited
+          // Note: transition from B to A.bar does not orphan A.foo
           var orphanedParents = enteringStates
               // For each entering state in the path, find any child or sibling states which are currently inactive
               .map(function (entering) { return allInactives.filter(isChildOrSiblingOf(entering)); })
@@ -254,16 +263,8 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
               // Consider "orphaned": only those children that are not themselves sticky states.
               .filter(notSticky);
 
-          // orphanedParents may be root nodes of larger inactive state trees; the whole tree is orphaned.
-          // For each parent, find any orphaned children
-          var orphanedDescendents = orphanedParents.map(inactiveDescendents)
-              .reduce(flattenReduce, [])
-              .reduce(uniqReduce, []); // remove any dupes (necessary? not necessary? dunno)
-
-          var orphans = orphanedParents.concat(orphanedDescendents).reduce(uniqReduce, []);
-
           // Add them to the list of states being exited.
-          exitingStates = exitingStates.concat(orphans);
+          exitingStates = exitingStates.concat(orphanedParents);
 
           // Now calculate the states that will be inactive if this transition succeeds.
           // We have already pushed the transitionType == "inactivate" states to 'inactives'.
@@ -276,7 +277,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
 
           result.inactives = inactives;
           result.reactivatingStates = reactivatingStates;
-          result.inactiveOrphans = orphans;
+          result.inactiveOrphans = orphanedParents;
 
           return result;
         },
