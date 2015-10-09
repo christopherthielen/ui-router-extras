@@ -86,10 +86,24 @@
   
   app.run(function ($rootScope, $state, $window, $timeout, $previousState) {
     $rootScope.$state = $state;
+
+    // This code applies a default background state for the modal
+    $rootScope.$on("$stateChangeStart", function(evt, toState, toParams, fromState) {
+      // Is initial transition and is going to modal1.*?
+      if (fromState.name === '' && /modal1.*/.exec(toState.name)) {
+        evt.preventDefault(); // cancel initial transition
+
+        // go to top.people.managerlist, then go to modal1.whatever
+        $state.go("top.people.managerlist", null, { location: false }).then(function() {
+          $state.go(toState, toParams); }
+        );
+      }
+    });
+
     $rootScope.$on("$stateChangeSuccess", function() {
       $timeout(function() {
         $window.ga('send', 'pageview', $window.location.pathname+$window.location.hash);
-      } );
+      });
     });
   });
 })();
