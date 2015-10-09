@@ -44,6 +44,7 @@ describe('stickyState', function () {
 
     newStates['A._1.__1'] = {};
     newStates['A._1.__2'] = {};
+    newStates['A._1.__3'] = {sticky: true};
     newStates['A._2.__1'] = {};
     newStates['A._2.__2'] = {};
     newStates['A._3.__1'] = { views: { '__1@A._3': {} } };
@@ -367,6 +368,23 @@ describe('stickyState', function () {
         testGo('A._2', { inactivated: pathFrom('A._3.__1', 'A._3'), entered: "A._2" });
         testGo('A._3.__2', { reactivated: "A._3", inactivated: "A._2", entered: "A._3.__2", exited: "A._3.__1" });
       });
+    });
+
+    describe("from a sticky state directly to a parent", function() {
+      it("should exit the sticky state", function() {
+        testGo('A._1.__1.B.___1');
+        resetTransitionLog();
+        testGo('A._1.__1.B', { exited: 'A._1.__1.B.___1' });
+      })
+    });
+
+    describe("directly to a parent of an inactive sticky state", function() {
+      it("should exit the inactive sticky", function() {
+        testGo('A._1.__1.B.___1');
+        testGo('A._2');
+        resetTransitionLog();
+        testGo('A._1.__1.B', { exited: 'A._1.__1.B.___1', inactivated: 'A._2', reactivated: ['A._1', 'A._1.__1', 'A._1.__1.B'] });
+      })
     })
   });
 
@@ -377,6 +395,14 @@ describe('stickyState', function () {
 
     function getNestedStickyStates() {
       var newStates = {};
+      /*
+               aside
+             /    (sticky)
+      (root)-- A -- A._1 -- A._1.__1
+                \
+                 -- _2 -- __2
+                 (sticky)
+       */
 
       newStates['aside'] = {};
       newStates['A'] =    {views: { 'A@': {} }};
