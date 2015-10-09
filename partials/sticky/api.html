@@ -189,7 +189,7 @@ var myStickyState = {
                 </div>
                 <div class="panel-body">
                     A: You can add some boilerplate code to load a default background state.
-<code>$rootScope.$on('$stateChangeStart', function(evt, toState, toParams, fromState) {
+<pre>$rootScope.$on('$stateChangeStart', function(evt, toState, toParams, fromState) {
     // initial load and is trying to load the modalstate
     if (fromState.name === '' && toState.name === 'modalstate') {
         // cancel initial transition
@@ -200,7 +200,7 @@ var myStickyState = {
             $state.go(toState, toParams);
         }
     }
-}</code>
+}</pre>
                 </div>
             </div>
 
