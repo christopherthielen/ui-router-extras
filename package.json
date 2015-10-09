@@ -30,8 +30,5 @@
   "files": [
     "release"
   ],
-  "repository": "",
-  "engines": {
-    "node": "0.10.10"
-  }
+  "repository": ""
 }
