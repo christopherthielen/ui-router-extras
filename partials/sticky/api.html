@@ -15,21 +15,21 @@
                     <li>Optionally, also mark the state with <code>deepStateRedirect: true</code> to get the tab to redirect.</li>
                     <li>
                         Declare a <strong>named view</strong> on the state which targets a <strong>named ui-view</strong>
-                        in the parent state's template.  Note that
+                        in the parent state's template.
                     </li>
-                    <li> Each sticky state <strong>must</strong> target its own <i>unique</i> named <code>ui-view</code>. </li>
                     <ul>
+                        <li> The sticky state view <strong>must</strong> target its <i>own unique</i> named <code>ui-view</code>. </li>
                         <li>Example:
                         <code>views: { bar: { /* "bar" named-view definition */ } }</code></li>
                     </ul>
                 </ul>
                 <li>Add the <strong>named ui-view</strong> to the parent state's template.
                     <ul>
+                        <li>Example: <code>&lt;div ui-view="bar" /&gt;</code></li>
                         <li>
                             This <strong>named ui-view</strong> <i>must not be targeted by any other states</i>.  This
-                            reserved <code>&lt;ui-view/&gt;</code> tag is where the DOM is retained for your sticky state.
+                            reserved <code>&lt;ui-view=&quot;bar&quot;/&gt;</code> tag is where the DOM for your sticky state is retained.
                         </li>
-                        <li>Example: <code>&lt;div ui-view="bar" /&gt;</code></li>
                         <li>Optionally, hide the named ui-view when the state is not activated:
                             <code>&lt;div ui-view="bar" ng-show="$state.includes("foo.bar") /&gt;</code>
                         </li>
@@ -56,7 +56,40 @@ var myStickyState = {
 }</pre>
         </div>
     </section>
-    
+
+
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong><code>$stickyState</code></strong></div>
+        <div class="panel-body">
+            <p>
+                The <code>$stickyState</code> service provides a couple of helper functions.
+            </p>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><code>$stickyState.getInactiveStates()</code></strong>
+                </div>
+                <div class="panel-body">
+                    <p>Returns an array of all the currently inactive states.</p>
+                </div>
+            </div>
+
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><code>$stickyState.reset</code></strong> (<code>inactiveStateName, [stateParams]</code>)
+                </div>
+                <div class="panel-body">
+                    <p>If there is an inactive state named <code>inactiveStateName</code>, this method exits that state.</p>
+                    <p>If <code>stateParams</code> is provided, then the state is only exited if the params match the inactive
+                    params.</p>
+                    <p>If <code>inactiveStateName === '*'</code>, then all inactive states are exited</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+
     <section class="panel panel-default">
         <div class="panel-heading"><strong>debug logging</strong></div>
         <div class="panel-body">
@@ -90,7 +123,7 @@ var myStickyState = {
                         <pre>Current state: top.inv.store.productlist, inactive states:  ["top.people.manager.emplist", "top.people.manager", "top.people"]</pre>
                         <li>
                             <p>After transition, the stack of locals, i.e., views (from root up to the active state).</p>
-                            <p><small>For each state in the stack, views found in that state's locals in are shown. For 
+                            <p><small>For each state in the stack, views found in that state's locals in are shown. For
                                 each view, the state which that view originates from is shown (in parens).</small></p>
                             <p><small>The current state's locals inherit the prototype of each element of the state path.</small></p>
                             <p><small>__inactives is a pseudostate inserted between the root state and any top-level states.</small></p>
@@ -98,6 +131,79 @@ var myStickyState = {
                         <pre>Views: (root.locals) / (__inactives.locals: 'peopletab@top' (top.people), '@top.people' (top.people.manager), '@top.people.manager' (top.people.manager.emplist)) / (top.locals: 'instructions@' (top), '@' (top)) / (top.inv.locals: 'invtab@top' (top.inv)) / (top.inv.store.locals: '@top.inv' (top.inv.store)) / (top.inv.store.productlist.locals: '@top.inv.store' (top.inv.store.productlist))</div>
                 </ul>
             </div>
+        </div>
+    </section>
+
+
+    <section class="panel panel-default">
+        <div class="panel-heading"><strong>FAQ</strong></div>
+        <div class="panel-body">
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Q: Can I have multiple tabs of the same state with different parameters?
+                </div>
+                <div class="panel-body">
+                    A: No, this is a limitation of ui-router, and ui-router-extras does not provide it.
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Q: Can the URL reflect the parameters of <i>all</i> the sticky states, active and inactive?
+                </div>
+                <div class="panel-body">
+                    A: No, but I'm open to discussion and PRs.
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Q: Why can't multiple sticky states share the same named <code>ui-view</code>?
+                </div>
+                <div class="panel-body">
+                    A: Since the named <code>ui-view</code> is where the DOM (and $scope and controller) are retained,
+                    if a different sticky state were to use it, the previous sticky state's DOM/$scope/controller would
+                    be lost.  The next time the original sticky state was reactivated, the template and controller
+                    would be re-rendered/invoked.
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Q: Can I use this to create a state, such as "login", that is accessible from <i>all</i>
+                    of my application's states?
+                </div>
+                <div class="panel-body">
+                    A: You can.  Move all your app's states to substates underneath a "root app state".  Make that root
+                    app state sticky.  Then create a sibling state which is your "login".  This is how the Modal Demo
+                    is implemented.
+                </div>
+            </div>
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    Q: I've created a modal state that's accessible from anywhere.  The modal pops up over my app.  However,
+                    when the user clicks refresh, only the modal appears.  My app disappeared from the background!
+                    HALP
+                </div>
+                <div class="panel-body">
+                    A: You can add some boilerplate code to load a default background state.
+<code>$rootScope.$on('$stateChangeStart', function(evt, toState, toParams, fromState) {
+    // initial load and is trying to load the modalstate
+    if (fromState.name === '' && toState.name === 'modalstate') {
+        // cancel initial transition
+        evt.preventDefault();
+        // Go to the default background state. (Don't update the URL)
+        $state.go("default.background.state", undefined, { location: false }).then(function() {
+            // OK, background is loaded, now go to the original modalstate
+            $state.go(toState, toParams);
+        }
+    }
+}</code>
+                </div>
+            </div>
+
         </div>
     </section>
 </div>

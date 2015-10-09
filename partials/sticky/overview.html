@@ -9,20 +9,20 @@
         </div>
         <div class="panel-body">
             <p> 
-                A Sticky State is the root of a state tree which can continue running even after it is "exited".  The
-                sticky state (and its children) has a different lifecycle than normal states. The DOM, <code>$scope</code>,
-                and controller instance of a Sticky State (and all activated substates) are retained until one of two things
+                A Sticky State is the root of a UI-Router state tree which can continue running even after it is "exited".  The
+                sticky state (and its children) have a different lifecycle than normal states. The DOM, <code>$scope</code>,
+                and controller of a Sticky State (and all activated substates) are retained until one of two things
                 happen:
             </p>
 
             <ul>
-                <li>The parent state is exited</li>
-                <li>The parent state is directly activated</li>
+                <li>The parent of the sticky state is exited</li>
+                <li>The parent of the sticky state is directly activated</li>
             </ul>
 
             <p>
-                The sticky state tree will remain in an &quot;inactivated&quot; status when transitioning to a direct
-                sibling state, or to a child of a sibling state.
+                If a sibling of the sticky state (or a child of a sibling) is activated, the sticky state tree will
+                become &quot;inactivated&quot;, until the rules above cause it to exit.
             </p>
 
             <p>
