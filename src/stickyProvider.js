@@ -139,11 +139,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
 
       var stickySupport = {
         getInactiveStates: function () {
-          var states = [];
-          angular.forEach(inactiveStates, function (state) {
-            states.push(state);
-          });
-          return states;
+          return map(inactiveStates, angular.identity);
         },
         getInactiveStatesByParent: function () {
           return mapInactives();
