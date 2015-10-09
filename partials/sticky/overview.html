@@ -9,16 +9,25 @@
         </div>
         <div class="panel-body">
             <p> 
-                A Sticky State is state with a special marker. The marked state is the root of a state tree which has
-                a different lifecycle  than normal states. The DOM and <code>$scope</code> of a Sticky State (and all 
-                activated substates) is retained until the <i>parent state of the sticky state</i> is exited.  The sticky
-                state tree will remain in an &quot;inactivated&quot; status when transitioning to a direct sibling state,
-                or to a child of a sibling state.
+                A Sticky State is the root of a state tree which can continue running even after it is "exited".  The
+                sticky state (and its children) has a different lifecycle than normal states. The DOM, <code>$scope</code>,
+                and controller instance of a Sticky State (and all activated substates) are retained until one of two things
+                happen:
             </p>
-            
+
+            <ul>
+                <li>The parent state is exited</li>
+                <li>The parent state is directly activated</li>
+            </ul>
+
             <p>
-                This feature is based on a &quot;<strong>tabs</strong>&quot; use case.  The use case requires that 
-                a tab in the application does not get exited when switching to one of the other tabs.  The user should 
+                The sticky state tree will remain in an &quot;inactivated&quot; status when transitioning to a direct
+                sibling state, or to a child of a sibling state.
+            </p>
+
+            <p>
+                This feature is based on a &quot;<strong>tabs</strong>&quot; use case.  The use case requires that the states
+                for a tab in the application does not get exited when switching to one of the other tabs.  The user should
                 be able to switch back and forth between tabs without any interruption in their workflow.  The URL
                 should reflect only the state tree of the active tab.
             </p>
