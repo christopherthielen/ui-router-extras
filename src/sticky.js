@@ -400,7 +400,7 @@ angular.module("ct.ui.router.extras.sticky").config(
                   // surrogates have been added.
                   reactivated.push(stateReactivatedSurrogatePhase2(enteringState));
                   terminalReactivatedState = enteringState;
-                } else if (value === "updateStateParams") {
+                } else if (value === "reload") {
                   // If the state params have been changed, we need to exit any inactive states and re-enter them.
                   surrogateToPath.push(stateUpdateParamsSurrogate(enteringState));
                   terminalReactivatedState = enteringState;

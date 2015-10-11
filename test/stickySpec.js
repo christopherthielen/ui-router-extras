@@ -73,7 +73,7 @@ describe('stickyState', function () {
       $q = _q;
       $compile = _compile;
       $stickyState = _stickyState;
-  }]));
+    }]));
 
   describe('setup: ', function() {
     beforeEach(function() {
@@ -130,17 +130,23 @@ describe('stickyState', function () {
       testGo('A._1', { entered: ['A._1'] });
     });
 
-    it('should inactivate sticky state tabs_tab1 when transitioning to parent-to-sticky A', function () {
+    it('should inactivate sticky state A._1 when transitioning to sibling-to-sticky A._2', function () {
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
-      testGo('A', {inactivated: ['A._1']});
+      testGo('A._2', {entered: 'A._2', inactivated: ['A._1']});
     });
 
-    it ('should reactivate sticky state tabs_tab1 when transitioning back from A', function () {
+    it('should inactivate sticky state A._1 when transitioning to child-of-sibling-to-sticky A._2.__1', function () {
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
-      testGo('A', {inactivated: ['A._1']});
-      testGo('A._1', {reactivated: ['A._1']});
+      testGo('A._2.__1', {entered: ['A._2', 'A._2.__1'], inactivated: ['A._1']});
+    });
+
+    it ('should reactivate sticky state A._1 when transitioning back from sibling-to-sticky A._2', function () {
+      testGo('A', {entered: ['A']});
+      testGo('A._1', {entered: ['A._1']});
+      testGo('A._2', {inactivated: ['A._1'], entered: 'A._2'});
+      testGo('A._1', {inactivated: ['A._2'], reactivated: 'A._1'});
     });
 
     it ('should inactivate and reactivate A._1 and A._2 when transitioning back and forth', function () {
@@ -161,24 +167,29 @@ describe('stickyState', function () {
       testGo('A._3', {inactivated: ['A._2'], reactivated: ['A._3']});
     });
 
-    it ('should inactivate (not exit) A._1 and A._2 and A._3 when transitioning back to A', function () {
+    it('should exit sticky state A._1 when transitioning up to parent A', function () {
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
-      testGo('A._2', {inactivated: ['A._1'], entered: ['A._2']});
-      testGo('A._3', {inactivated: ['A._2'], entered: ['A._3']});
-      testGo('A', {inactivated: ['A._3']});
+      testGo('A', {exited: ['A._1']});
     });
 
-    it ('should exit A._1 and A._2 and A._3 when transitioning back to main', function () {
+    it ('should exit children A._1 and A._2 and A._3 when transitioning up to parent A', function () {
       testGo('A', {entered: ['A']});
       testGo('A._1', {entered: ['A._1']});
       testGo('A._2', {inactivated: ['A._1'], entered: ['A._2']});
       testGo('A._3', {inactivated: ['A._2'], entered: ['A._3']});
-      testGo('A', {inactivated: ['A._3']});
-      testGo('main', {
-        entered: ['main'],
-        exited: ['A._1', 'A._2', 'A._3', 'A']
-      });
+      // orphans exited first; from state exited last
+      testGo('A', {exited: ['A._2', 'A._1', 'A._3']});
+    });
+
+    it ('should exit children A._1 and A._2 and A._3 when transitioning back from sibling to parent A', function () {
+      testGo('A', {entered: ['A']});
+      testGo('A._1', {entered: ['A._1']});
+      testGo('A._2', {inactivated: ['A._1'], entered: ['A._2']});
+      testGo('A._3', {inactivated: ['A._2'], entered: ['A._3']});
+      // orphans exited first; from state exited last
+      testGo('A', {exited: ['A._2', 'A._1', 'A._3']});
+      testGo('main', { entered: ['main'], exited: ['A']});
     });
   });
 
@@ -226,7 +237,7 @@ describe('stickyState', function () {
       expect(controllerInvokeCount).toBe(1);
     });
 
-    it('should re-resolve when the sticky state is reactivated/exited/reentered', function () {
+    it('should re-resolve when the sticky state is exited/reentered', function () {
       testGo('main', { entered: 'main' });
       testGo('A._3', { exited: 'main', entered: [ 'A', 'A._3' ]});
       testGo('A._1', { inactivated: 'A._3', entered: 'A._1' });
@@ -240,17 +251,17 @@ describe('stickyState', function () {
     });
   });
 
-  function getIssue24States() {
-    return {
-      'main': { },
-      'main.product': { url: '/products/:product_id' },
-      'main.product.something': {},
-      'main.product.something.tab1': { sticky: true, views: { 'tab1@main.product.something': {} } },
-      'main.product.something.tab2': { sticky: true, views: { 'tab2@main.product.something': {} } }
-    };
-  }
-
   describe('with params in parent', function() {
+    function getIssue24States() {
+      return {
+        'main': { },
+        'main.product': { url: '/products/:product_id' },
+        'main.product.something': {},
+        'main.product.something.tab1': { sticky: true, views: { 'tab1@main.product.something': {} } },
+        'main.product.something.tab2': { sticky: true, views: { 'tab2@main.product.something': {} } }
+      };
+    }
+
     beforeEach(function() {
       ssReset(getIssue24States(), _stateProvider);
     });
@@ -272,7 +283,7 @@ describe('stickyState', function () {
     });
 
     // Test for issue #239
-    if (!version || version >= 212) {
+    if (!version || version >= 212) { // no typed params before ui-router 0.2.12
       it('should reactivate properly', inject(function ($location) {
         testGo('typedparam', undefined, { params: { boolparam: true } });
         testGo('A');
@@ -285,7 +296,7 @@ describe('stickyState', function () {
     }
 
     // Test 2 for issue #239
-    if (!version || version >= 213) {
+    if (!version || version >= 213) { // no json type prior to ui-router 0.2.13
       it('should reactivate properly with equivalent json', inject(function ($location) {
         var objparam = { foo: "bar" };
         testGo('typedparam2', undefined, { params: { jsonparam: objparam } });
@@ -453,10 +464,10 @@ describe('stickyState', function () {
       testGo('_2', { exited: ['aside'],  entered: ['A', '_2'] });
       testGo('__2', { entered: ['__2'] });
       testGo('A._1.__1', { inactivated: ['__2', '_2'], entered: ['A._1', 'A._1.__1'] });
-//      resetTransitionLog();
       testGo('_2', { reactivated: ['_2'], inactivated: ['A._1.__1', 'A._1'], exited: '__2' });
-      testGo('A', { inactivated: ['_2'] });
-      testGo('aside', { exited: ['A._1.__1', 'A._1', '_2', 'A'], entered: ['aside'] });
+      //resetTransitionLog();
+      testGo('A', { exited: ['A._1.__1', 'A._1', '_2'] });
+      testGo('aside', { exited: ['A'], entered: ['aside'] });
     });
   });
 
