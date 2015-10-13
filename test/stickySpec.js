@@ -546,7 +546,7 @@ describe('stickyState', function () {
     });
   });
 
-  describe("transitions to sibling of inactive state", function() {
+  describe("transitions to sibling of non-sticky inactive state", function() {
     // Tests for issue #217
 
     beforeEach(function() {
