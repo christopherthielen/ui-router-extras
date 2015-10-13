@@ -1,7 +1,7 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: transition
- * @version 0.0.14
+ * @version 0.1.0
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -84,6 +84,7 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
 
           // This event is handled synchronously in transitionTo call stack
           $rootScope.$on("$stateChangeStart", function (evt, toState, toParams, fromState, fromParams) {
+              if (transitionDepth >= tDataStack.length) return;
               var depth = transitionDepth;
               // To/From is now normalized by ui-router.  Add this information to the transition data object.
               var tData = angular.extend(tDataStack[depth], {

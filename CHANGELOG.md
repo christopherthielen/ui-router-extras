@@ -1,3 +1,41 @@
+
+<a name="0.1.0"></a>
+### 0.1.0 (2015-10-13)
+
+## BREAKING CHANGE
+This release changes the semantics of navigating to a parent state of a sticky state.  A sticky state tree is now *always exited* if its parent state is directly activated.  This provides a consistent rule and addresses issue #212. 
+
+Previously, navigating from a sticky state tree to the parent of the sticky state tree would not exit the children.  However, if the sticky state tree was inactivated, navigating from elsewhere to the parent of the sticky state tree *would* exit the children.
+
+Example:
+Given states A, A.1 (sticky) and A.2
+
+The previous behavior:
+ - If A.1 is active and you transition to A, A.1 was inactivated
+ - If A.1 is inactive, A.2 is active, and you transition to A, A.1 was exited
+
+The new behavior:
+ - If A.1 is active and you transition to A, A.1 is exited
+ - If A.1 is inactive and A.2 is active, if you transition to A, A.1 is exited
+
+#### Bug Fixes
+
+* **sticky:**
+  * BC-BREAK always orphan inactive children of the toState ([990e73ee](https://github.com/christopherthielen/ui-router-extras/commit/990e73ee1000f2811728b273236859c1a3f22228), closes [#212](https://github.com/christopherthielen/ui-router-extras/issues/212))
+  * Exit all orphaned inactive states. ([72a6ce51](https://github.com/christopherthielen/ui-router-extras/commit/72a6ce51a996f9a002ba0db62b42bc11f25fb516), closes [#217](https://github.com/christopherthielen/ui-router-extras/issues/217))
+  * Properly support Typed Parameters (object params) by using $$equals() (if ui-router 0.2.12+) to determine if params are equal ([5d5ce6de](https://github.com/christopherthielen/ui-router-extras/commit/5d5ce6de313208ae3123d02a19e75ed5efb72a79), closes [#239](https://github.com/christopherthielen/ui-router-extras/issues/239))
+* **transition:** mitigate angular-permissions causing exceptions. ([5fbd478c](https://github.com/christopherthielen/ui-router-extras/commit/5fbd478cdd14c36b439a8f138419fd02edea3819))
+
+* **package.json:** remove engines declaration allowing any version of node ([4a575e41](https://github.com/christopherthielen/ui-router-extras/commit/4a575e4102c8589fb89172610a7454f96ee72c13))
+
+
+#### Features
+
+* **previous:** reject $previousState.go if unassigned memo is passed in ([48affbc1](https://github.com/christopherthielen/ui-router-extras/commit/48affbc19c1a2c6d13e51beb796c0a0ca127de81))
+* **dsr:** Added getRedirect() to $deepStateRedirect ([45c535af59b4](https://github.com/christopherthielen/ui-router-extras/commit/45c535af59b4344fda854dd1c88cd155f8ad241a)), closes [#184](https://github.com/christopherthielen/ui-router-extras/issues/184)
+
+
+
 <a name="0.0.14"></a>
 ### 0.0.14 (2015-06-18)
 
