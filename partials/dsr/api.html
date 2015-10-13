@@ -126,13 +126,27 @@
     ]
 }
 </pre>
+                    <div>
+                        <p>Alternatively a stored <code>deepStateRedirect</code> can be ignored by passing a <code>ignoreDsr</code>option to $state.go:</code></p>
+                        <pre>$state.go("foo.bar.baz", {}, { ignoreDsr: true });</pre>
+                    </div>
                 </div>
             </div>
 
-            <div>
-                <p>Alternatively a stored <code>deepStateRedirect</code> can be ignored using the <code>ignoreDsr</code>-option:</code></p>
-                <pre>$state.go("foo.bar.baz", {}, { ignoreDsr: true });</pre>
+
+
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <strong><code>$deepStateRedirect.getRedirect</code></strong> (<code>stateName, [stateParams]</code>)
+                </div>
+                <div class="panel-body">
+                    This method returns the redirect (if any) that will occur when transitioning to the <code>stateName</code>
+                    (using the <code>stateParams</code>, if provided).  The redirect is returned as an object with two keys,
+                    <code>state</code>, which is the deep redirect's target state name, and <code>params</code>, which is the
+                    redirect's target stateParams.
+                </div>
             </div>
+
         </div>
     </section>
 </div>
