@@ -1513,7 +1513,7 @@ angular.module("ct.ui.router.extras.sticky").config(
                 if (state && (!$state.get(state) || (state.name && !$state.get(state.name))))
                   $stateProvider.state(state);
               });
-              $state.go(unfoundState.to, unfoundState.toParams);
+              $state.go(unfoundState.to, unfoundState.toParams, unfoundState.options);
               lazyloadInProgress = false;
             }, function (error) {
               console.log("failed to lazy load state ", error);
