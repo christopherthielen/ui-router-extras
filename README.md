@@ -1,3 +1,5 @@
+![travis status](https://travis-ci.org/christopherthielen/ui-router-extras.svg "Travis Status")
+
 # Addons for Angular UI-Router:
 Full Website (description, API, demos): http://christopherthielen.github.io/ui-router-extras/
 
