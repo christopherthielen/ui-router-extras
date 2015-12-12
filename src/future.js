@@ -58,7 +58,15 @@
       } else {
         var futureParent = findState((futureState.parent || parentName), true);
         if (!futureParent) throw new Error("Couldn't determine parent state of future state. FutureState:" + angular.toJson(futureState));
-        var pattern = futureParent.urlMatcher.source.replace(/\*rest$/, "");
+        var pattern;
+        if (futureParent.urlMatcher) {
+          pattern = futureParent.urlMatcher.source.replace(/\*rest$/, "");
+        }
+        else {
+          // if the futureParent doesn't have a urlMatcher, then we are still
+          // starting from the beginning of the path
+          pattern = "";
+        }
         parentMatcher = $urlMatcherFactory.compile(pattern);
         futureState.parentFutureState = futureParent;
       }
