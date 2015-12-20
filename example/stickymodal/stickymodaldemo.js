@@ -69,10 +69,10 @@
           var isopen = true;
           $modalInstance.result.finally(function() {
             isopen = false;
+            $previousState.go("modalInvoker"); // return to previous state
           });
           $scope.close = function () {
             $modalInstance.dismiss('close');
-            $previousState.go("modalInvoker"); // return to previous state
           };
           $scope.$on("$stateChangeStart", function(evt, toState) {
             if (!toState.$$state().includes['modal1']) {
