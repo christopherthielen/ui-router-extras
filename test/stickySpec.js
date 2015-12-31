@@ -649,3 +649,46 @@ describe('stickyState+ui-sref-active', function () {
     }));
   });
 });
+
+describe('stickyState inactiveState with null locals fails on inactiveExiting', function () {
+
+  beforeEach(module('ct.ui.router.extras.sticky', function($stickyStateProvider, $stateProvider) {
+    // Load and capture $stickyStateProvider and $stateProvider
+    _stickyStateProvider = $stickyStateProvider;
+    _stateProvider = $stateProvider;
+  }));
+
+  // Capture $injector.get, $state, and $q
+  beforeEach(inject(function($injector) {
+    $get = $injector.get;
+    $state = $get('$state');
+    $stickyState = $get('$stickyState');
+    $q = $get('$q');
+  }));
+
+
+  it('should call the onExit with a null globals', inject(function ($injector) {
+    spyOn($injector, 'invoke').and.callThrough();
+    var inactivatedState = {
+      self: {
+        name: 'foo',
+        onExit: jasmine.createSpy('onExit')
+      },
+      locals: null,
+      includes: {
+        bar: true
+      }
+    };
+    $stickyState.stateInactivated(inactivatedState);
+
+    $stickyState.stateExiting({
+      name: 'bar',
+      self: {}
+    }, [], null);
+
+    expect($injector.invoke).toHaveBeenCalled();
+    expect(inactivatedState.locals).toBe(null);
+    expect(inactivatedState.self.status).toEqual('exited');
+  }));
+
+});
