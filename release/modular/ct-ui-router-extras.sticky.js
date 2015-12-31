@@ -300,7 +300,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           // sticky state tree is now active).
           state.self.status = 'inactive';
           if (state.self.onInactivate)
-            $injector.invoke(state.self.onInactivate, state.self, state.locals.globals);
+            $injector.invoke(state.self.onInactivate, state.self, state.locals ? state.locals.globals : {});
         },
 
         // Removes a previously inactivated state from the inactive sticky state registry
@@ -311,7 +311,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           state.self.status = 'entered';
 //        if (state.locals == null || state.locals.globals == null) debugger;
           if (state.self.onReactivate)
-            $injector.invoke(state.self.onReactivate, state.self, state.locals.globals);
+            $injector.invoke(state.self.onReactivate, state.self, state.locals ? state.locals.globals : {});
         },
 
         // Exits all inactivated descendant substates when the ancestor state is exited.
@@ -329,7 +329,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
             if (!exitingNames[name] && inactiveExiting.includes[exiting.name]) {
               if (DEBUG) $log.debug("Exiting " + name + " because it's a substate of " + exiting.name + " and wasn't found in ", exitingNames);
               if (inactiveExiting.self.onExit)
-                $injector.invoke(inactiveExiting.self.onExit, inactiveExiting.self, inactiveExiting.locals.globals);
+                $injector.invoke(inactiveExiting.self.onExit, inactiveExiting.self, inactiveExiting.locals ? inactiveExiting.locals.globals : {});
               angular.forEach(inactiveExiting.locals, function(localval, key) {
                 delete inactivePseudoState.locals[key];
               });
@@ -340,7 +340,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           });
 
           if (onExit)
-            $injector.invoke(onExit, exiting.self, exiting.locals.globals);
+            $injector.invoke(onExit, exiting.self, exiting.locals ? exiting.locals.globals : {});
           exiting.locals = null;
           exiting.self.status = 'exited';
           delete inactiveStates[exiting.self.name];
@@ -357,7 +357,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           entering.self.status = 'entered';
 
           if (onEnter)
-            $injector.invoke(onEnter, entering.self, entering.locals.globals);
+            $injector.invoke(onEnter, entering.self, entering.locals ? entering.locals.globals : {});
         },
         reset: function reset(inactiveState, params) {
           function resetOne(state) { stickySupport.reset(state); }
