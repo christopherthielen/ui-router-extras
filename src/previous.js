@@ -24,8 +24,8 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
         },
         go: function (memoName, options) {
           var to = $previousState.get(memoName);
-          if (memoName && !to) {
-            return $q.reject(new Error('undefined memo'));
+          if (!to) {
+            return $q.reject(new Error('no previous state ' + (memoName ? 'for memo: ' + memoName : '')));
           }
           return $state.go(to.state, to.params, options);
         },

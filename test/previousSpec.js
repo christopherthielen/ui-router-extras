@@ -82,9 +82,16 @@ describe("$previousState", function () {
       testGo("top.people.managerlist", { entered: pathFrom('top', 'top.people.managerlist') });
       testGo("top.inv.storelist", { entered: pathFrom('top.inv', 'top.inv.storelist'), exited: pathFrom('top.people.managerlist', 'top.people') });
       $previousState.go('undefined_memo').catch(function (err) {
-        expect(err.message).toBe('undefined memo');
+        expect(err.message).toBe('no previous state for memo: undefined_memo');
         done();
       });
+      $q.flush();
+    });
+
+    // Test for #281
+    it("should not throw an error if no previous state exists", function () {
+      testGo("top.people.managerlist", { entered: pathFrom('top', 'top.people.managerlist') });
+      expect(function() { $previousState.go(); }).not.toThrow();
       $q.flush();
     });
   });
