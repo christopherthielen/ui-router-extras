@@ -58,6 +58,10 @@ describe('stickyState', function () {
     newStates['typedparam'] = { sticky: true, url: '/typedparam/{boolparam:bool}' };
     newStates['typedparam2'] = { sticky: true, url: '/typedparam2/{jsonparam:json}' };
 
+    newStates['inherit'] = { url: '/inherit/:id' };
+    newStates['inherit.one'] = { sticky: true, url: '/one', views: { 'one@inherit': {} } };
+    newStates['inherit.two'] = { sticky: true, url: '/two', views: { 'two@inherit': {} } };
+
     return newStates;
   }
 
@@ -574,7 +578,23 @@ describe('stickyState', function () {
         inactivated: ['A._2.__1', 'A._2']
       });
     });
-  })
+  });
+
+  describe("transitions between sticky states, where params should be inherited", function() {
+    beforeEach(function() {
+      ssReset(getNestedStickyStates(), _stateProvider);
+    });
+
+    it("should reactivate the sticky state", function() {
+      testGo('inherit.one', { entered: ['inherit', 'inherit.one'] }, { params: { id: "1" } } );
+      expect($state.params.id).toBe("1");
+      testGo('inherit.two', { entered: 'inherit.two', inactivated: 'inherit.one' }, { inherit: true } );
+      expect($state.params.id).toBe("1");
+      testGo('inherit.one', { reactivated: 'inherit.one', inactivated: 'inherit.two' }, { inherit: true } );
+      expect($state.params.id).toBe("1");
+    });
+
+  });
 });
 
 describe('stickyState+ui-sref-active', function () {

@@ -133,7 +133,8 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         var keep = 0, state = toPath[keep];
 
         if (transition.options.inherit) {
-          toParams = inheritParams($stateParams, toParams || {}, $state.$current, transition.toState);
+          toParams = transition.toParams =
+              inheritParams($stateParams, toParams || {}, $state.$current, transition.toState);
         }
 
         while (state && state === fromPath[keep] && paramsEqualForState(state.ownParams, toParams, transition.fromParams)) {
