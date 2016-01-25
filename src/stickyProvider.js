@@ -132,7 +132,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         var toParams = transition.toParams;
         var keep = 0, state = toPath[keep];
 
-        if (transition.options.inherit) {
+        if (transition.options && transition.options.inherit) {
           toParams = transition.toParams =
               inheritParams($stateParams, toParams || {}, $state.$current, transition.toState);
         }
@@ -206,7 +206,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           //   enter: full resolve, no special logic
           //   reactivate: use previous locals
           //   reload: like 'enter', except exit the inactive state before entering it.
-          var reloaded = !!transition.options.reload;
+          var reloaded = transition.options && !!transition.options.reload;
           enteringTypes = treeChanges.entering.map(function(state) {
             var type = getEnterTransition(state, transition.toParams, transition.reloadStateTree, reloaded);
             reloaded = reloaded || type === 'reload';

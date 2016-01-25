@@ -195,6 +195,12 @@ describe('stickyState', function () {
       testGo('A', {exited: ['A._2', 'A._1', 'A._3']});
       testGo('main', { entered: ['main'], exited: ['A']});
     });
+
+    it('should allow empty transitionTo options', function() {
+      expect(function() {
+        $state.transitionTo('A')
+      }).not.toThrow()
+    })
   });
 
   describe('resolve/controller function', function () {
