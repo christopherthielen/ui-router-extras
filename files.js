@@ -15,7 +15,7 @@ var modules = _(moduleNames)
       dest: 'build/modular'
     };
   })
-  .indexBy('module').value();
+  .keyBy('module').value();
 
 // sticky states has two src files
 modules.sticky.src = ['src/stickyProvider.js'].concat(modules.sticky.src);
@@ -27,10 +27,10 @@ modules.future.test.push('src/fsfactories/iframe.js');
 // Build the monolithic module 'all' which sucks in all the others
 modules.all = {
   module: 'all',
-  src: _.pluck(modules, 'src')
+  src: _.map(modules, 'src')
     .reduce(function(memo, ary) { return memo.concat(ary); }, [])
     .concat('src/all.js'),
-  test: _.pluck(modules, 'test')
+  test: _.map(modules, 'test')
     .reduce(function(memo, ary) { return memo.concat(ary); }, []),
   dist: 'ct-ui-router-extras.js',
   min: 'ct-ui-router-extras.min.js',
