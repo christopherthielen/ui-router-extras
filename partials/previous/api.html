@@ -22,6 +22,17 @@
     </section>
 
     <section class="panel panel-default">
+        <div class="panel-heading"><strong><code>$previousState.set([memoName: string, previousState: string, previousParams: optional object])</code></strong></div>
+        <div class="panel-body">
+            <p>Set <code>memoName</code> programmatically to <code>previousState</code>.</p>
+
+            <code>$previousState.set('workflowEntrypoint', 'management.settings.users');</code>
+
+            <p>The state '<code>management.settings.users</code>' is memorized with a memoName of '<code>workflowEntrypoint</code>'</p>
+        </div>
+    </section>
+
+    <section class="panel panel-default">
         <div class="panel-heading"><strong><code>$previousState.memo([memoName])</code></strong></div>
         <div class="panel-body">
             <p>Remember the previous state using a memoName.</p>
