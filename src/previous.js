@@ -22,6 +22,9 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
         get: function (memoName) {
           return memoName ? memos[memoName] : previous;
         },
+        set: function (memoName, previousState, previousParams) {
+          memos[memoName] = { state: $state.get(previousState), params: previousParams };
+        },
         go: function (memoName, options) {
           var to = $previousState.get(memoName);
           if (!to) {
