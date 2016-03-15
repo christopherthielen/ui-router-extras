@@ -1,3 +1,19 @@
+<a name="0.1.1"></a>
+### 0.1.1 (2016-03-14)
+
+#### Bug Fixes
+
+* **sticky:**
+  * Fix "Cannot read property 'globals' of null" The sticky provider was setting a r ([e401776b](https://github.com/christopherthielen/ui-router-extras/commit/e401776b480f8fd29fca049aa9f42df0732f6443), closes [#258](https://github.com/christopherthielen/ui-router-extras/issues/258))
+  * allow empty options parameter to transitionTo() ([1d8b1b6e](https://github.com/christopherthielen/ui-router-extras/commit/1d8b1b6e788106eecab439661614517ed18c45bf), closes [#285](https://github.com/christopherthielen/ui-router-extras/issues/285))
+  * Use inherited toParams for calculations. ([83866b57](https://github.com/christopherthielen/ui-router-extras/commit/83866b574ffcb34f8b63a3f7c9d2f287818058f9), closes [#288](https://github.com/christopherthielen/ui-router-extras/issues/288))
+* **previous:** Do not throw error if no previous state exists ([a186505d](https://github.com/christopherthielen/ui-router-extras/commit/a186505d7be4797f0d6192f1b691caf285749188), closes [#281](https://github.com/christopherthielen/ui-router-extras/issues/281))
+
+#### Features
+
+* **$previousState:** add a `set` method to `$previousState` to programmatically set the previous stat ([8423e0d6](https://github.com/christopherthielen/ui-router-extras/commit/8423e0d617bc722efb854c562909294b10589e78), closes [#302](https://github.com/christopherthielen/ui-router-extras/issues/302))
+* **future:** allow options to be passed to future state ([3a2469d8](https://github.com/christopherthielen/ui-router-extras/commit/3a2469d86e677364fb465f06604d1d17a3d6d7bb))
+
 
 <a name="0.1.0"></a>
 ### 0.1.0 (2015-10-13)
