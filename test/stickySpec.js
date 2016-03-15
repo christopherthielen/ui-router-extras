@@ -498,9 +498,9 @@ describe('stickyState', function () {
 
   describe('ui-router option reload: [state ref]', function() {
     var bStates = {};
-    bStates['B'] = { sticky: true, onEnter: function() { log += 'B;'} };
-    bStates['B._1'] = { sticky: true, onEnter: function() { log += "B._1;"} };
-    bStates['B._1.__1'] = { sticky: true, onEnter: function() { log += "B._1.__1;"} };
+    bStates['B'] = { sticky: true };
+    bStates['B._1'] = { sticky: true };
+    bStates['B._1.__1'] = { sticky: true };
 
     beforeEach(function() {
       ssReset(angular.extend(bStates, getSimpleStates()), _stateProvider);
@@ -528,7 +528,7 @@ describe('stickyState', function () {
     // Test case for #258
     it('should reload full partial tree of sticky states', function() {
       testGo('B._1.__1', { entered: [ 'B', 'B._1', 'B._1.__1' ] });
-      testGo('B._1.__1', {exited: ['B._1.__1', 'B._1', 'B'], entered: ['B', 'B._1', 'B._1.__1']}, {reload: true});
+      testGo('B._1.__1', { exited : ['B._1.__1', 'B._1', 'B'], entered: ['B', 'B._1', 'B._1.__1'] }, {reload: true});
     });
   });
 
