@@ -1,7 +1,7 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: future
- * @version 0.1.0
+ * @version 0.1.2
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -67,7 +67,15 @@
       } else {
         var futureParent = findState((futureState.parent || parentName), true);
         if (!futureParent) throw new Error("Couldn't determine parent state of future state. FutureState:" + angular.toJson(futureState));
-        var pattern = futureParent.urlMatcher.source.replace(/\*rest$/, "");
+        var pattern;
+        if (futureParent.urlMatcher) {
+          pattern = futureParent.urlMatcher.source.replace(/\*rest$/, "");
+        }
+        else {
+          // if the futureParent doesn't have a urlMatcher, then we are still
+          // starting from the beginning of the path
+          pattern = "";
+        }
         parentMatcher = $urlMatcherFactory.compile(pattern);
         futureState.parentFutureState = futureParent;
       }
@@ -239,7 +247,7 @@
                 if (state && (!$state.get(state) || (state.name && !$state.get(state.name))))
                   $stateProvider.state(state);
               });
-              $state.go(unfoundState.to, unfoundState.toParams);
+              $state.go(unfoundState.to, unfoundState.toParams, unfoundState.options);
               lazyloadInProgress = false;
             }, function (error) {
               console.log("failed to lazy load state ", error);

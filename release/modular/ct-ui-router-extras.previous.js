@@ -1,7 +1,7 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: previous
- * @version 0.1.0
+ * @version 0.1.2
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -31,10 +31,13 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
         get: function (memoName) {
           return memoName ? memos[memoName] : previous;
         },
+        set: function (memoName, previousState, previousParams) {
+          memos[memoName] = { state: $state.get(previousState), params: previousParams };
+        },
         go: function (memoName, options) {
           var to = $previousState.get(memoName);
-          if (memoName && !to) {
-            return $q.reject(new Error('undefined memo'));
+          if (!to) {
+            return $q.reject(new Error('no previous state ' + (memoName ? 'for memo: ' + memoName : '')));
           }
           return $state.go(to.state, to.params, options);
         },

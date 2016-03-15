@@ -1,7 +1,7 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Monolithic build (all modules)
- * @version 0.1.0
+ * @version 0.1.2
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -493,8 +493,9 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         var toParams = transition.toParams;
         var keep = 0, state = toPath[keep];
 
-        if (transition.options.inherit) {
-          toParams = inheritParams($stateParams, toParams || {}, $state.$current, transition.toState);
+        if (transition.options && transition.options.inherit) {
+          toParams = transition.toParams =
+              inheritParams($stateParams, toParams || {}, $state.$current, transition.toState);
         }
 
         while (state && state === fromPath[keep] && paramsEqualForState(state.ownParams, toParams, transition.fromParams)) {
@@ -556,7 +557,8 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           // - We must be entering any sibling state of the sticky (we can check this using entering.length)
           var shouldInactivate = treeChanges.exiting[0] && treeChanges.exiting[0].sticky && treeChanges.entering.length > 0;
           exitingTypes = treeChanges.exiting.map(function (state) {
-              var type = shouldInactivate ? "inactivate" : "exit";
+              var stateRentering = treeChanges.entering.indexOf(state) !== -1;
+              var type = shouldInactivate && !stateRentering ? "inactivate" : "exit";
               return { type: type, state: state };
           });
 
@@ -566,7 +568,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           //   enter: full resolve, no special logic
           //   reactivate: use previous locals
           //   reload: like 'enter', except exit the inactive state before entering it.
-          var reloaded = !!transition.options.reload;
+          var reloaded = transition.options && !!transition.options.reload;
           enteringTypes = treeChanges.entering.map(function(state) {
             var type = getEnterTransition(state, transition.toParams, transition.reloadStateTree, reloaded);
             reloaded = reloaded || type === 'reload';
@@ -1341,7 +1343,15 @@ angular.module("ct.ui.router.extras.sticky").config(
       } else {
         var futureParent = findState((futureState.parent || parentName), true);
         if (!futureParent) throw new Error("Couldn't determine parent state of future state. FutureState:" + angular.toJson(futureState));
-        var pattern = futureParent.urlMatcher.source.replace(/\*rest$/, "");
+        var pattern;
+        if (futureParent.urlMatcher) {
+          pattern = futureParent.urlMatcher.source.replace(/\*rest$/, "");
+        }
+        else {
+          // if the futureParent doesn't have a urlMatcher, then we are still
+          // starting from the beginning of the path
+          pattern = "";
+        }
         parentMatcher = $urlMatcherFactory.compile(pattern);
         futureState.parentFutureState = futureParent;
       }
@@ -1513,7 +1523,7 @@ angular.module("ct.ui.router.extras.sticky").config(
                 if (state && (!$state.get(state) || (state.name && !$state.get(state.name))))
                   $stateProvider.state(state);
               });
-              $state.go(unfoundState.to, unfoundState.toParams);
+              $state.go(unfoundState.to, unfoundState.toParams, unfoundState.options);
               lazyloadInProgress = false;
             }, function (error) {
               console.log("failed to lazy load state ", error);
@@ -1613,10 +1623,13 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
         get: function (memoName) {
           return memoName ? memos[memoName] : previous;
         },
+        set: function (memoName, previousState, previousParams) {
+          memos[memoName] = { state: $state.get(previousState), params: previousParams };
+        },
         go: function (memoName, options) {
           var to = $previousState.get(memoName);
-          if (memoName && !to) {
-            return $q.reject(new Error('undefined memo'));
+          if (!to) {
+            return $q.reject(new Error('no previous state ' + (memoName ? 'for memo: ' + memoName : '')));
           }
           return $state.go(to.state, to.params, options);
         },

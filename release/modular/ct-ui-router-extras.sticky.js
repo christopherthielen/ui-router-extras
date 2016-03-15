@@ -1,7 +1,7 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: sticky
- * @version 0.1.0
+ * @version 0.1.2
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -141,8 +141,9 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         var toParams = transition.toParams;
         var keep = 0, state = toPath[keep];
 
-        if (transition.options.inherit) {
-          toParams = inheritParams($stateParams, toParams || {}, $state.$current, transition.toState);
+        if (transition.options && transition.options.inherit) {
+          toParams = transition.toParams =
+              inheritParams($stateParams, toParams || {}, $state.$current, transition.toState);
         }
 
         while (state && state === fromPath[keep] && paramsEqualForState(state.ownParams, toParams, transition.fromParams)) {
@@ -204,7 +205,8 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           // - We must be entering any sibling state of the sticky (we can check this using entering.length)
           var shouldInactivate = treeChanges.exiting[0] && treeChanges.exiting[0].sticky && treeChanges.entering.length > 0;
           exitingTypes = treeChanges.exiting.map(function (state) {
-              var type = shouldInactivate ? "inactivate" : "exit";
+              var stateRentering = treeChanges.entering.indexOf(state) !== -1;
+              var type = shouldInactivate && !stateRentering ? "inactivate" : "exit";
               return { type: type, state: state };
           });
 
@@ -214,7 +216,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           //   enter: full resolve, no special logic
           //   reactivate: use previous locals
           //   reload: like 'enter', except exit the inactive state before entering it.
-          var reloaded = !!transition.options.reload;
+          var reloaded = transition.options && !!transition.options.reload;
           enteringTypes = treeChanges.entering.map(function(state) {
             var type = getEnterTransition(state, transition.toParams, transition.reloadStateTree, reloaded);
             reloaded = reloaded || type === 'reload';
