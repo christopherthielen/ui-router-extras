@@ -196,7 +196,8 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           // - We must be entering any sibling state of the sticky (we can check this using entering.length)
           var shouldInactivate = treeChanges.exiting[0] && treeChanges.exiting[0].sticky && treeChanges.entering.length > 0;
           exitingTypes = treeChanges.exiting.map(function (state) {
-              var type = shouldInactivate ? "inactivate" : "exit";
+              var stateRentering = treeChanges.entering.indexOf(state) !== -1;
+              var type = shouldInactivate && !stateRentering ? "inactivate" : "exit";
               return { type: type, state: state };
           });
 
