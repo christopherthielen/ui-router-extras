@@ -645,7 +645,7 @@ describe('stickyState+ui-sref-active', function () {
       testGo('A');
     });
 
-    it('should have "active" class on div when state A._1 is active', inject(function ($rootScope, $q, $compile, $state) {
+    it('should have "active" class on div when state A._1 is active', inject(function ($rootScope, $q, $compile, $timeout) {
       el = angular.element('' +
           '<div>' +
           '  <a class="" id="foo" ui-sref="A._1" ui-sref-active="active">Go to A._1</a>' +
@@ -662,14 +662,17 @@ describe('stickyState+ui-sref-active', function () {
       expect(el.find("#foo").attr('class')).toBe('');
 
       testGo('main');
+      $timeout.flush();
       expect(el.find("#bar").attr('class')).toBe('active');
       expect(el.find("#foo").attr('class')).toBe('');
 
       testGo('A');
+      $timeout.flush();
       expect(el.find("#bar").attr('class')).toBe('');
       expect(el.find("#foo").attr('class')).toBe('');
 
       testGo('A._1');
+      $timeout.flush();
       expect(el.find("#bar").attr('class')).toBe('');
       expect(el.find("#foo").attr('class')).toBe('active');
     }));
