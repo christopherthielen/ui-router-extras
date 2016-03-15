@@ -4,7 +4,7 @@ var dynamicConfig = require('./karma.dynamic.conf.js');
 var _ = require("lodash");
 
 module.exports = function(_config) {
-  var config = _.clone(baseConfig, true);
+  var config = _.cloneDeep(baseConfig, true);
 
   config.files.push('bower_components/jquery/dist/jquery.js');
   config.files.push('bower_components/angular/angular.js');
