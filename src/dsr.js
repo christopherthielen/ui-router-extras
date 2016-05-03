@@ -10,7 +10,7 @@ angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config
   $provide.decorator("$state", ['$delegate', '$q', function ($state, $q) {
     $state_transitionTo = $state.transitionTo;
     $state.transitionTo = function (to, toParams, options) {
-      if (options.ignoreDsr) {
+      if (options && options.ignoreDsr) {
         ignoreDsr = options.ignoreDsr;
       }
 
