@@ -150,10 +150,13 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         };
       }
 
+      function sortByStateDepth(a,b) {
+        return a.name.split(".").length - b.name.split(".").length;
+      }
 
       var stickySupport = {
         getInactiveStates: function () {
-          return map(inactiveStates, angular.identity);
+          return map(inactiveStates, angular.identity).sort(sortByStateDepth);
         },
         getInactiveStatesByParent: function () {
           return mapInactives();
@@ -171,7 +174,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         // }
         processTransition: function (transition) {
           var treeChanges = calcTreeChanges(transition);
-          var currentInactives = map(inactiveStates, angular.identity);
+          var currentInactives = stickySupport.getInactiveStates();
           var futureInactives, exitingTypes, enteringTypes;
           var keep = treeChanges.keep;
 
@@ -259,7 +262,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
               .reduce(flattenReduce, [])
               .concat(orphanedRoots)
               // Sort by depth to exit orphans in proper order
-              .sort(function (a,b) { return a.name.split(".").length - b.name.split(".").length; });
+              .sort(sortByStateDepth);
 
           // Add them to the list of states being exited.
           var exitOrOrphaned = exitingTypes
@@ -273,7 +276,8 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           futureInactives = currentInactives
               .filter(notIn(exitOrOrphaned))
               .filter(notIn(treeChanges.entering))
-              .concat(exitingTypes.filter(typeIs("inactivate")).map(prop("state")));
+              .concat(exitingTypes.filter(typeIs("inactivate")).map(prop("state")))
+              .sort(sortByStateDepth);
 
           return {
             keep: keep,
