@@ -1,3 +1,18 @@
+<a name="0.1.3"></a>
+### 0.1.3 (2016-10-05)
+
+
+#### Bug Fixes
+
+* **dsr:** Cannot read property 'ignoreDsr' of undefined ([3e23a4ac](https://github.com/christopherthielen/ui-router-extras/commit/3e23a4acc11449bef017758a4fc69cc1660539f6))
+* **sticky:** fix inactive child state targeting a named ui-view that inactive parent also tar ([122d5842](https://github.com/christopherthielen/ui-router-extras/commit/122d584223d864f696d8f37751bdfd218b29e5d4), closes [#272](https://github.com/christopherthielen/ui-router-extras/issues/272), [#343](https://github.com/christopherthielen/ui-router-extras/issues/343))
+
+
+#### Features
+
+* **sticky:** Improve view debugging output using console.table() ([26058304](https://github.com/christopherthielen/ui-router-extras/commit/26058304353b01e454d1aabd08d7b2f310526e1f))
+
+
 <a name="0.1.1"></a>
 ### 0.1.1 (2016-03-14)
 
