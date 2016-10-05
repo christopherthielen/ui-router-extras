@@ -1,7 +1,7 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Module: dsr
- * @version 0.1.2
+ * @version 0.1.3
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -19,7 +19,7 @@ angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config
   $provide.decorator("$state", ['$delegate', '$q', function ($state, $q) {
     $state_transitionTo = $state.transitionTo;
     $state.transitionTo = function (to, toParams, options) {
-      if (options.ignoreDsr) {
+      if (options && options.ignoreDsr) {
         ignoreDsr = options.ignoreDsr;
       }
 
@@ -151,7 +151,12 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
       computeDeepStateStatus(state)
       var cfg = getConfig(state);
       var key = getParamsString(params, cfg.params);
-      var redirect = lastSubstate[state.name][key] || cfg['default'];
+      var redirect = lastSubstate[state.name];
+      if (redirect && redirect[key]) {
+        redirect = redirect[key];
+      } else {
+        redirect = cfg['default'];
+      }
       return redirect;
     },
     reset: function(stateOrName, params) {

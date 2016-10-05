@@ -1,7 +1,7 @@
 /**
  * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
  * Monolithic build (all modules)
- * @version 0.1.2
+ * @version 0.1.3
  * @link http://christopherthielen.github.io/ui-router-extras/
  * @license MIT License, http://www.opensource.org/licenses/MIT
  */
@@ -201,7 +201,7 @@ angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config
   $provide.decorator("$state", ['$delegate', '$q', function ($state, $q) {
     $state_transitionTo = $state.transitionTo;
     $state.transitionTo = function (to, toParams, options) {
-      if (options.ignoreDsr) {
+      if (options && options.ignoreDsr) {
         ignoreDsr = options.ignoreDsr;
       }
 
@@ -333,7 +333,12 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
       computeDeepStateStatus(state)
       var cfg = getConfig(state);
       var key = getParamsString(params, cfg.params);
-      var redirect = lastSubstate[state.name][key] || cfg['default'];
+      var redirect = lastSubstate[state.name];
+      if (redirect && redirect[key]) {
+        redirect = redirect[key];
+      } else {
+        redirect = cfg['default'];
+      }
       return redirect;
     },
     reset: function(stateOrName, params) {
@@ -511,10 +516,13 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         };
       }
 
+      function sortByStateDepth(a,b) {
+        return a.name.split(".").length - b.name.split(".").length;
+      }
 
       var stickySupport = {
         getInactiveStates: function () {
-          return map(inactiveStates, angular.identity);
+          return map(inactiveStates, angular.identity).sort(sortByStateDepth);
         },
         getInactiveStatesByParent: function () {
           return mapInactives();
@@ -532,7 +540,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
         // }
         processTransition: function (transition) {
           var treeChanges = calcTreeChanges(transition);
-          var currentInactives = map(inactiveStates, angular.identity);
+          var currentInactives = stickySupport.getInactiveStates();
           var futureInactives, exitingTypes, enteringTypes;
           var keep = treeChanges.keep;
 
@@ -620,7 +628,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
               .reduce(flattenReduce, [])
               .concat(orphanedRoots)
               // Sort by depth to exit orphans in proper order
-              .sort(function (a,b) { return a.name.split(".").length - b.name.split(".").length; });
+              .sort(sortByStateDepth);
 
           // Add them to the list of states being exited.
           var exitOrOrphaned = exitingTypes
@@ -634,7 +642,8 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
           futureInactives = currentInactives
               .filter(notIn(exitOrOrphaned))
               .filter(notIn(treeChanges.entering))
-              .concat(exitingTypes.filter(typeIs("inactivate")).map(prop("state")));
+              .concat(exitingTypes.filter(typeIs("inactivate")).map(prop("state")))
+              .sort(sortByStateDepth);
 
           return {
             keep: keep,
@@ -1254,30 +1263,36 @@ angular.module("ct.ui.router.extras.sticky").config(
           return s.self.name;
         }));
 
-        var viewMsg = function (local, name) {
-          return "'" + name + "' (" + local.$$state.name + ")";
-        };
         var statesOnly = function (local, name) {
           return name != 'globals' && name != 'resolve';
         };
+
         var viewsForState = function (state) {
-          var views = map(filterObj(state.locals, statesOnly), viewMsg).join(", ");
-          return "(" + (state.self.name ? state.self.name : "root") + ".locals" + (views.length ? ": " + views : "") + ")";
+          var viewLocals = filterObj(state.locals, statesOnly);
+
+          if (!Object.keys(viewLocals).length) {
+            viewLocals[''] = { $$state: { name: null } };
+          }
+
+          return map(viewLocals, function(local, name) {
+            return {
+              localsFor: state.self.name ? state.self.name : "(root)",
+              uiViewName: name || null,
+              filledByState: local.$$state.name
+            };
+          });
         };
 
-        var message = viewsForState(currentState);
+        var viewsByState = viewsForState(currentState);
         var parent = currentState.parent;
         while (parent && parent !== currentState) {
-          if (parent.self.name === "") {
-            // Show the __inactives before showing root state.
-            message = viewsForState($state.$current.path[0]) + " / " + message;
-          }
-          message = viewsForState(parent) + " / " + message;
+          viewsByState = viewsByState.concat(viewsForState(parent));
           currentState = parent;
           parent = currentState.parent;
         }
 
-        $log.debug("Views: " + message);
+        $log.debug("Views active on each state:");
+        console.table(viewsByState.reverse());
       }
     }
   ]
