@@ -28,9 +28,18 @@
     "q": "^1.1.2",
     "run-sequence": "^1.0.2"
   },
-  "main": "release/ct-ui-router-extras",
+  "main": "src/all.js",
   "files": [
     "release"
   ],
-  "repository": ""
+  "repository": { 
+    "type" : "git",
+    "url" : "https://github.com/christopherthielen/ui-router-extras.git"
+  },
+  "scripts": {
+    "build": "npm run clean && gulp",
+    "clean": "gulp clean",
+    "prepublish": "bower install && npm run build"
+  }
+
 }

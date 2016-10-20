@@ -473,11 +473,11 @@ function SurrogateState(type) {
 
 // ------------------------ Sticky State registration and initialization code ----------------------------------
 // Grab a copy of the $stickyState service for use by the transition management code
-angular.module("ct.ui.router.extras.sticky").run(["$stickyState", function ($stickyState) {
+var mod_sticky = angular.module("ct.ui.router.extras.sticky").run(["$stickyState", function ($stickyState) {
   _StickyState = $stickyState;
 }]);
 
-angular.module("ct.ui.router.extras.sticky").config(
+mod_sticky.config(
   [ "$provide", "$stateProvider", '$stickyStateProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider',
     function ($provide, $stateProvider, $stickyStateProvider, $urlMatcherFactoryProvider, uirextras_coreProvider) {
       var core = uirextras_coreProvider;
@@ -940,5 +940,7 @@ angular.module("ct.ui.router.extras.sticky").config(
     }
   ]
 );
+
+module.exports = mod_sticky.name;
 
 })(angular);

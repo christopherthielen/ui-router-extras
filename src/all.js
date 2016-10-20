@@ -1,4 +1,4 @@
-angular.module("ct.ui.router.extras",
+var app = angular.module("ct.ui.router.extras",
   [
     'ct.ui.router.extras.core',
     'ct.ui.router.extras.dsr',
@@ -9,3 +9,4 @@ angular.module("ct.ui.router.extras",
     'ct.ui.router.extras.transition'
   ]);
 
+module.exports = app.name;

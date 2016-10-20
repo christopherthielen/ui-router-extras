@@ -8,7 +8,7 @@
 (function(angular, undefined){
 "use strict";
 (function(angular, undefined) {
-  var app = angular.module('ct.ui.router.extras.future', [ 'ct.ui.router.extras.core' ]);
+  var mod_future = angular.module('ct.ui.router.extras.future', [ 'ct.ui.router.extras.core' ]);
 
   _futureStateProvider.$inject = [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider' ];
   function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory, uirextras_coreProvider) {
@@ -291,7 +291,7 @@
     ];
   }
 
-  app.provider('$futureState', _futureStateProvider);
+  mod_future.provider('$futureState', _futureStateProvider);
 
   var statesAddedQueue = {
     state: function(state) {
@@ -304,7 +304,7 @@
     $rootScope: undefined
   };
 
-  app.config([ '$stateProvider', function($stateProvider) {
+  mod_future.config([ '$stateProvider', function($stateProvider) {
     // decorate $stateProvider.state so we can broadcast when a real state was added
     var realStateFn = $stateProvider.state;
     $stateProvider.state = function state_announce() {
@@ -317,10 +317,11 @@
   }]);
 
   // inject $futureState so the service gets initialized via $get();
-  app.run(['$futureState', function ($futureState, $rootScope) {
+  mod_future.run(['$futureState', function ($futureState, $rootScope) {
     statesAddedQueue.itsNowRuntimeOhWhatAHappyDay($rootScope);
   } ]);
 
+  module.exports = mod_future.name;
 })(angular);
 
 })(angular);

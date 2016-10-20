@@ -188,6 +188,7 @@ mod_core.provider("uirextras_core", function() {
   };
 });
 
+module.exports = mod_core.name;
 
 var ignoreDsr;
 function resetIgnoreDsr() {
@@ -196,7 +197,7 @@ function resetIgnoreDsr() {
 
 // Decorate $state.transitionTo to gain access to the last transition.options variable.
 // This is used to process the options.ignoreDsr option
-angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config([ "$provide", function ($provide) {
+var mod_dsr = angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config([ "$provide", function ($provide) {
   var $state_transitionTo;
   $provide.decorator("$state", ['$delegate', '$q', function ($state, $q) {
     $state_transitionTo = $state.transitionTo;
@@ -220,7 +221,7 @@ angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config
   }]);
 }]);
 
-angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$rootScope', '$state', '$injector', function ($rootScope, $state, $injector) {
+mod_dsr.service("$deepStateRedirect", [ '$rootScope', '$state', '$injector', function ($rootScope, $state, $injector) {
   var lastSubstate = {};
   var deepStateRedirectsByName = {};
 
@@ -360,10 +361,11 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
   };
 }]);
 
-angular.module('ct.ui.router.extras.dsr').run(['$deepStateRedirect', function ($deepStateRedirect) {
+mod_dsr.run(['$deepStateRedirect', function ($deepStateRedirect) {
   // Make sure $deepStateRedirect is instantiated
 }]);
 
+module.exports = mod_dsr.name;
 angular.module("ct.ui.router.extras.sticky", [ 'ct.ui.router.extras.core' ]);
 
 var mod_sticky = angular.module("ct.ui.router.extras.sticky");
@@ -830,11 +832,11 @@ function SurrogateState(type) {
 
 // ------------------------ Sticky State registration and initialization code ----------------------------------
 // Grab a copy of the $stickyState service for use by the transition management code
-angular.module("ct.ui.router.extras.sticky").run(["$stickyState", function ($stickyState) {
+var mod_sticky = angular.module("ct.ui.router.extras.sticky").run(["$stickyState", function ($stickyState) {
   _StickyState = $stickyState;
 }]);
 
-angular.module("ct.ui.router.extras.sticky").config(
+mod_sticky.config(
   [ "$provide", "$stateProvider", '$stickyStateProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider',
     function ($provide, $stateProvider, $stickyStateProvider, $urlMatcherFactoryProvider, uirextras_coreProvider) {
       var core = uirextras_coreProvider;
@@ -1298,8 +1300,10 @@ angular.module("ct.ui.router.extras.sticky").config(
   ]
 );
 
+module.exports = mod_sticky.name;
+
 (function(angular, undefined) {
-  var app = angular.module('ct.ui.router.extras.future', [ 'ct.ui.router.extras.core' ]);
+  var mod_future = angular.module('ct.ui.router.extras.future', [ 'ct.ui.router.extras.core' ]);
 
   _futureStateProvider.$inject = [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider' ];
   function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory, uirextras_coreProvider) {
@@ -1582,7 +1586,7 @@ angular.module("ct.ui.router.extras.sticky").config(
     ];
   }
 
-  app.provider('$futureState', _futureStateProvider);
+  mod_future.provider('$futureState', _futureStateProvider);
 
   var statesAddedQueue = {
     state: function(state) {
@@ -1595,7 +1599,7 @@ angular.module("ct.ui.router.extras.sticky").config(
     $rootScope: undefined
   };
 
-  app.config([ '$stateProvider', function($stateProvider) {
+  mod_future.config([ '$stateProvider', function($stateProvider) {
     // decorate $stateProvider.state so we can broadcast when a real state was added
     var realStateFn = $stateProvider.state;
     $stateProvider.state = function state_announce() {
@@ -1608,13 +1612,14 @@ angular.module("ct.ui.router.extras.sticky").config(
   }]);
 
   // inject $futureState so the service gets initialized via $get();
-  app.run(['$futureState', function ($futureState, $rootScope) {
+  mod_future.run(['$futureState', function ($futureState, $rootScope) {
     statesAddedQueue.itsNowRuntimeOhWhatAHappyDay($rootScope);
   } ]);
 
+  module.exports = mod_future.name;
 })(angular);
 
-angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.transition' ]).service("$previousState",
+var mod_previous = angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.transition' ]).service("$previousState",
   [ '$rootScope', '$state', '$q',
     function ($rootScope, $state, $q) {
       var previous = null, lastPrevious = null, memos = {};
@@ -1665,12 +1670,14 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
   ]
 );
 
-angular.module('ct.ui.router.extras.previous').run(['$previousState', function ($previousState) {
+mod_previous.run(['$previousState', function ($previousState) {
   // Inject $previousState so it can register $rootScope events
 }]);
 
+module.exports = mod_previous.name;
 
-angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ]).config( [ "$provide",  function ($provide) {
+
+var mod_transition = angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ]).config( [ "$provide",  function ($provide) {
       // Decorate the $state service, so we can replace $state.transitionTo()
       $provide.decorator("$state", ['$delegate', '$rootScope', '$q', '$injector',
         function ($state, $rootScope, $q, $injector) {
@@ -1766,12 +1773,14 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
   ]
 );
 
+module.exports = mod_transition.name;
+
 // statevis requires d3.
 (function () {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.sticky'  ]);
+  var mod_statevis = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.sticky'  ]);
 
-  app.directive('stateVis', [ '$state', '$timeout', '$interval', stateVisDirective ]);
+  mod_statevis.directive('stateVis', [ '$state', '$timeout', '$interval', stateVisDirective ]);
 
   /**
    * This directive gets all the current states using $state.get() and displays them in a tree using D3 lib.
@@ -1947,10 +1956,12 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
       }
     };
   }
+
+  module.exports = mod_statevis.name;
 })();
 
 
-angular.module("ct.ui.router.extras",
+var app = angular.module("ct.ui.router.extras",
   [
     'ct.ui.router.extras.core',
     'ct.ui.router.extras.dsr',
@@ -1961,5 +1972,6 @@ angular.module("ct.ui.router.extras",
     'ct.ui.router.extras.transition'
   ]);
 
+module.exports = app.name;
 
 }));

@@ -177,5 +177,6 @@ mod_core.provider("uirextras_core", function() {
   };
 });
 
+module.exports = mod_core.name;
 
 })(angular);

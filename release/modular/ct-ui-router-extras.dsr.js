@@ -14,7 +14,7 @@ function resetIgnoreDsr() {
 
 // Decorate $state.transitionTo to gain access to the last transition.options variable.
 // This is used to process the options.ignoreDsr option
-angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config([ "$provide", function ($provide) {
+var mod_dsr = angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config([ "$provide", function ($provide) {
   var $state_transitionTo;
   $provide.decorator("$state", ['$delegate', '$q', function ($state, $q) {
     $state_transitionTo = $state.transitionTo;
@@ -38,7 +38,7 @@ angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config
   }]);
 }]);
 
-angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$rootScope', '$state', '$injector', function ($rootScope, $state, $injector) {
+mod_dsr.service("$deepStateRedirect", [ '$rootScope', '$state', '$injector', function ($rootScope, $state, $injector) {
   var lastSubstate = {};
   var deepStateRedirectsByName = {};
 
@@ -178,8 +178,9 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
   };
 }]);
 
-angular.module('ct.ui.router.extras.dsr').run(['$deepStateRedirect', function ($deepStateRedirect) {
+mod_dsr.run(['$deepStateRedirect', function ($deepStateRedirect) {
   // Make sure $deepStateRedirect is instantiated
 }]);
 
+module.exports = mod_dsr.name;
 })(angular);

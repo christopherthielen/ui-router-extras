@@ -8,7 +8,7 @@
 (function(angular, undefined){
 "use strict";
 
-angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ]).config( [ "$provide",  function ($provide) {
+var mod_transition = angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ]).config( [ "$provide",  function ($provide) {
       // Decorate the $state service, so we can replace $state.transitionTo()
       $provide.decorator("$state", ['$delegate', '$rootScope', '$q', '$injector',
         function ($state, $rootScope, $q, $injector) {
@@ -103,5 +103,7 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
     }
   ]
 );
+
+module.exports = mod_transition.name;
 
 })(angular);

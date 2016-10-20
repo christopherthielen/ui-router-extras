@@ -7,7 +7,7 @@
  */
 (function(angular, undefined){
 "use strict";
-angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.transition' ]).service("$previousState",
+var mod_previous = angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.transition' ]).service("$previousState",
   [ '$rootScope', '$state', '$q',
     function ($rootScope, $state, $q) {
       var previous = null, lastPrevious = null, memos = {};
@@ -58,8 +58,10 @@ angular.module('ct.ui.router.extras.previous', [ 'ct.ui.router.extras.core', 'ct
   ]
 );
 
-angular.module('ct.ui.router.extras.previous').run(['$previousState', function ($previousState) {
+mod_previous.run(['$previousState', function ($previousState) {
   // Inject $previousState so it can register $rootScope events
 }]);
+
+module.exports = mod_previous.name;
 
 })(angular);

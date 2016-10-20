@@ -10,9 +10,9 @@
 // statevis requires d3.
 (function () {
   "use strict";
-  var app = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.sticky'  ]);
+  var mod_statevis = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.sticky'  ]);
 
-  app.directive('stateVis', [ '$state', '$timeout', '$interval', stateVisDirective ]);
+  mod_statevis.directive('stateVis', [ '$state', '$timeout', '$interval', stateVisDirective ]);
 
   /**
    * This directive gets all the current states using $state.get() and displays them in a tree using D3 lib.
@@ -188,6 +188,8 @@
       }
     };
   }
+
+  module.exports = mod_statevis.name;
 })();
 
 
