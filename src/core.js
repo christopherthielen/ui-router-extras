@@ -122,7 +122,7 @@ function inheritParams(currentParams, newParams, $current, $to) {
   var parents = ancestors($current, $to), parentParams, inherited = {}, inheritList = [];
 
   for (var i in parents) {
-    if (!parents[i].params) continue;
+    if (!parents[i] || !parents[i].params) continue;
     // This test allows compatibility with 0.2.x and 0.3.x (optional and object params)
     parentParams = isArray(parents[i].params) ? parents[i].params : objectKeys(parents[i].params);
     if (!parentParams.length) continue;
