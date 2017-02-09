@@ -1,9 +1,12 @@
 var mod_core = angular.module("ct.ui.router.extras.core", [ "ui.router" ]);
 
 var internalStates = {}, stateRegisteredCallbacks = [];
-mod_core.config([ '$stateProvider', '$injector', function ($stateProvider, $injector) {
+
+function mod_coreConfig ($stateProvider, $injector) {
   // Decorate any state attribute in order to get access to the internal state representation.
-  $stateProvider.decorator('parent', function (state, parentFn) {
+  $stateProvider.decorator('parent', $stateProviderDecorator);
+
+  function $stateProviderDecorator (state, parentFn) {
     // Capture each internal UI-Router state representations as opposed to the user-defined state object.
     // The internal state is, e.g., the state returned by $state.$current as opposed to $state.current
     internalStates[state.self.name] = state;
@@ -14,8 +17,14 @@ mod_core.config([ '$stateProvider', '$injector', function ($stateProvider, $inje
 
     angular.forEach(stateRegisteredCallbacks, function(callback) { callback(state); });
     return parentFn(state);
-  });
-}]);
+  }
+
+  $stateProviderDecorator.$inject = ['state', 'parentFn'];
+};
+
+mod_coreConfig.$inject = ['$stateProvider', '$injector'];
+
+mod_core.config(mod_coreConfig);
 
 var DEBUG = false;
 

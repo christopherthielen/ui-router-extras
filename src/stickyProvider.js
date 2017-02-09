@@ -3,6 +3,7 @@ angular.module("ct.ui.router.extras.sticky", [ 'ct.ui.router.extras.core' ]);
 var mod_sticky = angular.module("ct.ui.router.extras.sticky");
 
 $StickyStateProvider.$inject = [ '$stateProvider', 'uirextras_coreProvider' ];
+
 function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
   var core = uirextras_coreProvider;
   var inheritParams = core.inheritParams;
@@ -30,8 +31,12 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
     return DEBUG;
   };
 
-  this.$get = [  '$rootScope', '$state', '$stateParams', '$injector', '$log',
-    function ($rootScope, $state, $stateParams, $injector, $log) {
+  this.$get = $StickyStateProviderGet;
+
+  $StickyStateProviderGet.$inject = ['$rootScope', '$state', '$stateParams', '$injector', '$log'];
+
+
+    function $StickyStateProviderGet ($rootScope, $state, $stateParams, $injector, $log) {
       // Each inactive states is either a sticky state, or a child of a sticky state.
       // This function finds the closest ancestor sticky state, then find that state's parent.
       // Map all inactive states to their closest parent-to-sticky state.
@@ -373,7 +378,7 @@ function $StickyStateProvider($stateProvider, uirextras_coreProvider) {
       };
 
       return stickySupport;
-    }];
+    }
 }
 
 mod_sticky.provider("$stickyState", $StickyStateProvider);
