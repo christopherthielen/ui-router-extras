@@ -10,7 +10,7 @@ However, we're not watching this repository issues like we used to.
 
 For users of sticky states: https://github.com/ui-router/sticky-states
 
-For users of deep state redirect: https://github.com/ui-router/dsr
+For users of deep state redirect: https://ui-router.github.io/ng1/docs/latest/interfaces/ng1.ng1statedeclaration.html#redirectto and https://github.com/ui-router/dsr
 
 For users of future states: https://ui-router.github.io/ng1/docs/latest/interfaces/ng1.ng1statedeclaration.html#lazyload
 
