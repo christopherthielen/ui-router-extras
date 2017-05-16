@@ -1,4 +1,20 @@
-![travis status](https://travis-ci.org/christopherthielen/ui-router-extras.svg "Travis Status")
+![travis status](https://travis-ci.org/christopherthielen/ui-router-extras.svg?branch=master "Travis Status")
+
+# END OF LIFE NOTICE
+
+UI-Router 1.0 now includes all the features of ui-router-extras out of the box, or as a plugin.
+As such, we are no longer actively maintaining ui-router-extras.
+
+We will still accept well written pull requests and publish new releases as pull requests are merged.
+However, we're not watching this repository issues like we used to.
+
+For users of sticky states: https://github.com/ui-router/sticky-states
+
+For users of deep state redirect: https://github.com/ui-router/dsr
+
+For users of future states: https://ui-router.github.io/ng1/docs/latest/interfaces/ng1.ng1statedeclaration.html#lazyload
+
+Thank you for using UI-Router Extras!
 
 # Addons for Angular UI-Router:
 Full Website (description, API, demos): http://christopherthielen.github.io/ui-router-extras/
