@@ -14,6 +14,9 @@ For users of deep state redirect: https://ui-router.github.io/ng1/docs/latest/in
 
 For users of future states: https://ui-router.github.io/ng1/docs/latest/interfaces/ng1.ng1statedeclaration.html#lazyload
 
+For users of previous states: https://github.com/christopherthielen/ui-router-extras/issues/371#issuecomment-331553096
+
+
 Thank you for using UI-Router Extras!
 
 # Addons for Angular UI-Router:
