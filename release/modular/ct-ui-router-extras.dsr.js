@@ -14,9 +14,12 @@ function resetIgnoreDsr() {
 
 // Decorate $state.transitionTo to gain access to the last transition.options variable.
 // This is used to process the options.ignoreDsr option
-angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config([ "$provide", function ($provide) {
+
+
+function $transitionProvider ($provide) {
   var $state_transitionTo;
-  $provide.decorator("$state", ['$delegate', '$q', function ($state, $q) {
+
+  function $stateDecorator ($state, $q) {
     $state_transitionTo = $state.transitionTo;
     $state.transitionTo = function (to, toParams, options) {
       if (options && options.ignoreDsr) {
@@ -24,21 +27,31 @@ angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ]).config
       }
 
       return $state_transitionTo.apply($state, arguments).then(
-        function (result) {
-          resetIgnoreDsr();
-          return result;
-        },
-        function (err) {
-          resetIgnoreDsr();
-          return $q.reject(err);
-        }
+          function (result) {
+            resetIgnoreDsr();
+            return result;
+          },
+          function (err) {
+            resetIgnoreDsr();
+            return $q.reject(err);
+          }
       );
     };
     return $state;
-  }]);
-}]);
+  }
 
-angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$rootScope', '$state', '$injector', function ($rootScope, $state, $injector) {
+  $stateDecorator .$inject = ['$delegate', '$q'];
+
+  $provide.decorator("$state", $stateDecorator);
+}
+
+$transitionProvider.$inject = ['$provide'];
+
+angular.module('ct.ui.router.extras.dsr', [ 'ct.ui.router.extras.core' ])
+    .config($transitionProvider);
+
+
+function $deepStateRedirectService ($rootScope, $state, $injector) {
   var lastSubstate = {};
   var deepStateRedirectsByName = {};
 
@@ -176,10 +189,20 @@ angular.module('ct.ui.router.extras.dsr').service("$deepStateRedirect", [ '$root
       }
     }
   };
-}]);
+}
 
-angular.module('ct.ui.router.extras.dsr').run(['$deepStateRedirect', function ($deepStateRedirect) {
+$deepStateRedirectService.$inject = ['$rootScope', '$state', '$injector'];
+
+angular.module('ct.ui.router.extras.dsr')
+    .service("$deepStateRedirect", $deepStateRedirectService);
+
+
+angular.module('ct.ui.router.extras.dsr').run($deepStateRedirectRun);
+
+function $deepStateRedirectRun ($deepStateRedirect) {
   // Make sure $deepStateRedirect is instantiated
-}]);
+}
+
+$deepStateRedirectRun.$inject =  ['$deepStateRedirect'];
 
 })(angular);

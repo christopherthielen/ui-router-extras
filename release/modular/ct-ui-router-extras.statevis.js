@@ -12,8 +12,6 @@
   "use strict";
   var app = angular.module("ct.ui.router.extras.statevis", [ 'ct.ui.router.extras.core', 'ct.ui.router.extras.sticky'  ]);
 
-  app.directive('stateVis', [ '$state', '$timeout', '$interval', stateVisDirective ]);
-
   /**
    * This directive gets all the current states using $state.get() and displays them in a tree using D3 lib.
    * It then listens for state events and updates the tree.
@@ -188,6 +186,10 @@
       }
     };
   }
+
+  app.directive('stateVis', stateVisDirective);
+
+  stateVisDirective.$inject = ['$state', '$timeout', '$interval'];
 })();
 
 

@@ -11,6 +11,7 @@
   var app = angular.module('ct.ui.router.extras.future', [ 'ct.ui.router.extras.core' ]);
 
   _futureStateProvider.$inject = [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider' ];
+
   function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory, uirextras_coreProvider) {
     var core = uirextras_coreProvider;
     var internalStates = core.internalStates;
@@ -230,8 +231,11 @@
     };
 
     // Used in .run() block to init
-    this.$get = [ '$injector', '$state', '$q', '$rootScope', '$urlRouter', '$timeout', '$log',
-      function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $timeout, $log) {
+    this.$get = futureStateProvider_get;
+
+    futureStateProvider_get.$inject = [ '$injector', '$state', '$q', '$rootScope', '$urlRouter', '$timeout', '$log'];
+
+    function futureStateProvider_get($injector, $state, $q, $rootScope, $urlRouter, $timeout, $log) {
         function init() {
           $rootScope.$on("$stateNotFound", function futureState_notFound(event, unfoundState, fromState, fromParams) {
             if (lazyloadInProgress) return;
@@ -288,7 +292,6 @@
 
         return serviceObject;
       }
-    ];
   }
 
   app.provider('$futureState', _futureStateProvider);
@@ -304,7 +307,7 @@
     $rootScope: undefined
   };
 
-  app.config([ '$stateProvider', function($stateProvider) {
+  function $stateProviderFunction($stateProvider) {
     // decorate $stateProvider.state so we can broadcast when a real state was added
     var realStateFn = $stateProvider.state;
     $stateProvider.state = function state_announce() {
@@ -314,12 +317,20 @@
       statesAddedQueue.state(state);
       return val;
     };
-  }]);
+  }
+
+  $stateProviderFunction.$inject = ['$stateProvider'];
+
+  app.config($stateProviderFunction);
+
+  function $futureStateRun ($futureState, $rootScope) {
+    statesAddedQueue.itsNowRuntimeOhWhatAHappyDay($rootScope);
+  }
+
+  $futureStateRun.$inject = ['$futureState'];
 
   // inject $futureState so the service gets initialized via $get();
-  app.run(['$futureState', function ($futureState, $rootScope) {
-    statesAddedQueue.itsNowRuntimeOhWhatAHappyDay($rootScope);
-  } ]);
+  app.run($futureStateRun);
 
 })(angular);
 
