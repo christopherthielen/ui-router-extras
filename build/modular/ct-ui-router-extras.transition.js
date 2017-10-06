@@ -1,3 +1,12 @@
+/**
+ * UI-Router Extras: Sticky states, Future States, Deep State Redirect, Transition promise
+ * Module: transition
+ * @version 0.1.3
+ * @link http://christopherthielen.github.io/ui-router-extras/
+ * @license MIT License, http://www.opensource.org/licenses/MIT
+ */
+(function(angular, undefined){
+"use strict";
 
 angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ]).config( [ "$provide",  function ($provide) {
       // Decorate the $state service, so we can replace $state.transitionTo()
@@ -94,3 +103,5 @@ angular.module("ct.ui.router.extras.transition", [ 'ct.ui.router.extras.core' ])
     }
   ]
 );
+
+})(angular);

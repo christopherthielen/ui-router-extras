@@ -11,11 +11,11 @@
 *.ipr
 *.iws
 *.DS_Store
+.vscode
 lib-cov
 pids
 logs
 results
-build
 test/temp.js
 
 node_modules
