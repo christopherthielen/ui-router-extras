@@ -3,7 +3,7 @@
 
   _futureStateProvider.$inject = [ '$stateProvider', '$urlRouterProvider', '$urlMatcherFactoryProvider', 'uirextras_coreProvider' ];
   function _futureStateProvider($stateProvider, $urlRouterProvider, $urlMatcherFactory, uirextras_coreProvider) {
-    var core = uirextras_coreProvider;
+    var core = uirextras_coreProvider.$get();
     var internalStates = core.internalStates;
     var stateFactories = {}, futureStates = {};
     var lazyloadInProgress = false, resolveFunctions = [], initPromise, initDone = false;

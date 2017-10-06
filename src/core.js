@@ -1,18 +1,18 @@
 var mod_core = angular.module("ct.ui.router.extras.core", [ "ui.router" ]);
 
-var internalStates = {}, stateRegisteredCallbacks = [];
-mod_core.config([ '$stateProvider', '$injector', function ($stateProvider, $injector) {
+mod_core.config([ '$stateProvider', '$injector', 'uirextras_coreProvider', function ($stateProvider, $injector, uirextras_coreProvider) {
   // Decorate any state attribute in order to get access to the internal state representation.
   $stateProvider.decorator('parent', function (state, parentFn) {
     // Capture each internal UI-Router state representations as opposed to the user-defined state object.
     // The internal state is, e.g., the state returned by $state.$current as opposed to $state.current
-    internalStates[state.self.name] = state;
+    var core = uirextras_coreProvider.$get();
+    core.internalStates[state.self.name] = state;
     // Add an accessor for the internal state from the user defined state
     state.self.$$state = function () {
-      return internalStates[state.self.name];
+      return core.internalStates[state.self.name];
     };
 
-    angular.forEach(stateRegisteredCallbacks, function(callback) { callback(state); });
+    angular.forEach(core.stateRegisteredCallbacks, function(callback) { callback(state); });
     return parentFn(state);
   });
 }]);
@@ -140,11 +140,31 @@ function inherit(parent, extra) {
   return extend(new (extend(function () { }, {prototype: parent}))(), extra);
 }
 
-function onStateRegistered(callback) { stateRegisteredCallbacks.push(callback); }
 
 mod_core.provider("uirextras_core", function() {
-  var core = {
+  var stateRegisteredCallbacks = [];
+  function onStateRegistered(callback) { stateRegisteredCallbacks.push(callback); }
+    var _StickyState; // internal reference to $stickyStateProvider
+    var internalStates = {}; // Map { statename -> InternalStateObj } holds internal representation of all states
+    var root; // Root state, internal representation
+    var pendingTransitions = []; // One transition may supersede another.  This holds references to all pending transitions
+    var pendingRestore; // The restore function from the superseded transition
+    var inactivePseudoState; // This pseudo state holds all the inactive states' locals (resolved state data, such as views etc)
+    var reactivatingLocals = { }; // This is a prent locals to the inactivePseudoState locals, used to hold locals for states being reactivated
+    var versionHeuristics = { // Heuristics used to guess the current UI-Router Version
+	hasParamSet: false
+    };
+    var core = {
+	nr: Math.round(Math.random()*1000),
     internalStates: internalStates,
+    stateRegisteredCallbacks: stateRegisteredCallbacks,
+    _StickyState: _StickyState,
+    root: root,
+    pendingTransitions: pendingTransitions,
+    pendingRestore: pendingRestore,
+    inactivePseudoState: inactivePseudoState,
+    reactivatingLocals: reactivatingLocals,
+    versionHeuristics: versionHeuristics,
     onStateRegistered: onStateRegistered,
     forEach: forEach,
     extend: extend,
