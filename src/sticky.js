@@ -466,14 +466,16 @@ angular.module("ct.ui.router.extras.sticky").config(
             return state;
           }, function transitionFailed(err) {
             restore();
-            if (DEBUG &&
-              err.message !== "transition prevented" &&
+            if (err.message !== "transition prevented" &&
               err.message !== "transition aborted" &&
               err.message !== "transition superseded") {
-              $log.debug("transition failed", err);
-              $log.debug(err.stack);
+              if (DEBUG) {
+                  $log.debug("transition failed", err);
+                  $log.debug(err.stack);
+              } else {
+                  return $q.reject(err);
+              }
             }
-            return $q.reject(err);
           });
         };
         return $state;
